@@ -9,6 +9,7 @@ from .ui.login import LoginWindow
 from .ui.modern_main_window import ModernMainWindow
 from .ui.user_management import UserManagementDialog
 from .ui.branding import ICON_PATH
+from .ui.global_ui import apply_global_ui
 from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
 from .ui.global_ui import apply_global_ui
@@ -76,6 +77,7 @@ def main():
             window.close()
             login_window = LoginWindow(success)
             holder["login"] = login_window
+            apply_global_ui(app, login_window)
             login_window.show()
 
         window = ModernMainWindow(user, logout_callback=logout_callback)
@@ -103,6 +105,7 @@ def main():
 
     login = LoginWindow(success)
     holder["login"] = login
+    apply_global_ui(app, login)
     login.show()
     sys.exit(app.exec())
 
