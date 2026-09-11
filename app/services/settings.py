@@ -35,9 +35,13 @@ def set_setting(session, key, value):
     else:
         row = Setting(key=key, value=str(value))
         session.add(row)
-    session.commit()
-    session.refresh(row)
-    return row
+    try:
+        session.commit()
+        session.refresh(row)
+        return row
+    except Exception:
+        session.rollback()
+        raise
 
 
 def save_settings(session, values):
