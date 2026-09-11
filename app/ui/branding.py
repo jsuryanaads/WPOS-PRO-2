@@ -9,3 +9,4 @@ def resource_path(relative: str) -> Path:
 
 
 LOGO_PATH = resource_path("assets/branding/wpos_logo.png")
+ICON_PATH = resource_path("assets/branding/wpos_icon.ico")
