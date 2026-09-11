@@ -28,10 +28,10 @@ class ModernMainWindow(MainWindow):
     """
 
     NAVIGATION = [
-        ("OPERASIONAL", [("▣", "Dashboard", 0), ("＋", "Kasir", 1), ("□", "Produk", 2), ("▤", "Stok & Mutasi", 3), ("↥", "Pembelian", 4)]),
-        ("KEUANGAN", [("Rp", "Kas", 5), ("◫", "Laporan", 6)]),
-        ("DATA MASTER", [("◎", "Pelanggan", 13), ("◉", "Supplier", 12), ("◇", "Kategori", 10), ("◇", "Satuan", 11)]),
-        ("SISTEM", [("⚙", "Pengaturan Toko", 7), ("▣", "Printer", 8), ("↻", "Backup / Restore", 9)]),
+        ("OPERASIONAL", [("", "Dashboard", 0), ("", "Kasir", 1), ("", "Produk", 2), ("", "Stok & Mutasi", 3), ("", "Pembelian", 4)]),
+        ("KEUANGAN", [("", "Kas", 5), ("", "Laporan", 6)]),
+        ("DATA MASTER", [("", "Pelanggan", 13), ("", "Supplier", 12), ("", "Kategori", 10), ("", "Satuan", 11)]),
+        ("SISTEM", [("", "Pengaturan Toko", 7), ("", "Printer", 8), ("", "Backup / Restore", 9)]),
     ]
 
     PAGE_TITLES = [
@@ -48,9 +48,6 @@ class ModernMainWindow(MainWindow):
     def __init__(self, user, logout_callback=None):
         super().__init__(user, logout_callback=logout_callback)
         self._build_modern_shell()
-        # WPOS PRO V2 is designed as a desktop POS workspace: open the
-        # application maximized so every page receives the full available
-        # client area while retaining the normal Windows title bar controls.
         self.showMaximized()
 
     def _build_modern_shell(self):
@@ -111,8 +108,8 @@ class ModernMainWindow(MainWindow):
             header.setFlags(Qt.NoItemFlags)
             header.setData(Qt.UserRole, -1)
             self.nav_list.addItem(header)
-            for icon, title, index in entries:
-                item = QListWidgetItem(f"  {icon}   {title}")
+            for _icon, title, index in entries:
+                item = QListWidgetItem(title)
                 item.setData(Qt.UserRole, index)
                 item.setToolTip(title)
                 self.nav_list.addItem(item)
@@ -214,16 +211,13 @@ class ModernMainWindow(MainWindow):
         count = self.modern_stack.count()
         if not isinstance(page_index, int) or page_index < 0 or page_index >= count:
             return
-
         page = self.modern_stack.widget(page_index)
         if page is None:
             return
-
         self.modern_stack.setCurrentIndex(page_index)
         title = page.property("modern_title") or self._title_for(page_index)
         self.modern_context.setText(title)
         self.modern_hint.setText(self._hint_for(page_index))
-
         for row in range(self.nav_list.count()):
             item = self.nav_list.item(row)
             if item.data(Qt.UserRole) == page_index:
@@ -274,13 +268,11 @@ class ModernMainWindow(MainWindow):
         dashboard = self.modern_stack.widget(0)
         if dashboard is None or dashboard.layout() is None:
             return
-
         layout = dashboard.layout()
         if layout.count() and layout.itemAt(0).widget():
             header = layout.itemAt(0).widget()
             if header.objectName() == "":
                 header.hide()
-
         cards = dashboard.findChildren(QFrame, "card")
         icons = {
             "TRANSAKSI": "↗",
@@ -312,7 +304,6 @@ class ModernMainWindow(MainWindow):
                 card_layout.insertLayout(0, row)
                 card_layout.addWidget(value)
             self._shadow(card, blur=16, y=3)
-
         for button in dashboard.findChildren(QPushButton):
             text = button.text().strip()
             if text == "+ Transaksi Baru":
