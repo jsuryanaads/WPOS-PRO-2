@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
@@ -18,6 +16,7 @@ from ..config import APP_NAME, APP_VERSION
 from ..database import SessionLocal
 from ..services.auth import login
 from .branding import LOGO_PATH
+from .global_ui import add_application_footer
 
 
 class LoginWindow(QDialog):
@@ -111,25 +110,7 @@ class LoginWindow(QDialog):
         root.addWidget(card)
         root.addStretch(1)
 
-        # Keep the login footer identical to the modern application footer.
-        footer = QFrame()
-        footer.setObjectName("applicationFooter")
-        footer.setFixedHeight(30)
-        footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-
-        footer_layout = QHBoxLayout(footer)
-        footer_layout.setContentsMargins(8, 0, 8, 0)
-        footer_layout.setSpacing(0)
-
-        footer_label = QLabel(
-            f"{APP_NAME} | v{APP_VERSION} | {datetime.now().year} | by Jsuryana"
-        )
-        footer_label.setObjectName("applicationFooterLabel")
-        footer_label.setAlignment(Qt.AlignCenter)
-        footer_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        footer_layout.addWidget(footer_label)
-        root.addWidget(footer, 0)
-
+        add_application_footer(self)
         self.username.setFocus()
 
     def toggle_password(self, visible):

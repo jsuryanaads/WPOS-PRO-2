@@ -1,7 +1,5 @@
 import sys
-from datetime import datetime
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QSizePolicy
+from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
 from .config import APP_NAME, APP_VERSION
 from .database import init_db
@@ -9,40 +7,10 @@ from .ui.login import LoginWindow
 from .ui.modern_main_window import ModernMainWindow
 from .ui.user_management import UserManagementDialog
 from .ui.branding import ICON_PATH
-from .ui.global_ui import apply_global_ui
+from .ui.global_ui import add_application_footer, apply_global_ui
 from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
-
-FOOTER_OWNER = "Jsuryana"
-
-
-def add_application_footer(window):
-    """Add one compact, fixed-height application footer to the modern shell."""
-    content = window.findChild(QFrame, "modernContent")
-    if content is None or content.layout() is None:
-        return
-    if window.findChild(QFrame, "applicationFooter") is not None:
-        return
-
-    footer = QFrame()
-    footer.setObjectName("applicationFooter")
-    footer.setFixedHeight(30)
-    footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-
-    layout = QHBoxLayout(footer)
-    layout.setContentsMargins(8, 0, 8, 0)
-    layout.setSpacing(0)
-
-    label = QLabel(
-        f"{APP_NAME} | v{APP_VERSION} | {datetime.now().year} | by {FOOTER_OWNER}"
-    )
-    label.setObjectName("applicationFooterLabel")
-    label.setAlignment(Qt.AlignCenter)
-    label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-    layout.addWidget(label)
-
-    content.layout().addWidget(footer, 0)
 
 
 def main():
