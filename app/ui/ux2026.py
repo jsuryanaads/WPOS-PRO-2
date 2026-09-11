@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -11,23 +11,16 @@ from PySide6.QtWidgets import (
 )
 
 
-def _compact_numeric_display(spin):
-    """Keep numeric values unchanged while removing misleading .000 display."""
-    def compact():
-        value = spin.value()
-        decimals = spin.decimals()
-        text = f"{value:.{decimals}f}".rstrip("0").rstrip(".")
-        if not text:
-            text = "0"
-        text = text.replace(".", spin.locale().decimalPoint())
-        spin.lineEdit().setText(text)
-
-    def schedule_compact(_value=None):
-        QTimer.singleShot(0, compact)
-
-    spin.valueChanged.connect(schedule_compact)
-    spin.editingFinished.connect(compact)
-    QTimer.singleShot(0, compact)
+def _normalize_numeric_inputs(window):
+    """Make application numeric inputs integer-safe and prevent locale ambiguity."""
+    for spin in window.findChildren(QDoubleSpinBox):
+        # WPOS PRO uses whole units and whole-rupiah amounts in its desktop
+        # input workflow. Fractional display such as 1.000 is intentionally
+        # removed because Indonesian users can read it as one thousand.
+        spin.setDecimals(0)
+        spin.setSingleStep(1)
+        if spin.minimum() > 0:
+            spin.setMinimum(1)
 
 
 def apply_ux2026(window):
@@ -60,12 +53,7 @@ def apply_ux2026(window):
             # Clear buttons are controlled exclusively by global_ui.py.
             # Never enable them here.
 
-    # QDoubleSpinBox keeps up to three decimal places for genuine fractional
-    # quantities, but the visible value is compacted: 1 -> 1, 1.2 -> 1.2,
-    # 1000 -> 1000. This is presentation-only; the stored numeric value is
-    # never multiplied or converted to thousands.
-    for spin in window.findChildren(QDoubleSpinBox):
-        _compact_numeric_display(spin)
+    _normalize_numeric_inputs(window)
 
     shortcut = QShortcut(QKeySequence("Ctrl+K"), window)
     shortcut.setContext(Qt.WindowShortcut)
