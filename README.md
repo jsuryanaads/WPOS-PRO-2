@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.0.2**
+- Versi aplikasi: **2.0.3**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -99,9 +99,17 @@ Aturan versi resmi WPOS PRO 2:
 - **Perubahan besar / fitur besar:** naik **MINOR**. Contoh `2.0.1` → `2.1.0`.
 - **Perbaikan / perubahan kecil:** naik **PATCH**. Contoh `2.0.1` → `2.0.2`.
 - **Setiap perubahan source, konfigurasi, build, CI, atau dokumentasi** wajib dicatat di README dan menggunakan kenaikan versi yang sesuai dengan jenis perubahannya.
-- Versi aktif saat ini: **2.0.2**.
+- Versi aktif saat ini: **2.0.3**.
 
 ## Changelog
+### 2.0.3
+- Memperbaiki geometri `QSpinBox` dan `QDoubleSpinBox` agar field tidak terlalu sempit.
+- Menetapkan lebar minimum field numeric dan ruang kanan yang cukup untuk kontrol naik/turun.
+- Menormalkan ukuran tombol increment/decrement agar tidak terlihat menumpuk atau terpotong.
+- Menjaga tinggi kontrol numeric tetap konsisten dengan field input lainnya.
+- Menyinkronkan versi installer Inno Setup dari 2.0.0 menjadi **2.0.3**.
+- Perubahan ini hanya menyentuh layout/UX dan metadata build; tidak mengubah business logic atau database.
+
 ### 2.0.2
 - Perbaikan layout global agar lebih konsisten dan responsif.
 - Membatasi ukuran form/card agar tidak melebar berlebihan pada layar besar.
@@ -124,4 +132,4 @@ Aturan versi resmi WPOS PRO 2:
 - Penambahan regression test untuk branding/build asset dan navigasi.
 
 ## Status
-**WPOS PRO 2 — v2.0.2.** Kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.
+**WPOS PRO 2 — v2.0.3.** Kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.
