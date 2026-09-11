@@ -34,14 +34,22 @@ def cash_summary(session, start=None, end=None):
     return {"cash_in": cash_in, "cash_out": cash_out, "balance": cash_in - cash_out}
 
 
+def _quantity_value(value):
+    """Return whole quantities as int so Decimal scale 3 is never shown as .000."""
+    value = Decimal(str(value))
+    if value == value.to_integral_value():
+        return int(value)
+    return value
+
+
 def stock_summary(session):
     rows = session.query(Product).filter(Product.active == True).order_by(Product.name).all()
     return [{
         "id": p.id,
         "barcode": p.barcode,
         "name": p.name,
-        "stock": Decimal(str(p.stock)),
-        "minimum_stock": Decimal(str(p.minimum_stock)),
+        "stock": _quantity_value(p.stock),
+        "minimum_stock": _quantity_value(p.minimum_stock),
         "status": "HABIS" if p.stock <= 0 else ("MENIPIS" if p.stock <= p.minimum_stock else "AMAN"),
     } for p in rows]
 
