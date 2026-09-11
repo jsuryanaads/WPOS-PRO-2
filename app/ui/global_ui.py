@@ -77,12 +77,52 @@ def _mark_pages(root):
         page.setProperty("wposPageType", _PAGE_TYPES[index] if index < len(_PAGE_TYPES) else "master")
 
 
-def _normalize_layouts(root):
-    """Apply one geometry contract to every page layout.
+def _hide_duplicate_page_headers(root):
+    """The modern shell owns the page title; legacy page headers are hidden.
 
-    In particular, form rows receive enough vertical room for the global
-    34px control height, preventing QFormLayout rows from overlapping.
+    Pages built by MainWindow still contain their original page_header() for
+    compatibility. Keeping it visible would produce two titles stacked on
+    top of each other. This pass only hides a header that contains both the
+    canonical pageTitle and pageSubtitle markers; business widgets remain
+    untouched.
     """
+    stack = getattr(root, "modern_stack", None)
+    if stack is None:
+        return
+    for index in range(stack.count()):
+        page = stack.widget(index)
+        if page is None or page.objectName() == "premiumCashierPage":
+            continue
+        layout = page.layout()
+        if layout is None:
+            continue
+        for position in range(layout.count()):
+            item = layout.itemAt(position)
+            widget = item.widget() if item else None
+            if widget is None:
+                continue
+            if widget.findChild(QLabel, "pageTitle") and widget.findChild(QLabel, "pageSubtitle"):
+                widget.hide()
+                break
+
+
+def _normalize_layouts(root):
+    """Apply one geometry contract to every page layout."""
+    _hide_duplicate_page_headers(root)
+
+    stack = getattr(root, "modern_stack", None)
+    if stack is not None:
+        for index in range(stack.count()):
+            page = stack.widget(index)
+            if page is None or page.layout() is None:
+                continue
+            layout = page.layout()
+            # Preserve page-specific margins, but enforce a predictable
+            # vertical rhythm between top-level content blocks.
+            if layout.spacing() < 10:
+                layout.setSpacing(10)
+            page.setProperty("wposLayoutReady", True)
+
     for form in root.findChildren(QFormLayout):
         form.setRowWrapPolicy(QFormLayout.DontWrapRows)
         form.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
