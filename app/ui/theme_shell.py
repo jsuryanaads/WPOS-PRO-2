@@ -31,12 +31,11 @@ QLabel#modernRole {{ color:{p['muted']}; font-size:10px; }}
 QPushButton#modernLogout {{ background:{p['shell_hover']}; color:{p['sidebar_inverse']}; border:1px solid {p['shell_hover']}; border-radius:8px; padding:7px; margin-top:5px; }}
 QPushButton#modernLogout:hover {{ background:{p['accent']}; color:{p['selected_text']}; }}
 QFrame#modernContent {{ background:{p['content']}; color:{p['text']}; }}
-QFrame#modernTopbar {{ background:{p['surface']}; border:1px solid {p['border']}; border-radius:12px; }}
+QFrame#modernTopbar {{ background:{p['surface']}; border:1px solid {p['border']}; border-radius:12px; min-height:58px; max-height:64px; }}
 QLabel#modernContext {{ color:{p['text']}; font-size:17px; font-weight:900; }}
 QLabel#modernHint {{ color:{p['muted']}; font-size:10px; }}
-QLabel#modernStatusOffline, QLabel#modernStatusLocal {{ background:{p['surface_alt']}; border:1px solid {p['border']}; border-radius:999px; padding:5px 9px; font-size:9px; font-weight:900; }}
-QLabel#modernStatusOffline {{ color:{p['danger']}; }}
-QLabel#modernStatusLocal {{ color:{p['success']}; }}
+QLabel#modernWelcome {{ color:{p['text']}; font-size:11px; font-weight:700; }}
+QLabel#modernDate {{ color:{p['muted']}; font-size:10px; font-weight:700; padding-left:12px; }}
 QStackedWidget#modernStack {{ background:transparent; border:0; }}
 QWidget#modernStack > QWidget {{ background:{p['content']}; color:{p['text']}; }}
 QLabel#pageTitle {{ color:{p['text']}; }}
