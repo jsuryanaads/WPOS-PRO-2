@@ -57,7 +57,6 @@ def main():
 
     def refresh_ui(window):
         apply_ui_polish(window)
-        window._apply_modern_style()
         apply_ux2026(window)
         apply_global_ui(app, window)
 
@@ -67,9 +66,6 @@ def main():
         refresh_ui(window)
         for action in menu.actions():
             action.setChecked(action.text() == THEMES[key]["label"])
-        window.statusBar().showMessage(
-            f"WPOS PRO {APP_VERSION}  |  {window.user.username}  |  {window.user.role}  |  Tema: {THEMES[key]['label']}"
-        )
 
     def success(user):
         def logout_callback(window):

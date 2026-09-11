@@ -35,10 +35,10 @@ class MainWindow(QMainWindow):
         self.logout_callback = logout_callback
         self.cart = []
         self.selected_product_id = None
-        self.setWindowTitle("WPOS PRO V1.0")
+        self.setWindowTitle("WPOS PRO V2")
         self.resize(1280, 800)
         self.setMinimumSize(1050, 680)
-        self.setStyleSheet(self._stylesheet())
+        # Presentation is centralized in the active theme + global UI layers.
 
         account_toolbar = QToolBar("Akun")
         account_toolbar.setMovable(False)
@@ -87,19 +87,8 @@ class MainWindow(QMainWindow):
             self.close()
 
     def _stylesheet(self):
-        return """
-        QMainWindow { background: #f4f6f8; } QTabWidget::pane { border: 0; background: #f4f6f8; }
-        QTabBar::tab { padding: 9px 15px; margin-right: 2px; background: #e8ebef; border: 0; }
-        QTabBar::tab:selected { background: #ffffff; font-weight: 700; }
-        QLabel#pageTitle { font-size: 24px; font-weight: 800; color: #17202a; } QLabel#pageSubtitle { color: #667085; font-size: 13px; }
-        QFrame#card { background: white; border: 1px solid #e2e6ea; border-radius: 10px; } QLabel#cardTitle { color: #667085; font-size: 12px; font-weight: 600; }
-        QLabel#cardValue { color: #111827; font-size: 22px; font-weight: 800; } QGroupBox { background: white; border: 1px solid #e2e6ea; border-radius: 10px; margin-top: 10px; padding-top: 12px; font-weight: 700; }
-        QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; } QLineEdit, QDoubleSpinBox, QComboBox, QTextEdit { background: white; border: 1px solid #cfd5dc; border-radius: 6px; padding: 6px; }
-        QPushButton { background: #1f2937; color: white; border: 0; border-radius: 6px; padding: 8px 14px; font-weight: 700; } QPushButton:hover { background: #374151; }
-        QPushButton#primary { background: #111827; font-size: 14px; padding: 10px 18px; } QPushButton#danger { background: #b42318; }
-        QLabel#total { background: #111827; color: white; border-radius: 8px; padding: 10px 14px; font-size: 18px; font-weight: 800; }
-        QTableWidget { background: white; border: 1px solid #e2e6ea; border-radius: 8px; gridline-color: #eef0f2; } QHeaderView::section { background: #f3f4f6; padding: 7px; border: 0; font-weight: 700; }
-        """
+        """Legacy compatibility hook; no widget-local colors are installed."""
+        return ""
 
     def page_header(self, title, subtitle):
         box = QWidget(); layout = QVBoxLayout(box); layout.setContentsMargins(0, 0, 0, 8)
