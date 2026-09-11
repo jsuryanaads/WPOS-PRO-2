@@ -1,14 +1,14 @@
 from .auth import hash_password
 from ..models import User
 
-ROLES = ("ADMIN", "PENGELOLA", "TEKNISI")
+ROLES = ("ADMIN", "KASIR")
 
 
 def list_users(session):
     return session.query(User).order_by(User.username).all()
 
 
-def create_user(session, username, password, role="TEKNISI"):
+def create_user(session, username, password, role="KASIR"):
     username = str(username).strip()
     role = str(role).strip().upper()
     if not username or not password:
