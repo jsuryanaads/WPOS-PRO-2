@@ -63,6 +63,9 @@ QFrame#masterHeader {{ background:transparent; border:0; }}
 QFrame#masterFormCard, QFrame#masterTableCard {{ background:{p['surface']}; color:{p['text']}; border:1px solid {p['border']}; border-radius:12px; }}
 QLabel#sectionTitle {{ color:{p['text']}; font-size:13px; font-weight:800; }}
 QFrame#premiumCashierPage, QFrame#premiumScanCard, QFrame#premiumCartCard, QFrame#premiumPayCard, QFrame#premiumChangeBox, QFrame#premiumTotalBox {{ background:{p['surface']}; color:{p['text']}; border:1px solid {p['border']}; border-radius:12px; }}
+QFrame#premiumCartCard {{ min-width:0px; }}
+QFrame#premiumPayCard {{ min-width:290px; max-width:330px; }}
+QTableWidget#premiumCartTable {{ min-width:0px; }}
 QLabel#premiumSectionTitle {{ color:{p['text']}; font-weight:900; }}
 QLabel#premiumMuted, QLabel#premiumFieldCaption, QLabel#premiumPayLabel, QLabel#premiumTotalCaption, QLabel#premiumChangeCaption {{ color:{p['muted']}; }}
 QLineEdit#premiumBarcode, QDoubleSpinBox#premiumQty, QDoubleSpinBox#premiumMoneyInput, QComboBox#premiumMethod {{ background:{p['input']}; color:{p['text']}; border:1px solid {p['input_border']}; }}
