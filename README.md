@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.4**
+- Versi aplikasi: **2.3.5**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -133,6 +133,13 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.5
+- Memperbaiki deteksi container `QGroupBox` pada lapisan hybrid form sehingga popup Produk dan Pembelian benar-benar terpasang pada form produksi.
+- Menjaga mode popup/inline tetap hanya sebagai perubahan presentasi UI.
+- Menambahkan regression coverage yang sesuai dengan indeks 14 halaman produksi.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.5**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.3.4
 - Menerapkan **hybrid form UX** pada 14 halaman sesuai karakter input.
 - Produk dan Pembelian menggunakan popup untuk form kompleks.
@@ -196,4 +203,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.4.** Hybrid form UX selesai; menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
+**WPOS PRO 2 — v2.3.5.** Hybrid form UX dan perbaikan container detection selesai; menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
