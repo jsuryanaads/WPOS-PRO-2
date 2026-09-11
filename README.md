@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.0.7**
+- Versi aplikasi: **2.1.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -94,6 +94,16 @@ Hasil installer:
 ## CI
 GitHub Actions menjalankan compile check dan test suite pada push/PR. Windows build memverifikasi source, test, EXE, associated icon, serta asset branding.
 
+## Tema aplikasi
+WPOS PRO 2 menyediakan empat tema aktif:
+- **Modern Blue** — tampilan biru modern dan netral.
+- **Purple Premium** — tampilan ungu premium dan elegan.
+- **Emerald** — tampilan hijau emerald yang profesional dan bersih.
+- **Dark Mode** — tampilan gelap untuk penggunaan dengan kontras rendah.
+
+Tema **Kemerdekaan** dan **Keagamaan** telah dihapus dari daftar aktif.
+Jika database lokal sebelumnya menyimpan salah satu tema lama, aplikasi otomatis kembali ke **Modern Blue** agar tidak terjadi tema yang tidak tersedia.
+
 ## Footer aplikasi
 Footer modern shell dan login menggunakan **komponen footer bersama** dengan struktur yang sama:
 **Nama aplikasi | Versi aplikasi | Tahun otomatis | by Jsuryana**
@@ -113,9 +123,20 @@ Aturan versi resmi WPOS PRO 2:
 - **Perubahan besar / fitur besar:** naik **MINOR**. Contoh `2.0.1` → `2.1.0`.
 - **Perbaikan / perubahan kecil:** naik **PATCH**. Contoh `2.0.1` → `2.0.2`.
 - **Setiap perubahan source, konfigurasi, build, CI, atau dokumentasi** wajib dicatat di README dan menggunakan kenaikan versi yang sesuai dengan jenis perubahannya.
-- Versi aktif saat ini: **2.0.7**.
+- Versi aktif saat ini: **2.1.0**.
 
 ## Changelog
+### 2.1.0
+- Menghapus tema **Kemerdekaan** dari daftar tema aktif.
+- Menghapus tema **Keagamaan** dari daftar tema aktif.
+- Menambahkan tema **Purple Premium**.
+- Menambahkan tema **Emerald**.
+- Menjaga **Modern Blue** dan **Dark Mode**.
+- Menambahkan fallback otomatis ke Modern Blue jika database lokal masih menyimpan key tema lama yang sudah dihapus.
+- Menambahkan style footer yang konsisten pada seluruh tema baru.
+- Menyinkronkan versi aplikasi dan metadata installer ke **2.1.0**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.0.7
 - Menjadikan footer Login dan modern shell menggunakan helper `add_application_footer()` yang sama.
 - Menyatukan implementasi geometry: tinggi **30 px**, size policy fixed secara vertikal, margin horizontal **8 px**, spacing **0**, teks terpusat, dan object/style yang sama.
@@ -176,4 +197,4 @@ Aturan versi resmi WPOS PRO 2:
 - Penambahan regression test untuk branding/build asset dan navigasi.
 
 ## Status
-**WPOS PRO 2 — v2.0.7.** Kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.
+**WPOS PRO 2 — v2.1.0.** Kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.
