@@ -104,14 +104,18 @@ class ModernMainWindow(MainWindow):
         self.nav_list.setFocusPolicy(Qt.NoFocus)
         self._nav_indexes = []
         for section, entries in self.NAVIGATION:
-            header = QListWidgetItem(section)
+            header = QListWidgetItem()
             header.setFlags(Qt.NoItemFlags)
             header.setData(Qt.UserRole, -1)
             header.setData(Qt.UserRole + 1, "section")
             header.setData(Qt.UserRole + 2, section)
-            header.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            header.setToolTip(section)
+            header_widget = QLabel(section)
+            header_widget.setObjectName("modernNavSection")
+            header_widget.setProperty("section", section)
+            header_widget.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            header_widget.setToolTip(section)
             self.nav_list.addItem(header)
+            self.nav_list.setItemWidget(header, header_widget)
             for _icon, title, index in entries:
                 item = QListWidgetItem(title)
                 item.setData(Qt.UserRole, index)
