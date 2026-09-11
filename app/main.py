@@ -10,6 +10,7 @@ from .ui.branding import ICON_PATH
 from .ui.global_ui import add_application_footer, apply_global_ui
 from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
+from .ui.dashboard_welcome import apply_dashboard_welcome
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 
 
@@ -26,10 +27,12 @@ def main():
         apply_ui_polish(window)
         apply_ux2026(window)
         apply_global_ui(app, window)
+        apply_dashboard_welcome(window)
 
     def change_theme(key, menu, window):
         set_theme(key)
         apply_theme(app, key)
+        window._wpos_active_theme = key
         refresh_ui(window)
         for action in menu.actions():
             action.setChecked(action.text() == THEMES[key]["label"])
@@ -45,10 +48,12 @@ def main():
 
         window = ModernMainWindow(user, logout_callback=logout_callback)
         window.setStyleSheet("")
+        window._wpos_active_theme = current_theme()
         apply_theme(app, current_theme())
         refresh_ui(window)
         add_application_footer(window)
         apply_global_ui(app, window)
+        apply_dashboard_welcome(window)
         holder["main"] = window
 
         theme_menu = window.menuBar().addMenu("Tema")
