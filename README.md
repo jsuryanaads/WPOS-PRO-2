@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.3**
+- Versi aplikasi: **2.3.4**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -99,6 +99,21 @@ Pada **v2.3.3**, branding strip lama pada Dashboard diganti menjadi header sambu
 
 Header menggunakan surface dan teks yang mengikuti tema aktif sehingga tidak lagi tampil sebagai strip branding biru pada Dashboard.
 
+## Form input — Hybrid UX
+Pada **v2.3.4**, form input menggunakan pola hybrid agar halaman data tidak dipenuhi form panjang:
+- **Produk:** form lengkap dibuka sebagai popup; tabel produk tetap menjadi fokus halaman.
+- **Pembelian:** form lengkap dibuka sebagai popup; ruang halaman tetap lebih lega.
+- **Supplier:** form lengkap dibuka sebagai popup.
+- **Pelanggan:** form lengkap dibuka sebagai popup.
+- **Kategori:** form satu field tetap inline/horizontal.
+- **Satuan:** form satu field tetap inline/horizontal.
+- **Stok & Mutasi:** tetap inline/horizontal untuk input cepat.
+- **Kas:** tetap inline/horizontal untuk transaksi cepat.
+- **Pengaturan Toko** dan **Printer:** tetap menggunakan form horizontal/compact.
+- **Backup / Restore:** tetap berupa action buttons, bukan popup form data.
+
+Lapisan `app/ui/form_layouts.py` hanya mengubah penyajian dan penempatan widget. Widget serta signal bisnis yang sudah ada dipertahankan; tidak ada perubahan business logic atau database schema.
+
 ## Footer aplikasi
 Struktur bersama:
 **Nama aplikasi | Versi aplikasi | Tahun otomatis | by Jsuryana**
@@ -118,6 +133,17 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.4
+- Menerapkan **hybrid form UX** pada 14 halaman sesuai karakter input.
+- Produk dan Pembelian menggunakan popup untuk form kompleks.
+- Supplier dan Pelanggan menggunakan popup untuk form multi-field.
+- Kategori dan Satuan menggunakan form inline/horizontal satu field.
+- Stok & Mutasi, Kas, Pengaturan Toko dan Printer mempertahankan pola input cepat/horizontal yang sesuai.
+- Menambahkan `app/ui/form_layouts.py` sebagai lapisan presentasi tanpa mengubah business logic.
+- Menambahkan regression test untuk mode popup dan inline.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.4**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.3.3
 - Mengganti branding strip Dashboard dengan **Selamat datang, Admin**.
 - Menampilkan **Senin, 12 September 2026** sebagai tanggal pada header sambutan sesuai permintaan desain.
@@ -170,4 +196,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.3.** Dashboard Welcome Header selesai; menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
+**WPOS PRO 2 — v2.3.4.** Hybrid form UX selesai; menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
