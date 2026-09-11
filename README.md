@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.11**
+- Versi aplikasi: **2.3.12**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -117,9 +117,12 @@ Halaman Kasir menggunakan workflow fokus transaksi:
 - Clear button pada `QLineEdit`, `QSpinBox` dan `QDoubleSpinBox` dinonaktifkan agar tombol **×** tidak muncul otomatis pada field input.
 - Perubahan ini hanya memperbaiki geometry/presentasi UI dan tidak mengubah business logic pembayaran, stok, transaksi atau database schema.
 
-## Sidebar navigation
-Navigasi sidebar menggunakan **teks saja tanpa ikon menu**.
-- Ikon dekoratif seperti `▣`, `＋`, `□`, `▤`, `Rp`, `◫`, `⚙` dan simbol lain tidak lagi dirender.
+## Sidebar dan UI icon policy
+Navigasi sidebar dan elemen UI modern menggunakan **teks saja** untuk menghindari simbol dekoratif yang tidak konsisten.
+- Sidebar menu tidak memakai ikon.
+- Ikon metric Dashboard dihapus.
+- Simbol dekoratif awal pada tombol/label seperti `+`, `↻`, `↥`, `▣`, `□`, `▤`, `◫`, `◇`, `⚙` dan `●` tidak dirender pada modern shell.
+- Logo WPOS pada area brand tetap dipertahankan sebagai identitas aplikasi, bukan ikon navigasi.
 - Index halaman dan mekanisme navigasi tetap sama.
 - Penghapusan ikon hanya perubahan presentasi UI; tidak mengubah fungsi halaman atau business logic.
 
@@ -157,6 +160,17 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.12
+- Menghapus ikon/simbol dekoratif yang masih tersisa pada elemen visual modern.
+- Dashboard metric tidak lagi membuat label ikon terpisah.
+- Status topbar menjadi teks `OFFLINE` tanpa simbol bullet dekoratif.
+- Prefix simbol dekoratif pada tombol dan label dibersihkan pada modern shell tanpa mengubah signal/callback tombol.
+- Sidebar tetap text-only dan index navigasi tetap sama.
+- Logo aplikasi tetap dipertahankan sebagai identitas brand.
+- Menambahkan dokumentasi kebijakan UI icon/text-only.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.12**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.3.11
 - Menghapus ikon dekoratif dari seluruh menu sidebar modern.
 - Sidebar sekarang hanya menampilkan nama section dan teks menu.
@@ -277,4 +291,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.11.** Sidebar text-only sudah masuk source. CI harus PASS sebelum build EXE/installer dianggap release final.
+**WPOS PRO 2 — v2.3.12.** UI modern diarahkan text-first; ikon navigasi dan simbol dekoratif dihilangkan, sementara logo brand dipertahankan. CI harus PASS sebelum build EXE/installer dianggap release final.
