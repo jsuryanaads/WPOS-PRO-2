@@ -1,13 +1,13 @@
-from decimal import Decimal, InvalidOperation
 from ..models import Product, StockMovement
+from .validation import decimal_value
 
 
 def adjust_stock(session, product_id, quantity, movement_type="ADJUSTMENT", reference=None):
     product = session.get(Product, product_id)
     try:
-        qty = Decimal(str(quantity))
-    except (InvalidOperation, ValueError):
-        raise ValueError("Jumlah stok tidak valid")
+        qty = decimal_value(quantity, "Jumlah stok")
+    except ValueError:
+        raise
     if not product or qty == 0:
         raise ValueError("Produk/jumlah tidak valid")
     if product.stock + qty < 0:
