@@ -155,6 +155,15 @@ def _normalize_layouts(root):
 
 
 def _normalize_controls(root):
+    # Explicitly disable the native clear button on every QLineEdit. This is
+    # required even when Qt's default is false because platform styles or a
+    # previous widget state can otherwise expose the trailing × control.
+    for widget in root.findChildren(QLineEdit):
+        widget.setClearButtonEnabled(False)
+        widget.setProperty("wposClearButtonDisabled", True)
+        widget.setFocusPolicy(Qt.StrongFocus)
+        widget.setMinimumHeight(max(widget.minimumHeight(), 32))
+
     for table in root.findChildren(QTableWidget):
         table.setAlternatingRowColors(True)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -175,7 +184,7 @@ def _normalize_controls(root):
         if table.columnCount() > 0:
             header.setSectionResizeMode(table.columnCount() - 1, QHeaderView.Stretch)
 
-    for widget_type in (QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit):
+    for widget_type in (QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit):
         for widget in root.findChildren(widget_type):
             widget.setFocusPolicy(Qt.StrongFocus)
             widget.setMinimumHeight(max(widget.minimumHeight(), 32))
