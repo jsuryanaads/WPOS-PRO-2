@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.2.0**
+- Versi aplikasi: **2.3.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -94,13 +94,14 @@ Hasil installer:
 GitHub Actions menjalankan compile check dan test suite pada push/PR. Windows build memverifikasi source, test, EXE, associated icon, serta asset branding.
 
 ## Tema aplikasi
-Empat tema aktif:
-- **Modern Blue**
-- **Purple Premium**
-- **Emerald**
-- **Dark Mode**
+Mulai **v2.3.0**, aplikasi menggunakan **satu tema resmi: Dark Mode**.
 
-Tema **Kemerdekaan** dan **Keagamaan** sudah dihapus dari shell maupun daftar tema aktif. Key tema lama dari database otomatis fallback ke Modern Blue melalui `themes.py`.
+Tema berikut dihapus dari daftar tema dan shell:
+- Modern Blue
+- Purple Premium
+- Emerald
+
+Key tema lama yang tersimpan di database otomatis dinormalisasi ke **DARK**. Menu **Tema** tetap tersedia tetapi hanya menampilkan **Dark Mode**.
 
 ## Footer aplikasi
 Struktur bersama:
@@ -153,11 +154,22 @@ Perbaikan global yang diterapkan ke seluruh 14 halaman:
 
 ## Versioning
 Aturan versi resmi:
-- **Perubahan besar / fitur besar:** naik **MINOR**, contoh `2.1.1` → `2.2.0`.
-- **Perbaikan / perubahan kecil:** naik **PATCH**, contoh `2.1.1` → `2.1.2`.
+- **Perubahan besar / fitur besar:** naik **MINOR**, contoh `2.2.0` → `2.3.0`.
+- **Perbaikan / perubahan kecil:** naik **PATCH**, contoh `2.2.0` → `2.2.1`.
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.0
+- Menetapkan **Dark Mode** sebagai satu-satunya tema resmi WPOS PRO 2.
+- Menghapus **Modern Blue**, **Purple Premium**, dan **Emerald** dari registry tema.
+- Menghapus palette shell Modern Blue, Purple Premium, dan Emerald dari `theme_shell.py`.
+- Mengubah fallback tema database dari Modern Blue menjadi **DARK**.
+- Key tema lama yang tersimpan otomatis dinormalisasi ke DARK.
+- Menu Tema hanya menampilkan Dark Mode.
+- Menambahkan regression test yang memastikan registry tema hanya berisi DARK.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.0**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.2.0
 - Audit dan normalisasi layout **seluruh 14 halaman**.
 - Menetapkan kontrak geometry/UX global agar form, tabel, tombol dan scrollbar konsisten.
@@ -213,4 +225,4 @@ Aturan versi resmi:
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.2.0.** Menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
+**WPOS PRO 2 — v2.3.0.** Menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
