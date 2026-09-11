@@ -4,17 +4,21 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.2**
+- Versi aplikasi: **2.7.3**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
 
-## Perubahan terbaru 2.7.2
-- Memperbaiki crash saat login ketika `apply_hybrid_form_layouts()` memproses halaman Produk.
-- Penyebab: helper UI sebelumnya mencari `load_products` langsung pada widget halaman, padahal method tersebut dimiliki `MainWindow`.
-- Helper sekarang mencari owner `MainWindow` melalui `page.window()` sebelum memasang normalizer stok dan menjalankan aksi Produk.
-- Fitur Hapus Produk tetap tersedia dengan konfirmasi dan perlindungan histori.
-- Perubahan ini tidak mengubah schema database maupun aturan transaksi.
+## Perubahan terbaru 2.7.3
+- Memperbaiki **Kembalian** pada Kasir agar berubah langsung ketika nominal **Bayar** diketik/diubah.
+- Pembaruan menggunakan signal `valueChanged` pada field Bayar dan tidak mengubah aturan pembayaran pada service transaksi.
+- CASH tetap menghitung kembalian; pembayaran non-CASH tetap tidak menghasilkan kembalian.
+- Perubahan hanya pada workflow/UI pembayaran Kasir.
+
+## Perubahan 2.7.2
+- Memperbaiki crash login ketika `apply_hybrid_form_layouts()` memproses halaman Produk.
+- Helper Produk menggunakan owner `MainWindow` untuk mengakses `load_products` dan aksi Produk.
+- Fitur Hapus Produk tetap tersedia dengan perlindungan histori.
 
 ## Role
 Role resmi aplikasi:
@@ -52,6 +56,9 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 - Scanner barcode + Enter.
 - Qty − / +.
 - Hapus item dan batal transaksi dengan konfirmasi.
+- Diskon transaksi.
+- **Bayar dan Kembalian live:** nominal Bayar CASH langsung memperbarui Kembalian.
+- Pembayaran non-CASH otomatis mengikuti total transaksi dan kembalian tetap Rp 0.
 - Riwayat transaksi dan cetak ulang struk.
 - Parkir transaksi selama sesi aplikasi.
 - Shortcut F4, F8, F9, F10 dan Escape.
@@ -136,6 +143,12 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.3
+- Memperbaiki Kembalian Kasir agar live saat nominal Bayar berubah.
+- Menambahkan koneksi `valueChanged` pada field Bayar setelah Premium Cashier dibangun.
+- Menjaga aturan pembayaran CASH/non-CASH yang sudah ada.
+- Menyinkronkan config dan installer ke **2.7.3**.
+
 ### 2.7.2
 - Memperbaiki crash login/UI akibat `form_layouts.py` mengakses `load_products` pada widget halaman yang tidak memiliki method tersebut.
 - Menjadikan akses helper Produk menggunakan owner `MainWindow` secara aman.
