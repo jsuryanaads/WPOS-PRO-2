@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.6**
+- Versi aplikasi: **2.3.7**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -93,11 +93,12 @@ Tema yang sudah dihapus dan tidak tersedia:
 Key tema lama atau tidak valid yang tersimpan di database otomatis fallback ke **DARK**.
 
 ## Dashboard Welcome Header
-Header Dashboard sekarang dinamis:
+Header Dashboard sekarang memakai topbar modern sebagai satu-satunya area sambutan:
 - **Selamat datang, {username login}**.
 - Tanggal menggunakan tanggal komputer saat aplikasi berjalan.
 - Nama hari ditampilkan dalam Bahasa Indonesia.
-- Header tetap kompatibel dengan Dark Mode dan Light Mode.
+- Header lama/branding internal Dashboard disembunyikan agar tidak ada ruang kosong atau header ganda.
+- Kompatibel dengan Dark Mode dan Light Mode.
 
 ## Dashboard KPI
 - **TRANSAKSI HARI INI** hanya menghitung transaksi pada hari kalender lokal saat aplikasi dibuka.
@@ -140,6 +141,15 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.7
+- Memperbaiki tampilan Dashboard berdasarkan audit screenshot produksi.
+- Menghilangkan header/branding Dashboard internal yang sebelumnya menyisakan area kosong dan logo terpisah.
+- Memusatkan informasi sambutan pada topbar modern: **Selamat datang, {username}** dan tanggal aktual Bahasa Indonesia.
+- Mempertahankan KPI harian dan saldo kas berjalan dari v2.3.6.
+- Menambahkan regression coverage untuk penggunaan topbar modern dan penyembunyian legacy header.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.7**.
+- Tidak mengubah business logic transaksi atau database schema.
+
 ### 2.3.6
 - Memperbaiki Dashboard agar **TRANSAKSI** dan **OMZET** benar-benar menggunakan rentang hari kalender lokal saat ini.
 - Memisahkan semantik **SALDO KAS** sebagai saldo berjalan sehingga tidak ikut difilter ke hari ini.
@@ -219,4 +229,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.6.** Audit Dashboard P1 diperbaiki: KPI harian dan welcome header kini dinamis. Menunggu CI PASS serta verifikasi Windows/thermal printer/installer sebelum release final.
+**WPOS PRO 2 — v2.3.7.** Perbaikan Dashboard screenshot selesai; CI untuk commit terbaru harus PASS sebelum build EXE/installer dianggap release final.
