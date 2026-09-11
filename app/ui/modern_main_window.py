@@ -20,7 +20,7 @@ from .premium_cashier import apply_premium_cashier
 
 
 class ModernMainWindow(MainWindow):
-    """Modern POS 2026 shell around the existing WPOS PRO business pages.
+    """Modern POS shell around the existing WPOS PRO 2 business pages.
 
     This class owns structure and navigation only. Colors, surfaces and
     component styling are provided by the centralized theme shell.
@@ -83,7 +83,7 @@ class ModernMainWindow(MainWindow):
         brand_text = QVBoxLayout()
         brand_text.setContentsMargins(0, 0, 0, 0)
         brand_text.setSpacing(1)
-        name = QLabel("WPOS PRO")
+        name = QLabel(APP_NAME)
         name.setObjectName("modernBrandName")
         version = QLabel(f"{APP_VERSION} · POS 2026")
         version.setObjectName("modernBrandVersion")
@@ -241,7 +241,7 @@ class ModernMainWindow(MainWindow):
     def _title_for(cls, index):
         if 0 <= index < len(cls.PAGE_TITLES):
             return cls.PAGE_TITLES[index]
-        return "WPOS PRO V2"
+        return APP_NAME
 
     @classmethod
     def _hint_for(cls, index):
