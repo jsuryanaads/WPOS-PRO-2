@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.0.0**
+- Versi aplikasi: **2.0.1**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -94,5 +94,22 @@ Hasil installer:
 ## CI
 GitHub Actions menjalankan compile check dan test suite pada push/PR. Windows build memverifikasi source, test, EXE, associated icon, serta asset branding.
 
+## Versioning
+Setiap perubahan pada source, konfigurasi, build, CI, atau dokumentasi menaikkan versi patch secara berurutan. Perubahan berikutnya setelah **2.0.1** menjadi **2.0.2**, kecuali perubahan tersebut memang memerlukan kenaikan minor/major.
+
+## Changelog
+### 2.0.1
+- Menaikkan versi aplikasi dari **2.0.0** menjadi **2.0.1**.
+- README disinkronkan dengan versi aplikasi.
+- Menetapkan aturan bahwa setiap perubahan berikutnya wajib menaikkan versi dan dicatat di README.
+
+### 2.0.0
+- Standardisasi identitas aplikasi menjadi **WPOS PRO 2**.
+- Sinkronisasi nama aplikasi, data directory, EXE, dist, installer, dan asset branding.
+- Perbaikan build Windows dan installer agar menggunakan branding yang konsisten.
+- Perbaikan branding modern shell agar mengikuti `APP_NAME`.
+- Penghapusan duplicate import di `app/main.py`.
+- Penambahan regression test untuk branding/build asset dan navigasi.
+
 ## Status
-**WPOS PRO 2 — kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.**
+**WPOS PRO 2 — v2.0.1.** Kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.
