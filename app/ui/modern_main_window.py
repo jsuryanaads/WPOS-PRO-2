@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtWidgets import (
@@ -154,14 +156,19 @@ class ModernMainWindow(MainWindow):
         content_l.setContentsMargins(22, 18, 22, 12)
         content_l.setSpacing(10)
 
+        # Headerbar: three deliberate zones — active page context on the
+        # left, current-user welcome in the center, automatic date on the
+        # right. Status badges are intentionally omitted to keep the header
+        # clean and aligned with the requested structure.
         topbar = QFrame()
         topbar.setObjectName("modernTopbar")
         top_l = QHBoxLayout(topbar)
-        top_l.setContentsMargins(16, 10, 16, 10)
-        top_l.setSpacing(12)
+        top_l.setContentsMargins(16, 8, 16, 8)
+        top_l.setSpacing(14)
+
         title_box = QVBoxLayout()
         title_box.setContentsMargins(0, 0, 0, 0)
-        title_box.setSpacing(2)
+        title_box.setSpacing(1)
         self.modern_context = QLabel("Dashboard")
         self.modern_context.setObjectName("modernContext")
         self.modern_hint = QLabel("Ringkasan bisnis hari ini")
@@ -169,12 +176,23 @@ class ModernMainWindow(MainWindow):
         title_box.addWidget(self.modern_context)
         title_box.addWidget(self.modern_hint)
         top_l.addLayout(title_box, 1)
-        offline = QLabel("OFFLINE")
-        offline.setObjectName("modernStatusOffline")
-        local = QLabel("DATABASE LOKAL")
-        local.setObjectName("modernStatusLocal")
-        top_l.addWidget(offline)
-        top_l.addWidget(local)
+
+        welcome = QLabel(f"Selamat datang, {self.user.username}")
+        welcome.setObjectName("modernWelcome")
+        welcome.setAlignment(Qt.AlignCenter)
+        welcome.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        top_l.addWidget(welcome, 1)
+
+        month_names = (
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+        )
+        now = datetime.now()
+        date_label = QLabel(f"{now.day} {month_names[now.month - 1]} {now.year}")
+        date_label.setObjectName("modernDate")
+        date_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        date_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        top_l.addWidget(date_label, 0)
         content_l.addWidget(topbar)
 
         self.modern_stack = QStackedWidget()
