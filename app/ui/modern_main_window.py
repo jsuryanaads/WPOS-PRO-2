@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..config import APP_VERSION
+from ..config import APP_NAME, APP_VERSION
 from .branding import LOGO_PATH
 from .main_window import MainWindow
 from .premium_cashier import apply_premium_cashier
@@ -27,6 +27,17 @@ class ModernMainWindow(MainWindow):
         ("KEUANGAN", [("Rp", "Kas", 5), ("◫", "Laporan", 6)]),
         ("DATA MASTER", [("◎", "Pelanggan", 13), ("◉", "Supplier", 12), ("◇", "Kategori", 10), ("◇", "Satuan", 11)]),
         ("SISTEM", [("⚙", "Pengaturan Toko", 7), ("▣", "Printer", 8), ("↻", "Backup / Restore", 9)]),
+    ]
+
+    PAGE_TITLES = [
+        "Dashboard", "Kasir", "Produk", "Stok & Mutasi", "Pembelian", "Kas", "Laporan",
+        "Pengaturan Toko", "Printer", "Backup / Restore", "Kategori", "Satuan", "Supplier", "Pelanggan",
+    ]
+    PAGE_HINTS = [
+        "Ringkasan bisnis hari ini", "Transaksi cepat · barcode first", "Master produk & harga",
+        "Kontrol persediaan", "Restock & supplier", "Arus kas toko", "Analitik & riwayat",
+        "Identitas dan preferensi", "Thermal printer · 58mm", "Keamanan database lokal",
+        "Kelompok produk", "Satuan barang", "Data pemasok", "Riwayat pelanggan",
     ]
 
     def __init__(self, user, logout_callback=None):
@@ -155,9 +166,9 @@ class ModernMainWindow(MainWindow):
         self.setCentralWidget(shell)
         self.tabs = self._compat_tabs(old_tabs, titles)
         apply_premium_cashier(self)
-        self._select_navigation(0)
         self._apply_modern_style()
         self._polish_dashboard()
+        self._select_navigation(0)
 
     def _compat_tabs(self, old_tabs, titles):
         class CompatTabs:
@@ -167,7 +178,16 @@ class ModernMainWindow(MainWindow):
             def setCurrentIndex(self, index):
                 self.owner._select_navigation(index)
             def tabText(self, index):
-                return self.titles[index]
+                if 0 <= index < len(self.titles):
+                    return self.titles[index]
+                return ""
+            def count(self):
+                return len(self.titles)
+            def widget(self, index):
+                if hasattr(self.owner, "modern_stack"):
+                    return self.owner.modern_stack.widget(index)
+                return None
+
         return CompatTabs(self, titles)
 
     def _legacy_navigation(self, index):
@@ -175,10 +195,22 @@ class ModernMainWindow(MainWindow):
             self._select_navigation(index)
 
     def _select_navigation(self, page_index):
+        """Safely switch to a business page without allowing invalid indices."""
+        if not hasattr(self, "modern_stack"):
+            return
+        count = self.modern_stack.count()
+        if not isinstance(page_index, int) or page_index < 0 or page_index >= count:
+            return
+
+        page = self.modern_stack.widget(page_index)
+        if page is None:
+            return
+
         self.modern_stack.setCurrentIndex(page_index)
-        title = self.modern_stack.widget(page_index).property("modern_title") or self._title_for(page_index)
+        title = page.property("modern_title") or self._title_for(page_index)
         self.modern_context.setText(title)
         self.modern_hint.setText(self._hint_for(page_index))
+
         for row in range(self.nav_list.count()):
             item = self.nav_list.item(row)
             if item.data(Qt.UserRole) == page_index:
@@ -189,30 +221,30 @@ class ModernMainWindow(MainWindow):
         self.on_tab_changed(page_index)
 
     def _navigate(self, current, _previous):
-        if current is None:
+        if current is None or not hasattr(self, "modern_stack"):
             return
         index = current.data(Qt.UserRole)
-        if isinstance(index, int) and index >= 0:
-            self.modern_stack.setCurrentIndex(index)
-            self.modern_context.setText(self._title_for(index))
-            self.modern_hint.setText(self._hint_for(index))
-            self.on_tab_changed(index)
+        if not isinstance(index, int) or index < 0 or index >= self.modern_stack.count():
+            return
+        page = self.modern_stack.widget(index)
+        if page is None:
+            return
+        self.modern_stack.setCurrentIndex(index)
+        self.modern_context.setText(page.property("modern_title") or self._title_for(index))
+        self.modern_hint.setText(self._hint_for(index))
+        self.on_tab_changed(index)
 
-    @staticmethod
-    def _title_for(index):
-        return [
-            "Dashboard", "Kasir", "Produk", "Stok & Mutasi", "Pembelian", "Kas", "Laporan",
-            "Pengaturan Toko", "Printer", "Backup / Restore", "Kategori", "Satuan", "Supplier", "Pelanggan",
-        ][index]
+    @classmethod
+    def _title_for(cls, index):
+        if 0 <= index < len(cls.PAGE_TITLES):
+            return cls.PAGE_TITLES[index]
+        return "WPOS PRO V2"
 
-    @staticmethod
-    def _hint_for(index):
-        return [
-            "Ringkasan bisnis hari ini", "Transaksi cepat · barcode first", "Master produk & harga",
-            "Kontrol persediaan", "Restock & supplier", "Arus kas toko", "Analitik & riwayat",
-            "Identitas dan preferensi", "Thermal printer · 58mm", "Keamanan database lokal",
-            "Kelompok produk", "Satuan barang", "Data pemasok", "Riwayat pelanggan",
-        ][index]
+    @classmethod
+    def _hint_for(cls, index):
+        if 0 <= index < len(cls.PAGE_HINTS):
+            return cls.PAGE_HINTS[index]
+        return "Offline POS · Local Database"
 
     @staticmethod
     def _shadow(widget, blur=18, y=4):
@@ -224,6 +256,8 @@ class ModernMainWindow(MainWindow):
 
     def _polish_dashboard(self):
         """Apply the clean dashboard hierarchy without changing business logic."""
+        if not hasattr(self, "modern_stack") or self.modern_stack.count() == 0:
+            return
         dashboard = self.modern_stack.widget(0)
         if dashboard is None or dashboard.layout() is None:
             return
@@ -250,6 +284,8 @@ class ModernMainWindow(MainWindow):
             title_text = title.text()
             if title_text in icons and not card.findChild(QLabel, "dashboardMetricIcon"):
                 card_layout = card.layout()
+                if card_layout is None:
+                    continue
                 card_layout.takeAt(0)
                 card_layout.takeAt(0)
                 row = QHBoxLayout()
@@ -297,7 +333,6 @@ class ModernMainWindow(MainWindow):
         QLabel#modernStatusOffline { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 999px; padding: 5px 9px; font-size: 9px; font-weight: 900; }
         QLabel#modernStatusLocal { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; border-radius: 999px; padding: 5px 9px; font-size: 9px; font-weight: 900; }
         QStackedWidget#modernStack { background: transparent; border: 0; }
-
         QWidget#modernStack QWidget { font-size: 11px; }
         QGroupBox { margin-top: 12px; padding: 16px 12px 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #ffffff; font-weight: 800; }
         QGroupBox::title { subcontrol-origin: margin; left: 14px; top: 2px; padding: 0 7px; color: #334155; background: #ffffff; }
@@ -310,53 +345,13 @@ class ModernMainWindow(MainWindow):
         QTableWidget::item { padding: 7px; }
         QHeaderView::section { padding: 9px 8px; border: 0; border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-weight: 800; }
         QScrollBar:vertical { width: 9px; margin: 2px; background: transparent; }
-        QScrollBar::handle:vertical { min-height: 30px; border-radius: 4px; background: #cbd5e1; }
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
-        QLabel#pageTitle { font-size: 24px; font-weight: 900; color: #0f172a; }
-        QLabel#pageSubtitle { color: #64748b; font-size: 11px; }
-        QFrame#card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; }
-        QLabel#cardTitle { color: #64748b; font-size: 10px; font-weight: 800; }
-        QLabel#cardValue { color: #0f172a; font-size: 22px; font-weight: 900; }
-        QLabel#dashboardMetricIcon { min-width: 28px; max-width: 28px; min-height: 28px; max-height: 28px; padding: 3px; border-radius: 8px; background: #eff6ff; color: #2563eb; font-size: 12px; font-weight: 900; qproperty-alignment: AlignCenter; }
-        QLabel#total { color: #1d4ed8; font-size: 22px; font-weight: 900; }
-        QPushButton#primary { background: #2563eb; color: #ffffff; border: 0; min-height: 40px; font-weight: 900; }
-        QPushButton#primary:hover { background: #1d4ed8; }
-        QPushButton#danger { background: #fee2e2; color: #b91c1c; border: 0; }
-        QPushButton#dashboardPrimary { background: #2563eb; color: #ffffff; border: 0; min-height: 38px; border-radius: 9px; font-weight: 900; }
+        QScrollBar::handle:vertical { background: #cbd5e1; border-radius: 4px; min-height: 28px; }
+        QScrollBar::handle:vertical:hover { background: #94a3b8; }
+        QLabel#dashboardMetricIcon { font-size: 16px; font-weight: 900; }
+        QPushButton#dashboardPrimary { background: #2563eb; color: white; }
         QPushButton#dashboardPrimary:hover { background: #1d4ed8; }
-        QPushButton#dashboardSecondary { background: #0f766e; color: #ffffff; border: 0; min-height: 38px; border-radius: 9px; font-weight: 900; }
-        QPushButton#dashboardSecondary:hover { background: #0d9488; }
-        QPushButton#dashboardGhost { background: #ffffff; color: #334155; border: 1px solid #dbe3ec; min-height: 38px; border-radius: 9px; }
-        QPushButton#dashboardGhost:hover { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-
-        /* Premium POS cashier */
-        QLabel#premiumPageTitle { color: #0f172a; font-size: 24px; font-weight: 950; }
-        QLabel#premiumPageSubtitle { color: #64748b; font-size: 11px; }
-        QLabel#premiumShortcut { color: #64748b; font-size: 9px; font-weight: 700; }
-        QFrame#premiumScanCard { background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; }
-        QLabel#premiumFieldCaption { color: #94a3b8; font-size: 9px; font-weight: 900; letter-spacing: 1px; }
-        QLineEdit#premiumBarcode { min-height: 46px; border: 2px solid #334155; border-radius: 10px; background: #ffffff; color: #0f172a; font-size: 15px; font-weight: 700; padding: 5px 13px; }
-        QLineEdit#premiumBarcode:focus { border: 2px solid #3b82f6; }
-        QDoubleSpinBox#premiumQty { min-height: 46px; min-width: 88px; border-radius: 10px; background: #ffffff; font-size: 13px; font-weight: 800; }
-        QPushButton#premiumAdd { min-height: 46px; border-radius: 10px; background: #2563eb; color: #ffffff; padding: 0 18px; font-weight: 900; }
-        QPushButton#premiumAdd:hover { background: #3b82f6; }
-        QFrame#premiumCartCard, QFrame#premiumPayCard { background: #ffffff; border: 1px solid #dfe6ef; border-radius: 14px; }
-        QLabel#premiumSectionTitle { color: #0f172a; font-size: 13px; font-weight: 900; }
-        QLabel#premiumMuted { color: #94a3b8; font-size: 8px; font-weight: 800; }
-        QTableWidget#premiumCartTable { border: 0; border-top: 1px solid #e8edf4; border-radius: 0; gridline-color: #f0f3f7; }
-        QTableWidget#premiumCartTable QHeaderView::section { background: #ffffff; color: #64748b; padding: 10px 8px; border-bottom: 1px solid #e8edf4; font-size: 9px; }
-        QFrame#premiumTotalBox { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; }
-        QLabel#premiumTotalCaption { color: #2563eb; font-size: 9px; font-weight: 900; }
-        QLabel#premiumTotal { color: #1d4ed8; font-size: 29px; font-weight: 950; }
-        QLabel#premiumPayLabel { color: #475569; font-size: 10px; font-weight: 800; min-width: 45px; }
-        QDoubleSpinBox#premiumMoneyInput, QComboBox#premiumMethod { min-height: 38px; border-radius: 9px; font-weight: 800; }
-        QFrame#premiumChangeBox { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; }
-        QLabel#premiumChangeCaption { color: #64748b; font-size: 8px; font-weight: 900; }
-        QLabel#premiumChange { color: #0f766e; font-size: 20px; font-weight: 950; }
-        QPushButton#premiumCheckout { background: #0f766e; color: #ffffff; border: 0; border-radius: 10px; font-size: 12px; font-weight: 950; }
-        QPushButton#premiumCheckout:hover { background: #0d9488; }
-        QPushButton#premiumClear { background: #f1f5f9; color: #475569; border: 1px solid #dbe3ec; border-radius: 10px; }
-        QPushButton#premiumClear:hover { background: #e2e8f0; }
+        QPushButton#dashboardSecondary { background: #e2e8f0; color: #0f172a; }
+        QPushButton#dashboardSecondary:hover { background: #cbd5e1; }
+        QPushButton#dashboardGhost { background: #ffffff; color: #334155; border: 1px solid #cbd5e1; }
+        QPushButton#dashboardGhost:hover { background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; }
         """)
-        self.setWindowTitle(f"WPOS PRO {APP_VERSION}")
-        self.setMinimumSize(1180, 720)
