@@ -16,7 +16,7 @@ def apply_ux2026(window):
 
     Geometry and colors belong to global_ui.py and theme_shell.py. This layer
     intentionally contains no palette or color rules so it cannot override
-    the active WPOS PRO V2 theme.
+    the active WPOS PRO 2 theme.
     """
     window.setAttribute(Qt.WA_StyledBackground, True)
 
@@ -27,7 +27,9 @@ def apply_ux2026(window):
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setSortingEnabled(False)
         table.setFocusPolicy(Qt.StrongFocus)
-        table.setToolTip("Klik untuk memilih · ↑ ↓ untuk berpindah")
+        # Keep keyboard navigation available without displaying a persistent
+        # instructional tooltip over the dashboard/table workspace.
+        table.setToolTip("")
         table.verticalHeader().setVisible(False)
         table.setWordWrap(False)
 
