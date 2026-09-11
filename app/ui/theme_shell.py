@@ -1,27 +1,11 @@
-"""Dark-only presentation layer for the WPOS PRO 2 shell."""
+"""Theme-driven presentation layer for the WPOS PRO 2 shell."""
 
 THEME_PALETTES = {
     "DARK": {
-        "shell": "#15181e",
-        "shell_alt": "#242a33",
-        "shell_hover": "#303946",
-        "accent": "#396fae",
-        "content": "#20242b",
-        "surface": "#242a33",
-        "surface_alt": "#292f38",
-        "border": "#39414c",
-        "text": "#e6eaf0",
-        "muted": "#aab3c0",
-        "inverse": "#ffffff",
-        "selected": "#396fae",
-        "selected_text": "#ffffff",
-        "input": "#292f38",
-        "input_border": "#414956",
-        "table_alt": "#292f38",
-        "header": "#303946",
-        "focus": "#6ea8fe",
-        "danger": "#9d4f55",
-        "success": "#52715c",
+        "shell":"#15181e","shell_alt":"#242a33","shell_hover":"#303946","accent":"#396fae","content":"#20242b","surface":"#242a33","surface_alt":"#292f38","border":"#39414c","text":"#e6eaf0","muted":"#aab3c0","inverse":"#ffffff","selected":"#396fae","selected_text":"#ffffff","input":"#292f38","input_border":"#414956","table_alt":"#292f38","header":"#303946","focus":"#6ea8fe","danger":"#9d4f55","success":"#52715c"
+    },
+    "LIGHT": {
+        "shell":"#16324f","shell_alt":"#2b78b8","shell_hover":"#21679f","accent":"#2b78b8","content":"#f4f6f8","surface":"#ffffff","surface_alt":"#eef2f5","border":"#c8d1d9","text":"#263442","muted":"#667583","inverse":"#ffffff","selected":"#2b78b8","selected_text":"#ffffff","input":"#ffffff","input_border":"#c8d1d9","table_alt":"#f1f4f7","header":"#e2e8ed","focus":"#2b78b8","danger":"#b34f4f","success":"#39734a"
     },
 }
 
@@ -29,7 +13,7 @@ THEME_PALETTES = {
 def theme_shell_stylesheet(theme_key: str) -> str:
     p = THEME_PALETTES.get(theme_key, THEME_PALETTES["DARK"])
     return f"""
-/* WPOS PRO 2 — active theme: DARK */
+/* WPOS PRO 2 — active theme: {theme_key} */
 QFrame#modernSidebar {{ background:{p['shell']}; color:{p['inverse']}; border:0; min-width:230px; max-width:250px; }}
 QFrame#modernBrand {{ background:{p['shell_alt']}; border:1px solid {p['shell_hover']}; border-radius:14px; }}
 QLabel#modernBrandLogo {{ min-width:44px; max-width:44px; min-height:44px; max-height:44px; }}
