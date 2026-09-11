@@ -39,7 +39,7 @@ Sidebar menggunakan empat kelompok visual:
 - **DATA MASTER** — Pelanggan, Supplier, Kategori, Satuan.
 - **SYSTEM** — Pengaturan Toko, Printer, Backup / Restore.
 
-Judul setiap kelompok memakai background section yang halus, dengan gaya konsisten pada Dark Mode dan Light Mode. Perubahan ini hanya visual dan tidak mengubah index navigasi, permission, atau business logic.
+Judul setiap kelompok memakai background section yang halus, dengan gaya konsisten pada Dark Mode dan Light Mode. Section dibuat sebagai widget header terpisah agar background benar-benar terlihat konsisten pada Qt dan tetap tidak dapat dipilih. Perubahan ini hanya visual dan tidak mengubah index navigasi, permission, atau business logic.
 
 ## CRUD dan kontrol data
 - **Produk:** Tambah, Edit, Simpan, Nonaktifkan. Penghapusan permanen tidak digunakan agar histori transaksi tetap aman.
@@ -131,6 +131,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ## UI
 - Sidebar navigasi text-only tanpa ikon menu.
 - Sidebar memakai section background untuk OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM.
+- Header section memakai widget khusus dengan palette theme-aware; SYSTEM diberi jarak visual lebih besar sebagai batas area konfigurasi.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
 - Clear button `×` dikendalikan oleh global UI dan tidak diaktifkan kembali oleh layer UX.
@@ -152,7 +153,9 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ### 2.5.1
 - Memperjelas struktur sidebar menjadi empat section: **OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM**.
 - Menambahkan background section khusus di belakang judul kelompok sidebar.
+- Section dibuat sebagai widget header terpisah agar background tampil konsisten pada Qt.
 - Styling section disinkronkan dengan Dark Mode dan Light Mode.
+- SYSTEM memiliki jarak atas lebih besar untuk mempertegas batas area konfigurasi.
 - Tetap mempertahankan sidebar text-only tanpa ikon.
 - Tidak mengubah navigasi, permission, database atau business logic.
 - Menyinkronkan `APP_VERSION` ke **2.5.1**.
