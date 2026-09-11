@@ -60,27 +60,40 @@ def _normalize_product_stock_table(page):
             item.setText(_normalize_stock_value(item.text()))
 
 
+def _owner(page):
+    """Return the MainWindow that owns a page widget."""
+    owner = page.window()
+    return owner if hasattr(owner, "load_products") else None
+
+
 def _install_product_reload_normalizer(page):
     if getattr(page, "_wpos_stock_normalizer", False):
         return
-    original = page.load_products
+    owner = _owner(page)
+    if owner is None:
+        return
+    original = owner.load_products
 
     def load_products_normalized(*args, **kwargs):
         result = original(*args, **kwargs)
         _normalize_product_stock_table(page)
         return result
 
-    page.load_products = load_products_normalized
+    owner.load_products = load_products_normalized
     page._wpos_stock_normalizer = True
     _normalize_product_stock_table(page)
 
 
 def _delete_product(page):
-    product_id = getattr(page, "selected_product_id", None)
+    owner = _owner(page)
+    if owner is None:
+        QMessageBox.warning(page, "Produk", "Halaman Produk tidak terhubung ke MainWindow.")
+        return
+    product_id = getattr(owner, "selected_product_id", None)
     if not product_id:
         QMessageBox.information(page, "Hapus Produk", "Pilih produk terlebih dahulu.")
         return
-    name = page.p_name.text().strip() or "produk terpilih"
+    name = owner.p_name.text().strip() or "produk terpilih"
     answer = QMessageBox.question(
         page,
         "Hapus Produk",
@@ -93,8 +106,8 @@ def _delete_product(page):
     try:
         with SessionLocal() as session:
             delete_product(session, product_id)
-        page.load_products()
-        page.clear_product_form()
+        owner.load_products()
+        owner.clear_product_form()
         QMessageBox.information(page, "Produk", "Produk berhasil dihapus permanen.")
     except Exception as exc:
         QMessageBox.warning(page, "Produk tidak dapat dihapus", str(exc))
@@ -147,9 +160,11 @@ def _import_product_excel(page):
     try:
         with SessionLocal() as session:
             result = import_products(session, filename, mode=mode)
-        page.load_product_options()
-        page.load_products()
-        page.clear_product_form()
+        owner = _owner(page)
+        if owner is not None:
+            owner.load_product_options()
+            owner.load_products()
+            owner.clear_product_form()
         QMessageBox.information(
             page, "Import Excel berhasil",
             f"Produk baru: {result['created']}\nProduk diperbarui: {result['updated']}\n\nStok berjalan tidak diubah saat update Barcode."
