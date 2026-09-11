@@ -26,59 +26,38 @@ from .themes import current_theme
 
 
 GLOBAL_UI_STYLE = """
-/* WPOS PRO V2 — unified geometry/UX contract; colors come from the active theme. */
+/* WPOS PRO 2 — unified geometry/UX contract for all 14 business pages. */
 QWidget { font-family: 'Segoe UI'; font-size: 11px; }
 QFrame#applicationFooter { min-height: 30px; max-height: 30px; }
 QLabel#applicationFooterLabel { font-size: 10px; font-weight: 600; }
 QLabel#pageTitle { font-size: 24px; font-weight: 900; }
 QLabel#pageSubtitle { font-size: 11px; }
-
-QFrame#card { border-radius: 12px; }
+QFrame#card { border-radius: 12px; min-width: 145px; max-width: 280px; }
 QLabel#cardTitle { font-size: 10px; font-weight: 800; }
 QLabel#cardValue { font-size: 22px; font-weight: 900; }
 QLabel#total { border-radius: 9px; padding: 10px 14px; font-size: 18px; font-weight: 900; }
-
 QGroupBox { border-radius: 12px; padding: 14px 12px 10px; margin-top: 10px; font-weight: 800; }
 QGroupBox::title { subcontrol-origin: margin; left: 14px; top: 2px; padding: 0 7px; }
-
 QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { min-height: 32px; max-height: 36px; border-radius: 8px; padding: 3px 9px; }
 QSpinBox, QDoubleSpinBox { min-width: 110px; padding-right: 31px; }
-QSpinBox::up-button, QDoubleSpinBox::up-button,
-QSpinBox::down-button, QDoubleSpinBox::down-button {
-    subcontrol-origin: border;
-    width: 24px;
-    margin: 1px;
-    border-radius: 5px;
-}
+QSpinBox::up-button, QDoubleSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::down-button { subcontrol-origin: border; width: 24px; margin: 1px; border-radius: 5px; }
 QSpinBox::up-button, QDoubleSpinBox::up-button { subcontrol-position: top right; }
 QSpinBox::down-button, QDoubleSpinBox::down-button { subcontrol-position: bottom right; }
-QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
-QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover { margin: 0px; }
 QTextEdit { max-height: 120px; }
 QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus, QTextEdit:focus { border-width: 1px; }
-
 QPushButton { min-height: 34px; max-height: 38px; border-radius: 8px; padding: 6px 14px; font-weight: 800; }
-QPushButton:pressed { padding-top: 7px; }
-
 QTableWidget { min-height: 180px; border-radius: 10px; }
 QTableWidget::item { padding: 7px; }
 QHeaderView::section { min-height: 32px; padding: 8px; border: 0; font-weight: 900; }
 QScrollArea { border: 0; background: transparent; }
 QScrollBar:vertical { width: 9px; margin: 2px; background: transparent; }
 
-/* Consistent hierarchy for every page */
+/* Page-specific minimums: enough room for the working area without forcing tall forms. */
 QWidget[wposPageType="cashier"] QTableWidget { min-height: 250px; }
-QWidget[wposPageType="products"] QTableWidget,
-QWidget[wposPageType="stock"] QTableWidget,
-QWidget[wposPageType="reports"] QTableWidget { min-height: 280px; }
-QWidget[wposPageType="master"] QTableWidget { min-height: 260px; }
-QWidget[wposPageType="purchase"] QTableWidget { min-height: 240px; }
-QWidget[wposPageType="cash"] QTableWidget { min-height: 240px; }
-QWidget[wposPageType="settings"] QGroupBox,
-QWidget[wposPageType="printer"] QGroupBox,
-QWidget[wposPageType="backup"] QGroupBox { max-width: 900px; }
-
-/* Responsive geometry: avoid oversized forms/cards and preserve usable space. */
+QWidget[wposPageType="products"] QTableWidget, QWidget[wposPageType="stock"] QTableWidget, QWidget[wposPageType="reports"] QTableWidget { min-height: 280px; }
+QWidget[wposPageType="master"] QTableWidget { min-height: 250px; }
+QWidget[wposPageType="purchase"] QTableWidget, QWidget[wposPageType="cash"] QTableWidget { min-height: 240px; }
+QWidget[wposPageType="settings"] QGroupBox, QWidget[wposPageType="printer"] QGroupBox, QWidget[wposPageType="backup"] QGroupBox { max-width: 900px; }
 QWidget[wposPage="true"] QGroupBox { max-width: 1100px; }
 QWidget[wposPage="true"] QTableWidget { max-width: 1400px; }
 """
@@ -90,7 +69,7 @@ _PAGE_TYPES = [
 
 
 def add_application_footer(window):
-    """Add the shared 30px application footer to either modern shell or login."""
+    """Add the shared 30px application footer to modern shell or login."""
     parent = window.findChild(QFrame, "modernContent")
     target_layout = parent.layout() if parent is not None else window.layout()
     if target_layout is None or window.findChild(QFrame, "applicationFooter") is not None:
@@ -100,7 +79,6 @@ def add_application_footer(window):
     footer.setObjectName("applicationFooter")
     footer.setFixedHeight(30)
     footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-
     layout = QHBoxLayout(footer)
     layout.setContentsMargins(8, 0, 8, 0)
     layout.setSpacing(0)
@@ -128,7 +106,6 @@ def _mark_pages(root):
 
 
 def _hide_duplicate_page_headers(root):
-    """The modern shell owns the page title; legacy page headers are hidden."""
     stack = getattr(root, "modern_stack", None)
     if stack is None:
         return
@@ -142,17 +119,13 @@ def _hide_duplicate_page_headers(root):
         for position in range(layout.count()):
             item = layout.itemAt(position)
             widget = item.widget() if item else None
-            if widget is None:
-                continue
-            if widget.findChild(QLabel, "pageTitle") and widget.findChild(QLabel, "pageSubtitle"):
+            if widget is not None and widget.findChild(QLabel, "pageTitle") and widget.findChild(QLabel, "pageSubtitle"):
                 widget.hide()
                 break
 
 
 def _normalize_layouts(root):
-    """Apply one compact, predictable geometry contract to every page."""
     _hide_duplicate_page_headers(root)
-
     stack = getattr(root, "modern_stack", None)
     if stack is not None:
         for index in range(stack.count()):
@@ -163,6 +136,10 @@ def _normalize_layouts(root):
             layout.setSpacing(min(max(layout.spacing(), 8), 12))
             layout.setContentsMargins(16, 8, 16, 12)
             page.setProperty("wposLayoutReady", True)
+
+            # Keep dense master/form pages compact while allowing tables to grow.
+            for child in page.findChildren(QGroupBox):
+                child.setMaximumWidth(1100)
 
     for form in root.findChildren(QFormLayout):
         form.setRowWrapPolicy(QFormLayout.DontWrapRows)
@@ -175,7 +152,7 @@ def _normalize_layouts(root):
         if isinstance(parent, QGroupBox):
             rows = form.rowCount()
             required = 26 + (rows * 32) + (max(0, rows - 1) * 5) + 8
-            parent.setMinimumHeight(max(0, required))
+            parent.setMinimumHeight(required)
             parent.setMaximumWidth(1100)
 
     for grid in root.findChildren(QGridLayout):
@@ -191,6 +168,8 @@ def _normalize_controls(root):
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setWordWrap(False)
         table.setSizeAdjustPolicy(QAbstractItemView.AdjustIgnored)
+        table.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        table.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         table.verticalHeader().setVisible(False)
         table.verticalHeader().setDefaultSectionSize(34)
         header = table.horizontalHeader()
@@ -205,12 +184,11 @@ def _normalize_controls(root):
     for widget_type in (QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit):
         for widget in root.findChildren(widget_type):
             widget.setFocusPolicy(Qt.StrongFocus)
+            widget.setMinimumHeight(max(widget.minimumHeight(), 32))
             if isinstance(widget, QLineEdit):
                 widget.setClearButtonEnabled(True)
             elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
                 widget.setMinimumWidth(max(widget.minimumWidth(), 110))
-                widget.setMinimumHeight(max(widget.minimumHeight(), 32))
-                widget.setMaximumHeight(max(widget.maximumHeight(), 36))
 
     for button in root.findChildren(QPushButton):
         button.setCursor(Qt.PointingHandCursor)
@@ -233,7 +211,7 @@ def _normalize_controls(root):
 
 
 def apply_global_ui(app, root=None):
-    """Apply one geometry/UX contract and then the active theme visual contract."""
+    """Apply the shared geometry/UX contract, then the active theme."""
     current = app.styleSheet()
     if GLOBAL_UI_STYLE not in current:
         app.setStyleSheet(current + GLOBAL_UI_STYLE)
@@ -243,6 +221,7 @@ def apply_global_ui(app, root=None):
     _normalize_layouts(root)
     _normalize_controls(root)
     apply_theme_shell(root, current_theme())
+    root.setWindowTitle(getattr(root, "windowTitle", lambda: "")() or "WPOS PRO 2")
     root.style().unpolish(root)
     root.style().polish(root)
     root.update()
