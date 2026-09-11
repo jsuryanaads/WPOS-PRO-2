@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.5**
+- Versi aplikasi: **2.3.6**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -93,11 +93,18 @@ Tema yang sudah dihapus dan tidak tersedia:
 Key tema lama atau tidak valid yang tersimpan di database otomatis fallback ke **DARK**.
 
 ## Dashboard Welcome Header
-Pada **v2.3.3**, branding strip lama pada Dashboard diganti menjadi header sambutan:
-- **Selamat datang, Admin**
-- **Senin, 12 September 2026**
+Header Dashboard sekarang dinamis:
+- **Selamat datang, {username login}**.
+- Tanggal menggunakan tanggal komputer saat aplikasi berjalan.
+- Nama hari ditampilkan dalam Bahasa Indonesia.
+- Header tetap kompatibel dengan Dark Mode dan Light Mode.
 
-Header menggunakan surface dan teks yang mengikuti tema aktif sehingga tidak lagi tampil sebagai strip branding biru pada Dashboard.
+## Dashboard KPI
+- **TRANSAKSI HARI INI** hanya menghitung transaksi pada hari kalender lokal saat aplikasi dibuka.
+- **OMZET HARI INI** hanya menghitung omzet pada hari kalender lokal saat aplikasi dibuka.
+- **PRODUK AKTIF** tetap menghitung seluruh produk aktif.
+- **STOK MENIPIS / HABIS** tetap merupakan kondisi stok saat ini.
+- **SALDO KAS** tetap saldo berjalan dan tidak dibatasi hanya hari ini.
 
 ## Form input — Hybrid UX
 Pada **v2.3.4**, form input menggunakan pola hybrid agar halaman data tidak dipenuhi form panjang:
@@ -133,6 +140,15 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.6
+- Memperbaiki Dashboard agar **TRANSAKSI** dan **OMZET** benar-benar menggunakan rentang hari kalender lokal saat ini.
+- Memisahkan semantik **SALDO KAS** sebagai saldo berjalan sehingga tidak ikut difilter ke hari ini.
+- Mengubah welcome header dari teks statis menjadi username login yang aktual.
+- Mengubah tanggal welcome header menjadi tanggal komputer aktual dengan nama hari Bahasa Indonesia.
+- Memperbarui regression test agar tidak bergantung pada tanggal statis.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.6**.
+- Tidak mengubah business logic transaksi atau database schema.
+
 ### 2.3.5
 - Memperbaiki deteksi container `QGroupBox` pada lapisan hybrid form sehingga popup Produk dan Pembelian benar-benar terpasang pada form produksi.
 - Menjaga mode popup/inline tetap hanya sebagai perubahan presentasi UI.
@@ -203,4 +219,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.5.** Hybrid form UX dan perbaikan container detection selesai; menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
+**WPOS PRO 2 — v2.3.6.** Audit Dashboard P1 diperbaiki: KPI harian dan welcome header kini dinamis. Menunggu CI PASS serta verifikasi Windows/thermal printer/installer sebelum release final.
