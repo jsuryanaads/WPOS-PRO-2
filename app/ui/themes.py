@@ -20,16 +20,14 @@ QLabel#loginTitle { font-size: 27px; font-weight: 800; }
 QLabel#loginVersion { font-size: 12px; }
 QLabel#loginWelcome { font-size: 13px; }
 QLabel#loginFieldLabel { font-size: 11px; font-weight: 800; }
-QLabel#loginFooter { font-size: 11px; }
 QLineEdit#loginInput { min-height: 30px; padding: 6px 12px; border-radius: 9px; }
 QPushButton#loginPrimaryButton { min-height: 30px; border-radius: 10px; font-size: 14px; font-weight: 800; }
 QPushButton#loginSecondaryButton { min-width: 58px; min-height: 30px; border-radius: 9px; font-weight: 700; }
+QFrame#applicationFooter { min-height: 30px; max-height: 30px; }
+QLabel#applicationFooterLabel { font-size: 10px; font-weight: 600; }
 """
 
-THEMES = {
-    "MODERN_BLUE": {
-        "label": "Modern Blue",
-        "stylesheet": COMMON + """
+MODERN_BLUE = COMMON + """
 QWidget, QMainWindow, QDialog { background: #edf0f3; color: #263442; }
 QMenuBar { background: #dfe4e9; color: #263442; border-bottom: 1px solid #c6cdd4; }
 QMenuBar::item:selected, QMenu::item:selected { background: #d3e2ef; color: #145a96; }
@@ -46,7 +44,6 @@ QPushButton:disabled { background: #b8c1ca; color: #eef1f3; }
 QPushButton#primary { background: #2673b8; }
 QPushButton#danger { background: #b54747; }
 QToolBar QPushButton#danger { background: #2673b8; color: white; }
-QToolBar QPushButton#danger:hover { background: #1f5f99; }
 QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #f8f9fa; color: #172033; border: 1px solid #c5cdd5; border-radius: 6px; padding: 6px; }
 QTableWidget, QListWidget { background: #f8f9fa; color: #172033; border: 1px solid #c5cdd5; border-radius: 8px; alternate-background-color: #eef1f4; }
 QHeaderView::section { background: #d8e1e9; color: #17324d; padding: 8px; border: 0; font-weight: 700; }
@@ -60,98 +57,94 @@ QFrame#card { background: #f8f9fa; border: 1px solid #cbd3db; }
 QLabel#total { background: #245d88; color: white; }
 QFrame#loginCard { background: #e5e9ed; border: 1px solid #c6cdd4; }
 QLabel#loginTitle { color: #172033; }
-QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel, QLabel#loginFooter { color: #5f6f7e; }
+QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel { color: #5f6f7e; }
 QPushButton#loginPrimaryButton { background: #2673b8; color: #ffffff; }
 QPushButton#loginPrimaryButton:hover { background: #1f5f99; }
 QPushButton#loginSecondaryButton { background: #d8e5f0; color: #145a96; }
 QPushButton#loginSecondaryButton:hover { background: #cbddea; }
-""",
-    },
-    "KEMERDEKAAN": {
-        "label": "Kemerdekaan",
-        "stylesheet": COMMON + """
-QWidget, QMainWindow, QDialog { background: #e8e7e8; color: #30282a; }
-QMenuBar { background: #5f2024; color: #fff4f4; border-bottom: 2px solid #a9323a; }
-QMenuBar::item:selected { background: #7c292e; color: #ffffff; }
-QMenu { background: #6b2429; color: #ffffff; border: 1px solid #a53a40; }
-QMenu::item:selected { background: #96343a; color: #ffffff; }
-QToolBar { background: #5f2024; border: 0; spacing: 6px; }
-QTabWidget::pane { border: 0; background: #e8e7e8; }
-QTabBar { background: #74272c; }
-QTabBar::tab { background: #74272c; color: #f9dddd; padding: 10px 16px; border: 0; }
-QTabBar::tab:hover { background: #8b3035; color: white; }
-QTabBar::tab:selected { background: #ded9da; color: #7f1d1d; border-bottom: 3px solid #c43f3f; }
-QPushButton { background: #a52f37; color: white; border: 0; border-radius: 7px; padding: 8px 14px; font-weight: 700; }
-QPushButton:hover { background: #8f252d; }
-QPushButton:disabled { background: #a99395; color: #eee7e7; }
-QPushButton#primary { background: #b9343b; }
-QPushButton#danger { background: #721b21; }
-QToolBar QPushButton#danger { background: #b9343b; color: white; }
-QToolBar QPushButton#danger:hover { background: #8f252d; }
-QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #f1edef; color: #30282a; border: 1px solid #c9b8ba; border-radius: 6px; padding: 6px; }
-QTableWidget, QListWidget { background: #f1edef; color: #30282a; border: 1px solid #c9b8ba; border-radius: 8px; alternate-background-color: #e7e0e2; }
-QHeaderView::section { background: #a9323a; color: white; padding: 8px; border: 0; font-weight: 700; }
-QGroupBox { background: #ded9da; border: 1px solid #c7b6b8; border-radius: 9px; margin-top: 10px; padding: 12px 8px 8px; font-weight: 700; }
-QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; background: #e8e7e8; color: #7f1d1d; }
-QFrame#brandStrip { background: #9f292f; }
+QFrame#applicationFooter { background: #dfe4e9; border-top: 1px solid #c6cdd4; }
+QLabel#applicationFooterLabel { color: #526070; }
+"""
+
+PURPLE_PREMIUM = COMMON + """
+QWidget, QMainWindow, QDialog { background: #f2eff7; color: #2d2638; }
+QMenuBar { background: #3e3157; color: #f8f5ff; border-bottom: 1px solid #6d5a8d; }
+QMenuBar::item:selected, QMenu::item:selected { background: #5a4779; color: white; }
+QMenu { background: #47385f; color: white; border: 1px solid #725f91; }
+QToolBar { background: #3e3157; border: 0; spacing: 6px; }
+QTabWidget::pane { border: 0; background: #f2eff7; }
+QTabBar { background: #47385f; }
+QTabBar::tab { background: #47385f; color: #e8e0f4; padding: 10px 16px; border: 0; }
+QTabBar::tab:hover { background: #5a4779; color: white; }
+QTabBar::tab:selected { background: #ebe5f2; color: #4b3570; border-bottom: 3px solid #7d5ab0; }
+QPushButton { background: #7252a0; color: white; border: 0; border-radius: 7px; padding: 8px 14px; font-weight: 700; }
+QPushButton:hover { background: #60438a; }
+QPushButton:disabled { background: #aaa0b7; color: #f3eff7; }
+QPushButton#primary { background: #7d5ab0; }
+QPushButton#danger { background: #a04f68; }
+QToolBar QPushButton#danger { background: #7d5ab0; color: white; }
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #faf8fc; color: #292333; border: 1px solid #cfc5db; border-radius: 6px; padding: 6px; }
+QTableWidget, QListWidget { background: #faf8fc; color: #292333; border: 1px solid #cfc5db; border-radius: 8px; alternate-background-color: #eee9f4; }
+QHeaderView::section { background: #725c91; color: white; padding: 8px; border: 0; font-weight: 700; }
+QGroupBox { background: #e9e2ef; border: 1px solid #cfc5db; border-radius: 9px; margin-top: 10px; padding: 12px 8px 8px; font-weight: 700; }
+QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; background: #f2eff7; color: #4b3570; }
+QFrame#brandStrip { background: #68498d; }
 QLabel#brandName, QLabel#brandVersion { color: white; }
-QLabel#cardTitle { color: #76585b; }
-QLabel#cardValue { color: #5f2025; }
-QFrame#card { background: #ded9da; border: 1px solid #c7b6b8; }
-QLabel#total { background: #8f252c; color: white; }
-QFrame#loginCard { background: #ded9da; border: 1px solid #c7b6b8; }
-QLabel#loginTitle { color: #701b20; }
-QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel, QLabel#loginFooter { color: #70575a; }
-QPushButton#loginPrimaryButton { background: #a52f37; color: white; }
-QPushButton#loginPrimaryButton:hover { background: #8f252d; }
-QPushButton#loginSecondaryButton { background: #d5c9cb; color: #7f1d1d; }
-QPushButton#loginSecondaryButton:hover { background: #cbbabd; }
-""",
-    },
-    "KEAGAMAAN": {
-        "label": "Keagamaan",
-        "stylesheet": COMMON + """
-QWidget, QMainWindow, QDialog { background: #e6ebe7; color: #26362d; }
-QMenuBar { background: #294638; color: #f2f6f3; border-bottom: 2px solid #66816d; }
-QMenuBar::item:selected { background: #3b5b46; color: white; }
-QMenu { background: #304f3c; color: white; border: 1px solid #587561; }
-QMenu::item:selected { background: #496b54; color: white; }
-QToolBar { background: #294638; border: 0; spacing: 6px; }
-QTabWidget::pane { border: 0; background: #e6ebe7; }
-QTabBar { background: #365641; }
-QTabBar::tab { background: #365641; color: #e0ebe3; padding: 10px 16px; border: 0; }
-QTabBar::tab:hover { background: #476650; color: white; }
-QTabBar::tab:selected { background: #dfe5e1; color: #294638; border-bottom: 3px solid #66856f; }
-QPushButton { background: #52715c; color: white; border: 0; border-radius: 7px; padding: 8px 14px; font-weight: 600; }
-QPushButton:hover { background: #3f5e49; }
-QPushButton:disabled { background: #9eafa2; color: #edf2ee; }
-QPushButton#primary { background: #496c55; }
-QPushButton#danger { background: #805050; }
-QToolBar QPushButton#danger { background: #496c55; color: white; }
-QToolBar QPushButton#danger:hover { background: #3f5e49; }
-QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #eef2ef; color: #203027; border: 1px solid #b7c6ba; border-radius: 6px; padding: 6px; }
-QTableWidget, QListWidget { background: #eef2ef; color: #203027; border: 1px solid #b7c6ba; border-radius: 8px; alternate-background-color: #e0e7e1; }
-QHeaderView::section { background: #587963; color: white; padding: 8px; border: 0; font-weight: 700; }
-QGroupBox { background: #dce3de; border: 1px solid #b7c6ba; border-radius: 9px; margin-top: 10px; padding: 12px 8px 8px; font-weight: 700; }
-QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; background: #e6ebe7; color: #294638; }
-QFrame#brandStrip { background: #496b54; }
+QLabel#cardTitle { color: #756781; }
+QLabel#cardValue { color: #4b3570; }
+QFrame#card { background: #faf8fc; border: 1px solid #d1c8dc; }
+QLabel#total { background: #68498d; color: white; }
+QFrame#loginCard { background: #e9e2ef; border: 1px solid #cfc5db; }
+QLabel#loginTitle { color: #4b3570; }
+QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel { color: #756781; }
+QPushButton#loginPrimaryButton { background: #7d5ab0; color: white; }
+QPushButton#loginPrimaryButton:hover { background: #60438a; }
+QPushButton#loginSecondaryButton { background: #ddd2e8; color: #4b3570; }
+QPushButton#loginSecondaryButton:hover { background: #d1c4df; }
+QFrame#applicationFooter { background: #e7dfed; border-top: 1px solid #cfc5db; }
+QLabel#applicationFooterLabel { color: #665874; }
+"""
+
+EMERALD = COMMON + """
+QWidget, QMainWindow, QDialog { background: #eef5f1; color: #25372e; }
+QMenuBar { background: #244b3a; color: #f3faf6; border-bottom: 1px solid #557764; }
+QMenuBar::item:selected, QMenu::item:selected { background: #35664e; color: white; }
+QMenu { background: #2c5743; color: white; border: 1px solid #63836f; }
+QToolBar { background: #244b3a; border: 0; spacing: 6px; }
+QTabWidget::pane { border: 0; background: #eef5f1; }
+QTabBar { background: #2c5743; }
+QTabBar::tab { background: #2c5743; color: #e1eee6; padding: 10px 16px; border: 0; }
+QTabBar::tab:hover { background: #396b53; color: white; }
+QTabBar::tab:selected { background: #e2ece6; color: #24513c; border-bottom: 3px solid #4f8b6a; }
+QPushButton { background: #3e7c5b; color: white; border: 0; border-radius: 7px; padding: 8px 14px; font-weight: 700; }
+QPushButton:hover { background: #32664a; }
+QPushButton:disabled { background: #9caf9f; color: #edf3ef; }
+QPushButton#primary { background: #428762; }
+QPushButton#danger { background: #96565c; }
+QToolBar QPushButton#danger { background: #428762; color: white; }
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #f7faf8; color: #203128; border: 1px solid #bdcec2; border-radius: 6px; padding: 6px; }
+QTableWidget, QListWidget { background: #f7faf8; color: #203128; border: 1px solid #bdcec2; border-radius: 8px; alternate-background-color: #e6efe9; }
+QHeaderView::section { background: #4b765e; color: white; padding: 8px; border: 0; font-weight: 700; }
+QGroupBox { background: #e0eae3; border: 1px solid #bdcec2; border-radius: 9px; margin-top: 10px; padding: 12px 8px 8px; font-weight: 700; }
+QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; background: #eef5f1; color: #24513c; }
+QFrame#brandStrip { background: #397557; }
 QLabel#brandName, QLabel#brandVersion { color: white; }
-QLabel#cardTitle { color: #58705f; }
-QLabel#cardValue { color: #294638; }
-QFrame#card { background: #dce3de; border: 1px solid #b7c6ba; }
-QLabel#total { background: #496c55; color: white; }
-QFrame#loginCard { background: #dce3de; border: 1px solid #b7c6ba; }
-QLabel#loginTitle { color: #294638; }
-QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel, QLabel#loginFooter { color: #58705f; }
-QPushButton#loginPrimaryButton { background: #496c55; color: white; }
-QPushButton#loginPrimaryButton:hover { background: #3f5e49; }
-QPushButton#loginSecondaryButton { background: #cedbd1; color: #294638; }
-QPushButton#loginSecondaryButton:hover { background: #c0d0c4; }
-""",
-    },
-    "DARK": {
-        "label": "Dark Mode",
-        "stylesheet": COMMON + """
+QLabel#cardTitle { color: #5d7567; }
+QLabel#cardValue { color: #24513c; }
+QFrame#card { background: #f7faf8; border: 1px solid #c5d4ca; }
+QLabel#total { background: #397557; color: white; }
+QFrame#loginCard { background: #e0eae3; border: 1px solid #bdcec2; }
+QLabel#loginTitle { color: #24513c; }
+QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel { color: #5d7567; }
+QPushButton#loginPrimaryButton { background: #428762; color: white; }
+QPushButton#loginPrimaryButton:hover { background: #32664a; }
+QPushButton#loginSecondaryButton { background: #d5e4da; color: #24513c; }
+QPushButton#loginSecondaryButton:hover { background: #c7dacd; }
+QFrame#applicationFooter { background: #dce8e0; border-top: 1px solid #bdcec2; }
+QLabel#applicationFooterLabel { color: #50685a; }
+"""
+
+DARK = COMMON + """
 QWidget, QMainWindow, QDialog { background: #20242b; color: #e6eaf0; }
 QMenuBar { background: #15181e; color: #e6eaf0; border-bottom: 1px solid #343b46; }
 QMenuBar::item:selected, QMenu::item:selected { background: #2c3542; color: white; }
@@ -168,7 +161,6 @@ QPushButton:disabled { background: #505966; color: #c5cad2; }
 QPushButton#primary { background: #396fae; }
 QPushButton#danger { background: #9d4f55; }
 QToolBar QPushButton#danger { background: #396fae; color: white; }
-QToolBar QPushButton#danger:hover { background: #4b83c3; }
 QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { background: #292f38; color: #e6eaf0; border: 1px solid #414956; border-radius: 6px; padding: 6px; }
 QTableWidget, QListWidget { background: #242a33; color: #e6eaf0; border: 1px solid #39414c; border-radius: 8px; alternate-background-color: #292f38; }
 QHeaderView::section { background: #303946; color: #e6eaf0; padding: 8px; border: 0; font-weight: 700; }
@@ -183,20 +175,31 @@ QLabel#total { background: #315f9f; color: white; }
 QTableWidget::item:selected { background: #334e70; color: white; }
 QFrame#loginCard { background: #292f38; border: 1px solid #39414c; }
 QLabel#loginTitle { color: #f8fafc; }
-QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel, QLabel#loginFooter { color: #aab3c0; }
+QLabel#loginVersion, QLabel#loginWelcome, QLabel#loginFieldLabel { color: #aab3c0; }
 QPushButton#loginPrimaryButton { background: #396fae; color: white; }
 QPushButton#loginPrimaryButton:hover { background: #4b83c3; }
 QPushButton#loginSecondaryButton { background: #303946; color: #dbeafe; }
 QPushButton#loginSecondaryButton:hover { background: #3a4555; }
 QLineEdit#loginInput { background: #292f38; color: #e6eaf0; border: 1px solid #414956; }
-""",
-    },
+QFrame#applicationFooter { background: #1a1e24; border-top: 1px solid #343b46; }
+QLabel#applicationFooterLabel { color: #aab3c0; }
+"""
+
+THEMES = {
+    "MODERN_BLUE": {"label": "Modern Blue", "stylesheet": MODERN_BLUE},
+    "PURPLE_PREMIUM": {"label": "Purple Premium", "stylesheet": PURPLE_PREMIUM},
+    "EMERALD": {"label": "Emerald", "stylesheet": EMERALD},
+    "DARK": {"label": "Dark Mode", "stylesheet": DARK},
 }
 
 
 def current_theme():
     with SessionLocal() as session:
-        return get_setting(session, "ui_theme", "MODERN_BLUE")
+        saved = get_setting(session, "ui_theme", "MODERN_BLUE")
+        if saved not in THEMES:
+            saved = "MODERN_BLUE"
+            set_setting(session, "ui_theme", saved)
+        return saved
 
 
 def set_theme(theme_key):
