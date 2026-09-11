@@ -1,15 +1,9 @@
-from decimal import Decimal, InvalidOperation
 from ..models import Product, StockMovement
+from .validation import decimal_value
 
 
 def _decimal(value, label):
-    try:
-        result = Decimal(str(value))
-    except (InvalidOperation, ValueError):
-        raise ValueError(f"{label} tidak valid")
-    if result < 0:
-        raise ValueError(f"{label} tidak boleh negatif")
-    return result
+    return decimal_value(value, label, non_negative=True)
 
 
 def create_product(session, barcode, name, purchase_price=0, selling_price=0, stock=0, minimum_stock=0, category_id=None, unit_id=None):
