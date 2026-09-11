@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.9**
+- Versi aplikasi: **2.3.10**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -150,6 +150,14 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.10
+- Memperbaiki kasus tombol **×** yang masih muncul pada `QDoubleSpinBox`/`QSpinBox` setelah clear button global pada `QLineEdit` dihapus.
+- Menonaktifkan clear button secara eksplisit pada `QLineEdit` internal milik seluruh numeric spinbox.
+- Menambahkan marker internal `wposClearButtonDisabled` untuk memastikan kontrak UI tersebut dapat diaudit.
+- Menambahkan regression test khusus numeric spinbox.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.10**.
+- Tidak mengubah business logic, transaksi, stok, pembayaran atau database schema.
+
 ### 2.3.9
 - Menghapus aktivasi global tombol clear **×** pada seluruh `QLineEdit` agar tombol tersebut tidak muncul otomatis di setiap halaman.
 - Mempertahankan normalisasi tinggi dan fokus field input serta geometry spinner.
@@ -254,4 +262,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.9.** Perbaikan global clear-button sudah masuk source, regression test ditambahkan, dan CI harus PASS sebelum build EXE/installer dianggap release final.
+**WPOS PRO 2 — v2.3.10.** Perbaikan clear button pada QLineEdit dan numeric spinbox sudah masuk source, regression test ditambahkan, dan CI harus PASS sebelum build EXE/installer dianggap release final.
