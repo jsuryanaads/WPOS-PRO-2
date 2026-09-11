@@ -2,10 +2,10 @@
 
 THEME_PALETTES = {
     "DARK": {
-        "shell":"#15181e","shell_alt":"#242a33","shell_hover":"#303946","accent":"#396fae","content":"#20242b","surface":"#242a33","surface_alt":"#292f38","border":"#39414c","text":"#e6eaf0","muted":"#aab3c0","inverse":"#ffffff","selected":"#396fae","selected_text":"#ffffff","input":"#292f38","input_border":"#414956","table_alt":"#292f38","header":"#303946","focus":"#6ea8fe","danger":"#9d4f55","success":"#52715c"
+        "shell":"#15181e","shell_alt":"#242a33","shell_hover":"#303946","accent":"#396fae","content":"#20242b","surface":"#242a33","surface_alt":"#292f38","border":"#39414c","text":"#e6eaf0","muted":"#aab3c0","inverse":"#ffffff","selected":"#396fae","selected_text":"#ffffff","input":"#292f38","input_border":"#414956","table_alt":"#292f38","header":"#303946","focus":"#6ea8fe","danger":"#9d4f55","success":"#52715c","sidebar_text":"#aab3c0","sidebar_inverse":"#ffffff"
     },
     "LIGHT": {
-        "shell":"#16324f","shell_alt":"#2b78b8","shell_hover":"#21679f","accent":"#2b78b8","content":"#f4f6f8","surface":"#ffffff","surface_alt":"#eef2f5","border":"#c8d1d9","text":"#263442","muted":"#667583","inverse":"#ffffff","selected":"#2b78b8","selected_text":"#ffffff","input":"#ffffff","input_border":"#c8d1d9","table_alt":"#f1f4f7","header":"#e2e8ed","focus":"#2b78b8","danger":"#b34f4f","success":"#39734a"
+        "shell":"#f7f9fb","shell_alt":"#e8eef4","shell_hover":"#d8e5ef","accent":"#2b78b8","content":"#f4f6f8","surface":"#ffffff","surface_alt":"#eef2f5","border":"#c8d1d9","text":"#263442","muted":"#667583","inverse":"#263442","selected":"#2b78b8","selected_text":"#ffffff","input":"#ffffff","input_border":"#c8d1d9","table_alt":"#f1f4f7","header":"#e2e8ed","focus":"#2b78b8","danger":"#b34f4f","success":"#39734a","sidebar_text":"#435465","sidebar_inverse":"#16324f"
     },
 }
 
@@ -14,21 +14,21 @@ def theme_shell_stylesheet(theme_key: str) -> str:
     p = THEME_PALETTES.get(theme_key, THEME_PALETTES["DARK"])
     return f"""
 /* WPOS PRO 2 — active theme: {theme_key} */
-QFrame#modernSidebar {{ background:{p['shell']}; color:{p['inverse']}; border:0; min-width:230px; max-width:250px; }}
+QFrame#modernSidebar {{ background:{p['shell']}; color:{p['sidebar_text']}; border:0; min-width:230px; max-width:250px; }}
 QFrame#modernBrand {{ background:{p['shell_alt']}; border:1px solid {p['shell_hover']}; border-radius:14px; }}
 QLabel#modernBrandLogo {{ min-width:44px; max-width:44px; min-height:44px; max-height:44px; }}
-QLabel#modernBrandName {{ color:{p['inverse']}; font-size:18px; font-weight:900; }}
+QLabel#modernBrandName {{ color:{p['sidebar_inverse']}; font-size:18px; font-weight:900; }}
 QLabel#modernBrandVersion {{ color:{p['muted']}; font-size:9px; font-weight:700; }}
-QListWidget#modernNav {{ background:{p['shell']}; color:{p['muted']}; border:0; outline:none; padding:0; }}
-QListWidget#modernNav::item {{ background:transparent; color:{p['muted']}; padding:9px 8px; margin:1px 0; border:0; border-radius:8px; font-size:12px; }}
-QListWidget#modernNav::item:hover {{ background:{p['shell_hover']}; color:{p['inverse']}; }}
+QListWidget#modernNav {{ background:{p['shell']}; color:{p['sidebar_text']}; border:0; outline:none; padding:0; }}
+QListWidget#modernNav::item {{ background:transparent; color:{p['sidebar_text']}; padding:9px 8px; margin:1px 0; border:0; border-radius:8px; font-size:12px; }}
+QListWidget#modernNav::item:hover {{ background:{p['shell_hover']}; color:{p['sidebar_inverse']}; }}
 QListWidget#modernNav::item:selected {{ background:{p['selected']}; color:{p['selected_text']}; font-weight:800; }}
 QListWidget#modernNav::item:disabled {{ background:transparent; color:{p['muted']}; padding:11px 8px 4px; margin-top:5px; font-size:9px; font-weight:900; }}
 QFrame#modernAccount {{ background:{p['shell_alt']}; border:1px solid {p['shell_hover']}; border-radius:12px; }}
-QLabel#modernUser {{ color:{p['inverse']}; font-weight:800; }}
+QLabel#modernUser {{ color:{p['sidebar_inverse']}; font-weight:800; }}
 QLabel#modernRole {{ color:{p['muted']}; font-size:10px; }}
-QPushButton#modernLogout {{ background:{p['shell_hover']}; color:{p['inverse']}; border:1px solid {p['shell_hover']}; border-radius:8px; padding:7px; margin-top:5px; }}
-QPushButton#modernLogout:hover {{ background:{p['accent']}; }}
+QPushButton#modernLogout {{ background:{p['shell_hover']}; color:{p['sidebar_inverse']}; border:1px solid {p['shell_hover']}; border-radius:8px; padding:7px; margin-top:5px; }}
+QPushButton#modernLogout:hover {{ background:{p['accent']}; color:{p['selected_text']}; }}
 QFrame#modernContent {{ background:{p['content']}; color:{p['text']}; }}
 QFrame#modernTopbar {{ background:{p['surface']}; border:1px solid {p['border']}; border-radius:12px; }}
 QLabel#modernContext {{ color:{p['text']}; font-size:17px; font-weight:900; }}
@@ -55,7 +55,7 @@ QPushButton#danger {{ background:{p['danger']}; color:{p['inverse']}; }}
 QPushButton#dashboardSecondary, QPushButton#secondary, QPushButton#dashboardGhost, QPushButton#premiumClear {{ background:{p['surface_alt']}; color:{p['text']}; border-color:{p['border']}; }}
 QTableWidget {{ background:{p['surface']}; color:{p['text']}; border:1px solid {p['border']}; gridline-color:{p['border']}; alternate-background-color:{p['table_alt']}; selection-background-color:{p['selected']}; selection-color:{p['selected_text']}; }}
 QHeaderView::section {{ background:{p['header']}; color:{p['text']}; border:0; border-bottom:1px solid {p['border']}; }}
-QToolTip {{ background:{p['shell']}; color:{p['inverse']}; border:1px solid {p['border']}; padding:6px 8px; }}
+QToolTip {{ background:{p['shell']}; color:{p['sidebar_inverse']}; border:1px solid {p['border']}; padding:6px 8px; }}
 QFrame#masterHeader {{ background:transparent; border:0; }}
 QFrame#masterFormCard, QFrame#masterTableCard {{ background:{p['surface']}; color:{p['text']}; border:1px solid {p['border']}; border-radius:12px; }}
 QLabel#sectionTitle {{ color:{p['text']}; font-size:13px; font-weight:800; }}
