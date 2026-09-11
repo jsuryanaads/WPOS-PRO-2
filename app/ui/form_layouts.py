@@ -1,4 +1,10 @@
-from PySide6.QtWidgets import QDialog, QFrame, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import (
+    QDialog, QFrame, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton,
+    QVBoxLayout, QFileDialog, QMessageBox
+)
+
+from ..database import SessionLocal
+from ..services.excel import export_products, import_products
 
 
 COMPLEX_POPUPS = {
@@ -73,8 +79,74 @@ def _find_groupbox(page, title):
     return None
 
 
+def _attach_product_excel(page):
+    if getattr(page, "_wpos_excel_actions", False):
+        return
+    actions = QHBoxLayout()
+    export_button = QPushButton("Export Excel")
+    export_button.setObjectName("secondary")
+    import_button = QPushButton("Import Excel")
+    import_button.setObjectName("secondary")
+    template_button = QPushButton("Template Excel")
+    template_button.setObjectName("secondary")
+    export_button.clicked.connect(lambda: _export_product_excel(page))
+    import_button.clicked.connect(lambda: _import_product_excel(page))
+    template_button.clicked.connect(lambda: _export_product_excel(page, template=True))
+    actions.addWidget(export_button)
+    actions.addWidget(import_button)
+    actions.addWidget(template_button)
+    actions.addStretch()
+    page.layout().insertLayout(2, actions)
+    page._wpos_excel_actions = True
+
+
+def _export_product_excel(page, template=False):
+    filename, _ = QFileDialog.getSaveFileName(
+        page, "Export Produk ke Excel", "produk_template.xlsx" if template else "produk.xlsx", "Excel (*.xlsx)"
+    )
+    if not filename:
+        return
+    try:
+        with SessionLocal() as session:
+            path = export_products(session, filename)
+        QMessageBox.information(page, "Export Excel", f"File berhasil dibuat:\n{path}")
+    except Exception as exc:
+        QMessageBox.critical(page, "Export gagal", str(exc))
+
+
+def _import_product_excel(page):
+    filename, _ = QFileDialog.getOpenFileName(page, "Import Produk dari Excel", "", "Excel (*.xlsx)")
+    if not filename:
+        return
+    choice = QMessageBox.question(
+        page,
+        "Mode Import",
+        "Pilih mode import.\n\nYES = Tambah produk baru saja\nNO = Update data berdasarkan Barcode",
+        QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+        QMessageBox.Yes,
+    )
+    if choice == QMessageBox.Cancel:
+        return
+    mode = "add" if choice == QMessageBox.Yes else "update"
+    try:
+        with SessionLocal() as session:
+            result = import_products(session, filename, mode=mode)
+        page.load_product_options()
+        page.load_products()
+        if hasattr(page, "clear_product_form"):
+            page.clear_product_form()
+        QMessageBox.information(
+            page, "Import Excel berhasil",
+            f"Produk baru: {result['created']}\nProduk diperbarui: {result['updated']}\n\nStok berjalan tidak diubah saat update Barcode."
+        )
+    except Exception as exc:
+        QMessageBox.critical(page, "Import dibatalkan", str(exc))
+
+
 def _popup_complex_page(page, title, dialog_title, description):
     if getattr(page, "_wpos_form_layout_mode", None) == "popup":
+        if title == "Data Produk":
+            _attach_product_excel(page)
         return
     form_box = _find_groupbox(page, title)
     if form_box is None:
@@ -96,6 +168,8 @@ def _popup_complex_page(page, title, dialog_title, description):
     trigger.clicked.connect(controller.open)
     page.layout().insertWidget(1, trigger)
     page._wpos_form_layout_mode = "popup"
+    if title == "Data Produk":
+        _attach_product_excel(page)
 
 
 def _popup_master_page(page, title, dialog_title):
@@ -154,7 +228,7 @@ def _inline_simple_master(page):
 
 
 def apply_hybrid_form_layouts(window):
-    """Apply the approved hybrid form UX without changing business logic."""
+    """Apply approved presentation-only form layouts and Product Excel actions."""
     stack = getattr(window, "modern_stack", None)
     if stack is None:
         return
