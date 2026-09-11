@@ -4,10 +4,16 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.4**
+- Versi aplikasi: **2.7.5**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.7.5
+- Memperlebar area **Keranjang Belanja** pada Kasir agar lebih dominan dibanding panel pembayaran.
+- Panel pembayaran dibatasi agar tidak mengambil ruang berlebihan pada layar lebar.
+- Tampilan Qty pada struk Qt/HTML dinormalisasi: `1.0`, `2.0`, `3.0` menjadi `1`, `2`, `3`.
+- Perubahan Qty hanya presentasi struk; nilai Decimal dan perhitungan transaksi tetap tidak diubah.
 
 ## Perubahan terbaru 2.7.4
 - Merapikan **menu sidebar** tanpa mengubah fungsi atau index navigasi.
@@ -80,6 +86,8 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 - Pembayaran non-CASH otomatis mengikuti total transaksi dan kembalian tetap Rp 0.
 - Riwayat transaksi dan cetak ulang struk.
 - Parkir transaksi selama sesi aplikasi.
+- Area Keranjang Belanja dibuat lebih lebar daripada panel pembayaran.
+- Qty bilangan bulat pada struk ditampilkan tanpa suffix `.0`.
 - Shortcut F4, F8, F9, F10 dan Escape.
 
 ## Reset Data
@@ -163,6 +171,13 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.5
+- Memperlebar dan menyeimbangkan area Keranjang Belanja Kasir.
+- Membatasi panel pembayaran agar keranjang menjadi area utama transaksi.
+- Menambahkan helper presentasi receipt untuk menghilangkan `.0` pada Qty bilangan bulat.
+- Menjaga nilai transaksi/database tetap Decimal.
+- Menyinkronkan config dan installer ke **2.7.5**.
+
 ### 2.7.4
 - Penyempurnaan visual sidebar.
 - Lebar sidebar 225–240 px agar lebih proporsional.
@@ -207,6 +222,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - `app/ui/master_data.py` — CRUD master data.
 - `app/ui/form_layouts.py` — hybrid form, Excel UI, reset dan kontrol Produk.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
-- `app/ui/theme_shell.py` — palette DARK/LIGHT dan styling sidebar.
+- `app/ui/theme_shell.py` — palette DARK/LIGHT dan styling sidebar/Kasir.
 - `app/ui/ux2026.py` — interaction/accessibility.
 - `app/services/product_delete.py` — penghapusan Produk dengan perlindungan histori.
+- `app/services/receipt_display.py` — normalisasi presentasi Qty pada struk.
