@@ -11,7 +11,7 @@ WEEKDAYS_ID = ("Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu")
 
 
 def apply_dashboard_welcome(window):
-    """Apply a dynamic dashboard welcome header and correct daily KPI values."""
+    """Use the modern shell topbar for Dashboard welcome information."""
     stack = getattr(window, "modern_stack", None)
     if stack is None or stack.count() == 0:
         return
@@ -19,19 +19,26 @@ def apply_dashboard_welcome(window):
     if dashboard is None or dashboard.layout() is None:
         return
 
-    header = dashboard.layout().itemAt(0).widget()
-    if header is None:
-        return
-    header.setObjectName("dashboardWelcomeHeader")
-
-    title = header.findChild(QLabel, "pageTitle")
-    subtitle = header.findChild(QLabel, "pageSubtitle")
     now = datetime.now()
     username = str(getattr(getattr(window, "user", None), "username", "Admin")) or "Admin"
-    if title is not None:
-        title.setText(f"Selamat datang, {username}")
-    if subtitle is not None:
-        subtitle.setText(f"{WEEKDAYS_ID[now.weekday()]}, {now:%d %B %Y}")
+    welcome = f"Selamat datang, {username}"
+    date_text = f"{WEEKDAYS_ID[now.weekday()]}, {now:%d %B %Y}"
+
+    # The modern shell already owns the Dashboard header. Reusing it avoids
+    # the duplicate/blank legacy header that previously consumed dashboard space.
+    context = getattr(window, "modern_context", None)
+    hint = getattr(window, "modern_hint", None)
+    if context is not None:
+        context.setText(welcome)
+    if hint is not None:
+        hint.setText(date_text)
+
+    # Hide the legacy page header/branding widget inside the Dashboard.
+    first_item = dashboard.layout().itemAt(0)
+    legacy_header = first_item.widget() if first_item is not None else None
+    if legacy_header is not None:
+        legacy_header.setProperty("wposLegacyDashboardHeader", True)
+        legacy_header.hide()
 
     # TRANSAKSI and OMZET are explicitly daily metrics; SALDO KAS remains running balance.
     start = datetime(now.year, now.month, now.day)
@@ -41,31 +48,17 @@ def apply_dashboard_welcome(window):
     for label in dashboard.findChildren(QLabel):
         if label.objectName() != "cardTitle":
             continue
-        if label.text() == "TRANSAKSI":
+        if label.text() in {"TRANSAKSI", "TRANSAKSI HARI INI"}:
             label.setText("TRANSAKSI HARI INI")
             value = label.parentWidget().findChild(QLabel, "cardValue")
             if value is not None:
                 value.setText(str(summary["transactions"]))
-        elif label.text() == "OMZET":
+        elif label.text() in {"OMZET", "OMZET HARI INI"}:
             label.setText("OMZET HARI INI")
             value = label.parentWidget().findChild(QLabel, "cardValue")
             if value is not None:
                 value.setText(f"Rp {Decimal(str(summary['omzet'])):,.0f}".replace(",", "."))
-    dashboard.setProperty("wposDashboardMetricsDate", start.isoformat())
 
-    theme = str(getattr(window, "_wpos_active_theme", "DARK")).upper()
-    if theme == "LIGHT":
-        header.setStyleSheet(
-            "#dashboardWelcomeHeader { background:#ffffff; border:1px solid #c8d1d9; "
-            "border-radius:12px; padding:8px 14px; }"
-            "#dashboardWelcomeHeader QLabel#pageTitle { color:#263442; font-size:22px; font-weight:800; }"
-            "#dashboardWelcomeHeader QLabel#pageSubtitle { color:#667583; font-size:12px; }"
-        )
-    else:
-        header.setStyleSheet(
-            "#dashboardWelcomeHeader { background:#242a33; border:1px solid #39414c; "
-            "border-radius:12px; padding:8px 14px; }"
-            "#dashboardWelcomeHeader QLabel#pageTitle { color:#e6eaf0; font-size:22px; font-weight:800; }"
-            "#dashboardWelcomeHeader QLabel#pageSubtitle { color:#aab3c0; font-size:12px; }"
-        )
-    header.show()
+    dashboard.setProperty("wposDashboardMetricsDate", start.isoformat())
+    dashboard.setProperty("wposDashboardWelcome", welcome)
+    dashboard.setProperty("wposDashboardDate", date_text)
