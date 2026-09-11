@@ -27,6 +27,10 @@ def apply_premium_cashier(window):
     QStackedWidget, that can preserve the old tab's hidden/visibility state
     and result in a completely blank Kasir page. The cashier business logic
     lives on MainWindow, so the page itself can safely be replaced.
+
+    The modern shell already provides the page title/subtitle. Therefore the
+    cashier content starts directly with the transaction workflow instead of
+    rendering a second page header.
     """
     old_page = window.modern_stack.widget(1)
     current_index = window.modern_stack.currentIndex()
@@ -34,22 +38,8 @@ def apply_premium_cashier(window):
     page = QWidget()
     page.setObjectName("premiumCashierPage")
     root = QVBoxLayout(page)
-    root.setContentsMargins(4, 2, 4, 4)
+    root.setContentsMargins(4, 4, 4, 4)
     root.setSpacing(12)
-
-    intro = QHBoxLayout()
-    title_box = QVBoxLayout()
-    title_box.setSpacing(2)
-    title_box.addWidget(_label("Kasir", "premiumPageTitle"))
-    title_box.addWidget(_label("Transaksi cepat · barcode first · offline", "premiumPageSubtitle"))
-    intro.addLayout(title_box)
-    intro.addStretch()
-    intro.addWidget(
-        _label("ENTER  Tambah  ·  F2  Fokus Barcode  ·  Ctrl+K  Cari", "premiumShortcut"),
-        0,
-        Qt.AlignBottom,
-    )
-    root.addLayout(intro)
 
     scan = QFrame()
     scan.setObjectName("premiumScanCard")
