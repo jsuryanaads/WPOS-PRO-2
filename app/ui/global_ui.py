@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -8,6 +10,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QGroupBox,
     QHeaderView,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
@@ -15,6 +18,7 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QTableWidget,
     QTextEdit,
+    QSizePolicy,
 )
 
 from .theme_shell import apply_theme_shell
@@ -83,6 +87,31 @@ _PAGE_TYPES = [
     "dashboard", "cashier", "products", "stock", "purchase", "cash", "reports",
     "settings", "printer", "backup", "master", "master", "master", "master",
 ]
+
+
+def add_application_footer(window):
+    """Add the shared 30px application footer to either modern shell or login."""
+    parent = window.findChild(QFrame, "modernContent")
+    target_layout = parent.layout() if parent is not None else window.layout()
+    if target_layout is None or window.findChild(QFrame, "applicationFooter") is not None:
+        return
+
+    footer = QFrame()
+    footer.setObjectName("applicationFooter")
+    footer.setFixedHeight(30)
+    footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+    layout = QHBoxLayout(footer)
+    layout.setContentsMargins(8, 0, 8, 0)
+    layout.setSpacing(0)
+
+    from ..config import APP_NAME, APP_VERSION
+    label = QLabel(f"{APP_NAME} | v{APP_VERSION} | {datetime.now().year} | by Jsuryana")
+    label.setObjectName("applicationFooterLabel")
+    label.setAlignment(Qt.AlignCenter)
+    label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+    layout.addWidget(label)
+    target_layout.addWidget(footer, 0)
 
 
 def _mark_pages(root):
