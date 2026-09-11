@@ -4,10 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.3**
+- Versi aplikasi: **2.7.4**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.7.4
+- Merapikan **menu sidebar** tanpa mengubah fungsi atau index navigasi.
+- Sidebar tetap text-only tanpa ikon dekoratif.
+- Lebar sidebar dibuat lebih proporsional agar area kerja utama lebih luas.
+- Item menu dibuat lebih rapi dengan padding, margin dan active-state yang konsisten.
+- Header kelompok OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM dibuat lebih jelas.
+- Jarak antar kelompok diperbaiki, termasuk pemisahan area SYSTEM.
+- Styling tetap mengikuti Dark Mode dan Light Mode.
+- Tidak ada perubahan database atau business logic.
 
 ## Perubahan terbaru 2.7.3
 - Memperbaiki **Kembalian** pada Kasir agar berubah langsung ketika nominal **Bayar** diketik/diubah.
@@ -42,6 +52,15 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 12. Satuan
 13. Supplier
 14. Pelanggan
+
+## Struktur sidebar
+- **OPERASIONAL:** Dashboard, Kasir, Produk, Stok & Mutasi, Pembelian.
+- **KEUANGAN:** Kas, Laporan.
+- **DATA MASTER:** Pelanggan, Supplier, Kategori, Satuan.
+- **SYSTEM:** Pengaturan Toko, Printer, Backup / Restore.
+- Sidebar text-only tanpa ikon dekoratif.
+- Active menu, hover, section header dan spacing mengikuti tema aktif.
+- Index navigasi halaman tidak berubah.
 
 ## CRUD dan kontrol data
 - **Produk:** Tambah, Edit, Simpan, Nonaktifkan, Hapus aman.
@@ -126,6 +145,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ## UI
 - Sidebar navigasi text-only tanpa ikon menu.
 - Section sidebar: OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM.
+- Active menu dan hover dibuat konsisten pada Dark/Light Mode.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
 - Clear button `×` dikendalikan oleh global UI.
@@ -143,6 +163,14 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.4
+- Penyempurnaan visual sidebar.
+- Lebar sidebar 225–240 px agar lebih proporsional.
+- Padding/margin item navigasi dirapikan.
+- Active-state menu dibuat lebih tegas dan konsisten.
+- Section header dan spacing antar kelompok diperbaiki.
+- Menyinkronkan config dan installer ke **2.7.4**.
+
 ### 2.7.3
 - Memperbaiki Kembalian Kasir agar live saat nominal Bayar berubah.
 - Menambahkan koneksi `valueChanged` pada field Bayar setelah Premium Cashier dibangun.
@@ -179,6 +207,6 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - `app/ui/master_data.py` — CRUD master data.
 - `app/ui/form_layouts.py` — hybrid form, Excel UI, reset dan kontrol Produk.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
-- `app/ui/theme_shell.py` — palette DARK/LIGHT.
+- `app/ui/theme_shell.py` — palette DARK/LIGHT dan styling sidebar.
 - `app/ui/ux2026.py` — interaction/accessibility.
 - `app/services/product_delete.py` — penghapusan Produk dengan perlindungan histori.
