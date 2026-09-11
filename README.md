@@ -10,6 +10,11 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Database: SQLite
 
 ## Perubahan terbaru 2.7.5
+- Memperbaiki **sidebar** agar seluruh kelompok menu tampil normal dan tidak berubah menjadi bar kosong.
+- Header sidebar **OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM** sekarang dirender sebagai item teks yang stabil.
+- Sidebar dibuat compact dengan lebar tetap **230 px** dan tinggi baris yang konsisten agar 14 halaman lebih mudah terlihat pada resolusi Windows umum.
+- Scroll horizontal sidebar dinonaktifkan; scroll vertikal hanya muncul jika memang diperlukan.
+- Active menu tetap jelas tanpa ikon dekoratif dan index navigasi tidak berubah.
 - Memperlebar area **Keranjang Belanja** pada Kasir agar lebih dominan dibanding panel pembayaran.
 - Panel pembayaran dibatasi agar tidak mengambil ruang berlebihan pada layar lebar.
 - Tampilan Qty pada struk Qt/HTML dinormalisasi: `1.0`, `2.0`, `3.0` menjadi `1`, `2`, `3`.
@@ -65,6 +70,9 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 - **DATA MASTER:** Pelanggan, Supplier, Kategori, Satuan.
 - **SYSTEM:** Pengaturan Toko, Printer, Backup / Restore.
 - Sidebar text-only tanpa ikon dekoratif.
+- Section header dirender sebagai item teks disabled yang stabil, bukan custom widget yang dapat berubah menjadi bar kosong.
+- Lebar sidebar: **230 px**.
+- Row menu compact dan konsisten; scroll horizontal dinonaktifkan.
 - Active menu, hover, section header dan spacing mengikuti tema aktif.
 - Index navigasi halaman tidak berubah.
 
@@ -153,6 +161,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ## UI
 - Sidebar navigasi text-only tanpa ikon menu.
 - Section sidebar: OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM.
+- Sidebar compact 230 px dengan header teks stabil.
 - Active menu dan hover dibuat konsisten pada Dark/Light Mode.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
@@ -172,6 +181,10 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 
 ## Changelog
 ### 2.7.5
+- Memperbaiki header section sidebar yang sebelumnya tampil sebagai bar kosong.
+- Mengubah header section menjadi `QListWidgetItem` disabled dengan teks langsung agar stabil di Qt.
+- Mengcompact tinggi item navigasi dan menetapkan sidebar 230 px.
+- Menjaga navigasi 14 halaman, active-state dan text-only UI.
 - Memperlebar dan menyeimbangkan area Keranjang Belanja Kasir.
 - Membatasi panel pembayaran agar keranjang menjadi area utama transaksi.
 - Menambahkan helper presentasi receipt untuk menghilangkan `.0` pada Qty bilangan bulat.
