@@ -20,7 +20,11 @@ from .premium_cashier import apply_premium_cashier
 
 
 class ModernMainWindow(MainWindow):
-    """Modern POS 2026 shell around the existing WPOS PRO business pages."""
+    """Modern POS 2026 shell around the existing WPOS PRO business pages.
+
+    This class owns structure and navigation only. Colors, surfaces and
+    component styling are provided by the centralized theme shell.
+    """
 
     NAVIGATION = [
         ("OPERASIONAL", [("▣", "Dashboard", 0), ("＋", "Kasir", 1), ("□", "Produk", 2), ("▤", "Stok & Mutasi", 3), ("↥", "Pembelian", 4)]),
@@ -166,7 +170,6 @@ class ModernMainWindow(MainWindow):
         self.setCentralWidget(shell)
         self.tabs = self._compat_tabs(old_tabs, titles)
         apply_premium_cashier(self)
-        self._apply_modern_style()
         self._polish_dashboard()
         self._select_navigation(0)
 
@@ -308,50 +311,3 @@ class ModernMainWindow(MainWindow):
                 button.setObjectName("dashboardSecondary")
             else:
                 button.setObjectName("dashboardGhost")
-
-    def _apply_modern_style(self):
-        self.setStyleSheet(self.styleSheet() + """
-        QFrame#modernSidebar { background: #0b1220; border: 0; min-width: 230px; max-width: 250px; }
-        QFrame#modernBrand { background: #151f32; border: 1px solid #263550; border-radius: 14px; }
-        QLabel#modernBrandLogo { min-width: 44px; max-width: 44px; min-height: 44px; max-height: 44px; }
-        QLabel#modernBrandName { color: #ffffff; font-size: 18px; font-weight: 900; }
-        QLabel#modernBrandVersion { color: #94a3b8; font-size: 9px; font-weight: 700; }
-        QListWidget#modernNav { background: transparent; color: #94a3b8; border: 0; }
-        QListWidget#modernNav::item { padding: 9px 8px; border-radius: 8px; margin: 1px 0; font-size: 12px; }
-        QListWidget#modernNav::item:hover { background: #151f32; color: #ffffff; }
-        QListWidget#modernNav::item:selected { background: #2563eb; color: #ffffff; font-weight: 800; }
-        QListWidget#modernNav::item:disabled { color: #64748b; padding: 11px 8px 4px; font-size: 9px; font-weight: 900; }
-        QFrame#modernAccount { background: #151f32; border: 1px solid #263550; border-radius: 12px; }
-        QLabel#modernUser { color: #ffffff; font-weight: 800; }
-        QLabel#modernRole { color: #94a3b8; font-size: 10px; }
-        QPushButton#modernLogout { background: #202d45; color: #e2e8f0; border: 1px solid #31425f; border-radius: 8px; padding: 7px; margin-top: 5px; }
-        QPushButton#modernLogout:hover { background: #2b3b59; }
-        QFrame#modernContent { background: #f8fafc; }
-        QFrame#modernTopbar { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; }
-        QLabel#modernContext { color: #0f172a; font-size: 17px; font-weight: 900; }
-        QLabel#modernHint { color: #64748b; font-size: 10px; }
-        QLabel#modernStatusOffline { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 999px; padding: 5px 9px; font-size: 9px; font-weight: 900; }
-        QLabel#modernStatusLocal { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; border-radius: 999px; padding: 5px 9px; font-size: 9px; font-weight: 900; }
-        QStackedWidget#modernStack { background: transparent; border: 0; }
-        QWidget#modernStack QWidget { font-size: 11px; }
-        QGroupBox { margin-top: 12px; padding: 16px 12px 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #ffffff; font-weight: 800; }
-        QGroupBox::title { subcontrol-origin: margin; left: 14px; top: 2px; padding: 0 7px; color: #334155; background: #ffffff; }
-        QLineEdit, QDoubleSpinBox, QComboBox, QTextEdit, QSpinBox { min-height: 34px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 4px 9px; background: #ffffff; }
-        QLineEdit:focus, QDoubleSpinBox:focus, QComboBox:focus, QTextEdit:focus, QSpinBox:focus { border: 1px solid #2563eb; }
-        QPushButton { min-height: 34px; border-radius: 8px; padding: 7px 14px; font-weight: 700; }
-        QPushButton:hover { background: #eff6ff; }
-        QPushButton:pressed { padding-top: 8px; }
-        QTableWidget { border-radius: 10px; border: 1px solid #e2e8f0; background: #ffffff; gridline-color: #eef2f7; alternate-background-color: #f8fafc; selection-background-color: #dbeafe; selection-color: #0f172a; }
-        QTableWidget::item { padding: 7px; }
-        QHeaderView::section { padding: 9px 8px; border: 0; border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-weight: 800; }
-        QScrollBar:vertical { width: 9px; margin: 2px; background: transparent; }
-        QScrollBar::handle:vertical { background: #cbd5e1; border-radius: 4px; min-height: 28px; }
-        QScrollBar::handle:vertical:hover { background: #94a3b8; }
-        QLabel#dashboardMetricIcon { font-size: 16px; font-weight: 900; }
-        QPushButton#dashboardPrimary { background: #2563eb; color: white; }
-        QPushButton#dashboardPrimary:hover { background: #1d4ed8; }
-        QPushButton#dashboardSecondary { background: #e2e8f0; color: #0f172a; }
-        QPushButton#dashboardSecondary:hover { background: #cbd5e1; }
-        QPushButton#dashboardGhost { background: #ffffff; color: #334155; border: 1px solid #cbd5e1; }
-        QPushButton#dashboardGhost:hover { background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; }
-        """)
