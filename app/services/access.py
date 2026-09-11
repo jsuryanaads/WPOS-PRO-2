@@ -1,15 +1,10 @@
-ROLES = ("ADMIN", "PENGELOLA", "TEKNISI")
+ROLES = ("ADMIN", "KASIR")
 
 # UI permission policy. Keep business-service validation independent from the UI.
 ROLE_PERMISSIONS = {
     "ADMIN": {"*"},
-    "PENGELOLA": {
-        "dashboard", "cashier", "products", "stock", "purchase", "cash",
-        "reports", "settings", "printer", "backup", "category", "unit",
-        "supplier", "customer",
-    },
-    "TEKNISI": {
-        "dashboard", "products", "stock", "reports",
+    "KASIR": {
+        "dashboard", "cashier", "customer",
     },
 }
 
