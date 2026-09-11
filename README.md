@@ -4,10 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.6**
+- Versi aplikasi: **2.7.7**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.7.7
+- Menata ulang **struktur Kasir PRO** agar alur kerja kasir lebih jelas.
+- Area **Input Produk** tetap menjadi area paling atas untuk barcode, Qty, Tambah dan Cari Produk.
+- **Keranjang Transaksi** menjadi area kerja utama dan lebih dominan.
+- Panel **Pembayaran** dipertahankan ringkas di sisi kanan dengan lebar 290–330 px.
+- Panel pembayaran difokuskan pada Total, Diskon, Metode, Bayar dan Kembalian.
+- Kontrol **Parkir, Transaksi Parkir, Batal Transaksi, Riwayat dan Bayar & Cetak** dipisahkan menjadi area **Kontrol Transaksi** di bawah keranjang.
+- Struktur baru hanya mengatur tampilan dan penempatan widget; signal, workflow checkout, database dan business logic tetap menggunakan implementasi yang sudah ada.
+- Tidak ada perubahan schema database.
 
 ## Perubahan terbaru 2.7.6
 - Merapikan **struktur Headerbar** menjadi tiga zona yang jelas.
@@ -70,6 +80,15 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 - **Kanan:** tanggal otomatis dalam bahasa Indonesia.
 - Status `OFFLINE` dan `DATABASE LOKAL` tidak lagi ditampilkan di Headerbar.
 - Headerbar ringkas, konsisten pada Dark Mode dan Light Mode.
+
+## Struktur Kasir PRO
+- **Input Produk:** Barcode / Cari Produk, Qty, Tambah dan Cari Produk.
+- **Keranjang Transaksi:** tabel Barcode, Produk, Qty, Harga dan Subtotal.
+- **Kontrol keranjang:** `− QTY`, `+ QTY`, `HAPUS ITEM`.
+- **Pembayaran:** Total, Diskon, Metode Pembayaran, Bayar dan Kembalian.
+- **Kontrol Transaksi:** Parkir, Transaksi Parkir, Batal Transaksi, Riwayat Transaksi dan Bayar & Cetak.
+- Keranjang menjadi area utama transaksi; pembayaran tetap menjadi panel kanan yang ringkas.
+- Penempatan ulang kontrol tidak mengubah callback, service transaksi atau aturan pembayaran.
 
 ## CRUD dan kontrol data
 - **Produk:** Tambah, Edit, Simpan, Nonaktifkan, Hapus aman.
@@ -158,6 +177,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Section sidebar: OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM.
 - Sidebar compact 230 px dengan header teks stabil.
 - Headerbar tiga zona: context kiri, welcome pengguna di tengah, tanggal otomatis di kanan.
+- Kasir menggunakan struktur Input Produk → Keranjang Transaksi + Pembayaran → Kontrol Transaksi.
 - Active menu dan hover dibuat konsisten pada Dark/Light Mode.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
@@ -176,6 +196,15 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.7
+- Menambahkan modul `app/ui/cashier_structure.py` untuk merapikan hierarki visual Kasir.
+- Menjadikan Keranjang Transaksi sebagai area kerja utama.
+- Membatasi panel Pembayaran pada 290–330 px.
+- Memindahkan kontrol Parkir, Transaksi Parkir, Batal, Riwayat dan Bayar & Cetak ke area Kontrol Transaksi di bawah keranjang.
+- Menjaga callback dan workflow bisnis yang sudah ada.
+- Menambahkan styling khusus untuk area Kontrol Transaksi.
+- Menyinkronkan config dan installer ke **2.7.7**.
+
 ### 2.7.6
 - Menata ulang Headerbar menjadi tiga zona: Context, Informasi Pengguna, dan Tanggal.
 - Menampilkan nama halaman aktif dan subtitle/hint di kiri.
@@ -236,7 +265,8 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ## Arsitektur
 - `app/ui/modern_main_window.py` — shell/sidebar/topbar/stack.
 - `app/ui/main_window.py` — halaman dan workflow.
-- `app/ui/premium_cashier.py` — UI Kasir.
+- `app/ui/premium_cashier.py` — UI Kasir dasar dan workflow.
+- `app/ui/cashier_structure.py` — struktur presentasi Kasir dan kontrol transaksi.
 - `app/ui/master_data.py` — CRUD master data.
 - `app/ui/form_layouts.py` — hybrid form, Excel UI, reset dan kontrol Produk.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
