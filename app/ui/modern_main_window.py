@@ -31,7 +31,7 @@ class ModernMainWindow(MainWindow):
         ("OPERASIONAL", [("", "Dashboard", 0), ("", "Kasir", 1), ("", "Produk", 2), ("", "Stok & Mutasi", 3), ("", "Pembelian", 4)]),
         ("KEUANGAN", [("", "Kas", 5), ("", "Laporan", 6)]),
         ("DATA MASTER", [("", "Pelanggan", 13), ("", "Supplier", 12), ("", "Kategori", 10), ("", "Satuan", 11)]),
-        ("SISTEM", [("", "Pengaturan Toko", 7), ("", "Printer", 8), ("", "Backup / Restore", 9)]),
+        ("SYSTEM", [("", "Pengaturan Toko", 7), ("", "Printer", 8), ("", "Backup / Restore", 9)]),
     ]
 
     PAGE_TITLES = [
@@ -107,6 +107,7 @@ class ModernMainWindow(MainWindow):
             header = QListWidgetItem(section)
             header.setFlags(Qt.NoItemFlags)
             header.setData(Qt.UserRole, -1)
+            header.setData(Qt.UserRole + 1, "section")
             self.nav_list.addItem(header)
             for _icon, title, index in entries:
                 item = QListWidgetItem(title)
