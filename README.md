@@ -4,12 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.1**
+- Versi aplikasi: **2.7.2**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
 
+## Perubahan terbaru 2.7.2
+- Memperbaiki crash saat login ketika `apply_hybrid_form_layouts()` memproses halaman Produk.
+- Penyebab: helper UI sebelumnya mencari `load_products` langsung pada widget halaman, padahal method tersebut dimiliki `MainWindow`.
+- Helper sekarang mencari owner `MainWindow` melalui `page.window()` sebelum memasang normalizer stok dan menjalankan aksi Produk.
+- Fitur Hapus Produk tetap tersedia dengan konfirmasi dan perlindungan histori.
+- Perubahan ini tidak mengubah schema database maupun aturan transaksi.
+
 ## Role
+Role resmi aplikasi:
 - **ADMIN** — akses penuh dan fungsi administrasi.
 - **KASIR** — akses operasional kasir terbatas.
 
@@ -31,71 +39,28 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 13. Supplier
 14. Pelanggan
 
-## Struktur Sidebar
-- **OPERASIONAL** — Dashboard, Kasir, Produk, Stok & Mutasi, Pembelian.
-- **KEUANGAN** — Kas, Laporan.
-- **DATA MASTER** — Pelanggan, Supplier, Kategori, Satuan.
-- **SYSTEM** — Pengaturan Toko, Printer, Backup / Restore.
-
-Sidebar tetap text-only. Section memakai background theme-aware yang halus dan SYSTEM memiliki jarak visual lebih besar.
-
-## Produk
-Fitur Produk saat ini:
-- Tambah produk.
-- Edit produk.
-- Nonaktifkan produk.
-- **Hapus Produk permanen** untuk produk yang belum memiliki histori.
-- Export, Import dan Template Excel.
-- Form Produk menggunakan popup hybrid.
-
-### Aturan Hapus Produk
-Penghapusan permanen hanya diperbolehkan jika produk **belum mempunyai histori penjualan, pembelian, atau mutasi stok**. Jika sudah mempunyai histori, aplikasi menolak penghapusan dan mengarahkan penggunaan **Nonaktifkan** agar histori tetap aman.
-
-Tidak ada penghapusan paksa terhadap histori transaksi.
-
-## Numeric / Stok
-- Input angka bulat menggunakan langkah 1.
-- `1` tetap `1`, `2` tetap `2`, `10` tetap `10`.
-- Tampilan stok seperti `24.000` dinormalisasi menjadi **24**.
-- Nilai database tidak dikalikan 1.000.
-- Nilai pecahan yang benar tetap dipertahankan.
-- Normalisasi hanya memengaruhi representasi UI, bukan nilai database.
-
 ## CRUD dan kontrol data
-- **Produk:** Tambah, Edit, Nonaktifkan, Hapus aman.
+- **Produk:** Tambah, Edit, Simpan, Nonaktifkan, Hapus aman.
+- Produk yang sudah memiliki histori transaksi/mutasi ditolak untuk penghapusan permanen; gunakan **Nonaktifkan**.
 - **Kategori:** Tambah, Edit, Simpan, Hapus.
 - **Satuan:** Tambah, Edit, Simpan, Hapus.
 - **Supplier:** Tambah, Edit, Simpan, Hapus.
 - **Pelanggan:** Tambah, Edit, Simpan, Hapus.
-- Master data dapat dipilih dengan klik baris tabel.
-- Master yang masih direferensikan dilindungi dari penghapusan.
-- **Stok & Mutasi:** koreksi dilakukan sebagai mutasi baru, bukan menghapus histori.
-- **Pembelian/Kas:** koreksi transaksi menggunakan mekanisme yang menjaga histori.
-- **Dashboard/Laporan:** read-only.
-- **Pengaturan/Printer:** edit dan simpan konfigurasi.
-- **Backup/Restore:** action-based.
 
 ## Kasir
-Workflow Kasir yang sudah tersedia:
 - Cari Produk berdasarkan nama/barcode.
-- Scan barcode dan Enter.
-- Qty − / + dengan validasi stok.
-- Hapus item.
-- Batal transaksi.
-- Riwayat hingga 100 transaksi.
-- Cetak ulang struk.
-- Parkir transaksi sementara selama sesi aplikasi.
-- Daftar parkiran untuk lanjutkan/hapus.
-- Shortcut F4 bayar, F8 riwayat, F9 parkiran, F10 parkir, Esc batal.
-
-**Menu Kasir untuk sementara dibekukan pada tahap audit saat ini.** Pengembangan berikutnya tidak dilakukan sampai diminta.
+- Scanner barcode + Enter.
+- Qty − / +.
+- Hapus item dan batal transaksi dengan konfirmasi.
+- Riwayat transaksi dan cetak ulang struk.
+- Parkir transaksi selama sesi aplikasi.
+- Shortcut F4, F8, F9, F10 dan Escape.
 
 ## Reset Data
-Tersedia pada Backup / Restore untuk ADMIN:
-- **RESET TRANSAKSI & STOK** — membersihkan transaksi, pembelian, mutasi dan mengosongkan stok tanpa menghapus master bisnis.
-- **RESET SEMUA DATA BISNIS** — membersihkan seluruh master bisnis dan histori bisnis tanpa menghapus user/settings.
+- **RESET TRANSAKSI & STOK** mempertahankan master bisnis.
+- **RESET SEMUA DATA BISNIS** membersihkan master bisnis dan transaksi.
+- User dan pengaturan toko dipertahankan.
 - Konfirmasi dua tahap dan wajib mengetik `RESET`.
-- Backup tetap disarankan sebelum reset.
 
 ## Integritas transaksi
 - Invoice unik.
@@ -105,22 +70,19 @@ Tersedia pada Backup / Restore untuk ADMIN:
 - CASH menambah kas; QRIS/TRANSFER/DEBIT tidak menambah kas.
 - Pembayaran non-tunai harus sama dengan total.
 - Kembalian hanya CASH.
-- Mutasi stok dicatat untuk penjualan, pembelian dan penyesuaian.
-- Nilai Decimal non-finite ditolak.
-- Service melakukan rollback pada kegagalan commit.
+- Mutasi stok dicatat.
 
 ## Keamanan
 - Password PBKDF2-SHA256 dengan salt acak.
 - User inactive tidak dapat login.
 - Minimal satu Administrator aktif.
-- Mutation user memiliki rollback protection.
 
 ## Default login
 - Username: `admin`
 - Password: `admin123`
 
 ## Data Windows
-Database dan backup EXE berada di `%LOCALAPPDATA%\\WPOS PRO 2`.
+Saat EXE dijalankan, database dan backup berada di `%LOCALAPPDATA%\\WPOS PRO 2`.
 
 ## Menjalankan source
 ```bat
@@ -145,12 +107,18 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ## Tema
 - **Dark Mode** — default.
 - **Light Mode**.
-- Modern Blue, Purple Premium, Emerald, Kemerdekaan dan Keagamaan telah dihapus.
-- Key tema invalid/lama fallback ke DARK.
+- Tema lama yang tidak digunakan sudah dihapus dan key invalid fallback ke DARK.
+
+## Numeric Input
+- Input desktop angka bulat menggunakan langkah 1.
+- `1` tetap `1`, `2` tetap `2`, `10` tetap `10`.
+- Tampilan stok bulat seperti `24.000` dinormalisasi menjadi `24` tanpa mengubah database.
+- Nilai pecahan yang benar tetap dipertahankan.
+- Tidak ada faktor ×1.000.
 
 ## UI
-- Sidebar text-only tanpa ikon menu.
-- Sidebar section background untuk OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM.
+- Sidebar navigasi text-only tanpa ikon menu.
+- Section sidebar: OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
 - Clear button `×` dikendalikan oleh global UI.
@@ -161,7 +129,6 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Template `.xlsx`.
 - Import mode Tambah atau Update berdasarkan Barcode.
 - Update tidak mengubah stok berjalan.
-- Import tidak mengubah transaksi atau saldo kas.
 
 ## Versioning
 - Fitur/perubahan besar: naik MINOR.
@@ -169,50 +136,36 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.2
+- Memperbaiki crash login/UI akibat `form_layouts.py` mengakses `load_products` pada widget halaman yang tidak memiliki method tersebut.
+- Menjadikan akses helper Produk menggunakan owner `MainWindow` secara aman.
+- Mempertahankan Hapus Produk dan normalisasi tampilan stok.
+- Menyinkronkan config dan installer ke **2.7.2**.
+
 ### 2.7.1
-- Memperbaiki tampilan stok pada menu Produk agar `24.000` tampil sebagai `24`.
-- Normalisasi stok dilakukan pada lapisan UI dan tidak mengalikan nilai database.
-- Normalisasi tetap diterapkan setelah tabel Produk di-refresh.
-- Menambahkan **Hapus Produk** permanen.
-- Penghapusan hanya diizinkan untuk produk tanpa histori penjualan, pembelian dan mutasi stok.
-- Produk yang sudah memiliki histori tetap dilindungi dan harus menggunakan **Nonaktifkan**.
-- Menambahkan service penghapusan produk dengan rollback protection.
-- Menambahkan sinkronisasi versi config dan installer ke **2.7.1**.
+- Menambahkan Hapus Produk permanen dengan konfirmasi.
+- Produk yang memiliki histori penjualan, pembelian atau mutasi stok tidak dapat dihapus permanen.
+- Menambahkan normalisasi tampilan stok agar angka bulat tidak tampil sebagai `24.000`.
 
 ### 2.7.0
-- Menambahkan Parkir Transaksi dan Daftar Parkiran pada Kasir.
-- Menambahkan shortcut F9 dan F10.
-- Parkiran tidak membuat transaksi penjualan, mutasi stok atau mutasi kas sampai checkout.
-- Tidak mengubah schema database Kasir pada tahap ini.
+- Pengembangan workflow Kasir PRO dan Parkir Transaksi.
 
 ### 2.6.0
-- Menyempurnakan workflow Kasir satu komputer.
-- Pencarian produk nama/barcode.
-- Qty − / + dengan validasi stok.
-- Hapus Item dan Batal Transaksi.
-- Riwayat transaksi dan Cetak Ulang Struk.
-- Shortcut F4, F8 dan Escape.
+- Menyempurnakan workflow Kasir: pencarian produk, Qty, hapus item, batal transaksi, riwayat, cetak ulang dan shortcut.
 
 ### 2.5.1
-- Struktur sidebar OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM.
-- Background section theme-aware.
-- SYSTEM memiliki jarak visual lebih besar.
-- Sidebar tetap text-only.
+- Memperjelas section sidebar dan styling Dark/Light Mode.
 
 ### 2.5.0
-- Reset Transaksi & Stok.
-- Reset Semua Data Bisnis.
-- Konfirmasi dua tahap dengan kata `RESET`.
-- User dan settings dipertahankan.
+- Menambahkan Reset Data dengan konfirmasi dua tahap.
 
-## Arsitektur utama
+## Arsitektur
 - `app/ui/modern_main_window.py` — shell/sidebar/topbar/stack.
 - `app/ui/main_window.py` — halaman dan workflow.
 - `app/ui/premium_cashier.py` — UI Kasir.
 - `app/ui/master_data.py` — CRUD master data.
-- `app/ui/form_layouts.py` — hybrid form, Excel UI, normalisasi stok Produk dan kontrol reset/hapus Produk.
+- `app/ui/form_layouts.py` — hybrid form, Excel UI, reset dan kontrol Produk.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
 - `app/ui/theme_shell.py` — palette DARK/LIGHT.
 - `app/ui/ux2026.py` — interaction/accessibility.
-- `app/services/product_delete.py` — penghapusan produk aman berbasis histori.
-- `app/services/reset.py` — reset data bisnis dengan FK-safe deletion.
+- `app/services/product_delete.py` — penghapusan Produk dengan perlindungan histori.
