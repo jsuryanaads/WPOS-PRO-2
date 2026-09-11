@@ -48,8 +48,8 @@ def test_hybrid_layouts_use_popup_for_complex_forms_and_master_forms():
     window = QWidget()
     stack = QStackedWidget(window)
     pages = [QWidget() for _ in range(14)]
-    pages[2] = _complex_page("Produk")
-    pages[4] = _complex_page("Pembelian")
+    pages[2] = _complex_page("Data Produk")
+    pages[4] = _complex_page("Data Pembelian")
     pages[10] = _master_page("Kategori", ["Name"])
     pages[11] = _master_page("Satuan", ["Name"])
     pages[12] = _master_page("Supplier", ["Name", "Phone", "Address"])
