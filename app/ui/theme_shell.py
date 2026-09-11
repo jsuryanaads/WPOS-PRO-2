@@ -83,7 +83,7 @@ QPushButton {{ background: {p['accent']}; color: {p['inverse']}; border-color: {
 QPushButton:hover {{ background: {p['shell_hover']}; color: {p['inverse']}; border-color: {p['shell_hover']}; }}
 QPushButton#primary, QPushButton#dashboardPrimary {{ background: {p['accent']}; color: {p['inverse']}; border-color: {p['accent']}; }}
 QPushButton#danger {{ background: {p['danger']}; color: {p['inverse']}; border-color: {p['danger']}; }}
-QPushButton#dashboardSecondary {{ background: {p['surface_alt']}; color: {p['text']}; border-color: {p['border']}; }}
+QPushButton#dashboardSecondary, QPushButton#secondary {{ background: {p['surface_alt']}; color: {p['text']}; border-color: {p['border']}; }}
 QPushButton#dashboardGhost {{ background: {p['surface']}; color: {p['text']}; border-color: {p['border']}; }}
 QTableWidget {{ background: {p['surface']}; color: {p['text']}; border: 1px solid {p['border']}; gridline-color: {p['border']}; alternate-background-color: {p['table_alt']}; selection-background-color: {p['selected']}; selection-color: {p['selected_text']}; }}
 QTableWidget::item {{ padding: 7px; }}
@@ -91,6 +91,13 @@ QHeaderView::section {{ background: {p['header']}; color: {p['text']}; border: 0
 QScrollBar::handle:vertical {{ background: {p['border']}; border-radius: 4px; min-height: 28px; }}
 QScrollBar::handle:vertical:hover {{ background: {p['muted']}; }}
 QToolTip {{ background: {p['shell']}; color: {p['inverse']}; border: 1px solid {p['border']}; padding: 6px 8px; }}
+
+/* Master pages use the same surfaces as every other WPOS PRO V2 page. */
+QFrame#masterHeader {{ background: transparent; border: 0; }}
+QFrame#masterFormCard, QFrame#masterTableCard {{ background: {p['surface']}; color: {p['text']}; border: 1px solid {p['border']}; border-radius: 12px; }}
+QLabel#sectionTitle {{ color: {p['text']}; font-size: 13px; font-weight: 800; padding: 2px 4px; }}
+QFrame#masterFormCard QLabel {{ color: {p['text']}; }}
+QTableWidget#masterTable {{ background: {p['surface']}; color: {p['text']}; }}
 
 QWidget#premiumCashierPage, QFrame#premiumScanCard, QFrame#premiumCartCard, QFrame#premiumPayCard, QFrame#premiumChangeBox, QFrame#premiumTotalBox {{ background: {p['surface']}; color: {p['text']}; border: 1px solid {p['border']}; border-radius: 12px; }}
 QLabel#premiumPageTitle, QLabel#premiumSectionTitle {{ color: {p['text']}; font-weight: 900; }}
