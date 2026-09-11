@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.4.0**
+- Versi aplikasi: **2.4.1**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -130,6 +130,15 @@ Halaman Kasir menggunakan workflow fokus transaksi:
 - Kebijakan clear button dikendalikan oleh `global_ui.py`; layer UX tidak boleh mengaktifkannya kembali.
 - Perubahan UI tidak mengubah business logic pembayaran, stok, transaksi atau database schema.
 
+## Numeric Input / Stok / Quantity
+- Input angka tidak dikalikan **1.000** oleh UI.
+- Nilai `1` tetap **1**, `2` tetap **2**, `10` tetap **10**.
+- Nilai pecahan tetap didukung, misalnya `1,2`/`1.2` tetap bernilai **1,2**.
+- Tampilan `QDoubleSpinBox` dikompakkan sehingga nilai `1` tidak lagi ditampilkan sebagai `1.000` yang dapat disalahartikan sebagai seribu.
+- Nilai `1000` tetap **1000**; UI tidak melakukan konversi ke ribuan.
+- Perbaikan hanya pada presentation/input display; nilai yang dikirim ke business service tetap berasal dari `spinbox.value()` tanpa faktor pengali.
+- Berlaku konsisten pada numeric input yang menggunakan `QDoubleSpinBox`, termasuk quantity, stok awal dan stok minimum, tanpa mengubah aturan database atau transaksi.
+
 ## Sidebar navigation
 Navigasi sidebar menggunakan **teks saja tanpa ikon menu**.
 - Ikon dekoratif tidak lagi dirender.
@@ -194,6 +203,15 @@ Spesifikasi:
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.4.1
+- Memperbaiki tampilan numeric input `QDoubleSpinBox` yang sebelumnya menampilkan angka bulat seperti `1` sebagai `1.000` sehingga berpotensi disalahartikan sebagai 1.000/seribu.
+- Nilai angka sekarang ditampilkan secara compact: `1` → `1`, `2` → `2`, `10` → `10`, `1.2` → `1.2`, `1000` → `1000`.
+- Tidak ada faktor pengali **×1.000** dan tidak ada perubahan pada nilai yang dikirim ke business service.
+- Presisi pecahan hingga 3 desimal tetap dipertahankan untuk quantity/stok yang memang membutuhkan pecahan.
+- Menambahkan regression test untuk memastikan perbaikan bersifat presentation-only.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.4.1**.
+- Tidak mengubah database schema, business logic transaksi, pembayaran, stok, kas atau alur kasir.
+
 ### 2.4.0
 - Menambahkan fitur **Export Produk ke Excel** (`.xlsx`).
 - Menambahkan **Template Excel Produk** untuk input massal.
