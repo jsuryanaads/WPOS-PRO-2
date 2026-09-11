@@ -179,9 +179,7 @@ def _normalize_controls(root):
         for widget in root.findChildren(widget_type):
             widget.setFocusPolicy(Qt.StrongFocus)
             widget.setMinimumHeight(max(widget.minimumHeight(), 32))
-            if isinstance(widget, QLineEdit):
-                widget.setClearButtonEnabled(True)
-            elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+            if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
                 widget.setMinimumWidth(max(widget.minimumWidth(), 110))
 
     for button in root.findChildren(QPushButton):
