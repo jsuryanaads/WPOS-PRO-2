@@ -1,22 +1,53 @@
 import sys
-from PySide6.QtWidgets import QApplication
+from datetime import datetime
+from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel
 from PySide6.QtGui import QIcon
-from .config import APP_VERSION
+from .config import APP_NAME, APP_VERSION
 from .database import init_db
 from .ui.login import LoginWindow
 from .ui.modern_main_window import ModernMainWindow
 from .ui.user_management import UserManagementDialog
-from .ui.branding import LOGO_PATH
+from .ui.branding import ICON_PATH
 from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 
 
+FOOTER_MODE = "Offline POS"
+FOOTER_STORAGE = "Local Database"
+FOOTER_OWNER = "Jsuryana"
+
+
+def add_application_footer(window):
+    """Add one automatic application footer to the modern content area."""
+    content = window.findChild(QFrame, "modernContent")
+    if content is None or content.layout() is None:
+        return
+    if window.findChild(QFrame, "applicationFooter") is not None:
+        return
+
+    footer = QFrame()
+    footer.setObjectName("applicationFooter")
+    layout = QHBoxLayout(footer)
+    layout.setContentsMargins(8, 2, 8, 2)
+    layout.setSpacing(0)
+
+    label = QLabel(
+        f"{APP_NAME} · {FOOTER_MODE} · © {datetime.now().year} · "
+        f"{FOOTER_STORAGE} · {FOOTER_OWNER}"
+    )
+    label.setObjectName("applicationFooterLabel")
+    label.setAlignment(Qt.AlignCenter)
+    layout.addWidget(label)
+
+    content.layout().addWidget(footer, 0)
+
+
 def main():
     init_db()
     app = QApplication(sys.argv)
-    if LOGO_PATH.exists():
-        app.setWindowIcon(QIcon(str(LOGO_PATH)))
+    if ICON_PATH.exists():
+        app.setWindowIcon(QIcon(str(ICON_PATH)))
     apply_theme(app, current_theme())
     holder = {}
 
@@ -47,6 +78,7 @@ def main():
         window.setStyleSheet("")
         apply_theme(app, current_theme())
         refresh_ui(window)
+        add_application_footer(window)
         holder["main"] = window
 
         theme_menu = window.menuBar().addMenu("Tema")
