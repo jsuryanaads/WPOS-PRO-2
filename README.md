@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.5.0**
+- Versi aplikasi: **2.5.1**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -31,6 +31,15 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 12. Satuan
 13. Supplier
 14. Pelanggan
+
+## Struktur Sidebar
+Sidebar menggunakan empat kelompok visual:
+- **OPERASIONAL** — Dashboard, Kasir, Produk, Stok & Mutasi, Pembelian.
+- **KEUANGAN** — Kas, Laporan.
+- **DATA MASTER** — Pelanggan, Supplier, Kategori, Satuan.
+- **SYSTEM** — Pengaturan Toko, Printer, Backup / Restore.
+
+Judul setiap kelompok memakai background section yang halus, dengan gaya konsisten pada Dark Mode dan Light Mode. Perubahan ini hanya visual dan tidak mengubah index navigasi, permission, atau business logic.
 
 ## CRUD dan kontrol data
 - **Produk:** Tambah, Edit, Simpan, Nonaktifkan. Penghapusan permanen tidak digunakan agar histori transaksi tetap aman.
@@ -121,6 +130,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 
 ## UI
 - Sidebar navigasi text-only tanpa ikon menu.
+- Sidebar memakai section background untuk OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
 - Clear button `×` dikendalikan oleh global UI dan tidak diaktifkan kembali oleh layer UX.
@@ -139,6 +149,14 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.5.1
+- Memperjelas struktur sidebar menjadi empat section: **OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM**.
+- Menambahkan background section khusus di belakang judul kelompok sidebar.
+- Styling section disinkronkan dengan Dark Mode dan Light Mode.
+- Tetap mempertahankan sidebar text-only tanpa ikon.
+- Tidak mengubah navigasi, permission, database atau business logic.
+- Menyinkronkan `APP_VERSION` ke **2.5.1**.
+
 ### 2.5.0
 - Menambahkan fitur **Reset Data** pada halaman Backup / Restore.
 - Menambahkan **RESET TRANSAKSI & STOK** untuk membersihkan histori transaksi/mutasi dan mengosongkan stok tanpa menghapus master data.
