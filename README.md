@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.16**
+- Versi aplikasi: **2.4.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -144,9 +144,10 @@ UI modern mengikuti pembagian tanggung jawab berikut:
 - `ux2026.py` — interaction/accessibility tanpa palette dan tanpa mengubah kebijakan global control.
 - `polish.py` — refinements theme-neutral yang tidak mengambil alih kontrak global.
 - `main_window.py`, `premium_cashier.py`, `master_data.py` — layout dan workflow halaman.
-- `form_layouts.py` — penataan form hybrid/popup sebagai presentation layer.
+- `form_layouts.py` — penataan form hybrid/popup dan aksi Excel Produk sebagai presentation layer.
 - `dashboard_welcome.py` — welcome content Dashboard.
 - `services/validation.py` — validasi Decimal terpusat untuk nilai numerik finite dan non-negative sesuai domain.
+- `services/excel.py` — import/export Produk berbasis `.xlsx`.
 
 Aturan penting: **global_ui.py adalah sumber aturan global untuk kontrol dan geometry; theme_shell.py adalah sumber palette; layer halaman tidak boleh mengaktifkan kembali aturan global yang sudah dinonaktifkan.** Business logic tetap berada di `app/services/` dan database model di `app/models.py`.
 
@@ -164,6 +165,19 @@ Aturan penting: **global_ui.py adalah sumber aturan global untuk kontrol dan geo
 
 Lapisan `app/ui/form_layouts.py` hanya mengubah penyajian dan penempatan widget. Widget serta signal bisnis yang sudah ada dipertahankan; tidak ada perubahan business logic atau database schema.
 
+## Excel Produk
+Fitur Excel tersedia di halaman **Produk**:
+- **Export Excel** — mengekspor seluruh data produk ke `.xlsx`.
+- **Template Excel** — menghasilkan file `.xlsx` dengan format kolom yang sama untuk import massal.
+- **Import Excel** — pilihan **Tambah** atau **Update berdasarkan Barcode**.
+- Format kolom: `Barcode`, `Nama Produk`, `Kategori`, `Satuan`, `Harga Beli`, `Harga Jual`, `Stok Awal`, `Stok Minimum`, `Aktif`.
+- Barcode harus unik, nama wajib, angka bisnis tidak boleh negatif/non-finite.
+- Kategori dan Satuan harus sudah tersedia di master data.
+- Import diproses **atomic**: jika ada error validasi, perubahan tidak diterapkan.
+- Mode **Update** tidak mengubah stok berjalan; perubahan stok tetap melalui Stok & Mutasi.
+- Produk baru dengan Stok Awal membuat `StockMovement` bertipe `OPENING` dengan referensi `IMPORT-EXCEL`.
+- Import Excel tidak dapat mengubah transaksi penjualan, pembelian atau saldo kas.
+
 ## Footer aplikasi
 Struktur bersama:
 **Nama aplikasi | Versi aplikasi | Tahun otomatis | by Jsuryana**
@@ -180,6 +194,18 @@ Spesifikasi:
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.4.0
+- Menambahkan fitur **Export Produk ke Excel** (`.xlsx`).
+- Menambahkan **Template Excel Produk** untuk input massal.
+- Menambahkan **Import Produk dari Excel** dengan mode Tambah atau Update berdasarkan Barcode.
+- Import divalidasi sebelum mutation dan menggunakan satu transaction commit agar kegagalan tidak meninggalkan data parsial.
+- Update berdasarkan Barcode tidak mengubah stok berjalan.
+- Produk baru dengan Stok Awal tetap menghasilkan catatan `StockMovement`.
+- Menambahkan dependency `openpyxl`.
+- Menambahkan regression tests untuk export/import, format header, atomic validation dan preservasi stok.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.4.0**.
+- Tidak mengubah database schema, alur kasir, aturan pembayaran atau saldo kas.
+
 ### 2.3.16
 - **Role cleanup:** role resmi disederhanakan menjadi **ADMIN** dan **KASIR**.
 - Menghapus `PENGELOLA` dan `TEKNISI` dari permission policy.
