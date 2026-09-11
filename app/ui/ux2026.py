@@ -17,6 +17,10 @@ def apply_ux2026(window):
     Geometry and colors belong to global_ui.py and theme_shell.py. This layer
     intentionally contains no palette or color rules so it cannot override
     the active WPOS PRO 2 theme.
+
+    Global control policy also belongs to global_ui.py. In particular this
+    layer must never re-enable native QLineEdit clear buttons, because that
+    would override the application-wide text-first input contract.
     """
     window.setAttribute(Qt.WA_StyledBackground, True)
 
@@ -27,8 +31,6 @@ def apply_ux2026(window):
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setSortingEnabled(False)
         table.setFocusPolicy(Qt.StrongFocus)
-        # Keep keyboard navigation available without displaying a persistent
-        # instructional tooltip over the dashboard/table workspace.
         table.setToolTip("")
         table.verticalHeader().setVisible(False)
         table.setWordWrap(False)
@@ -36,8 +38,8 @@ def apply_ux2026(window):
     for widget_type in (QLineEdit, QComboBox, QDoubleSpinBox, QSpinBox, QTextEdit):
         for widget in window.findChildren(widget_type):
             widget.setFocusPolicy(Qt.StrongFocus)
-            if isinstance(widget, QLineEdit):
-                widget.setClearButtonEnabled(True)
+            # Clear buttons are controlled exclusively by global_ui.py.
+            # Never enable them here.
 
     shortcut = QShortcut(QKeySequence("Ctrl+K"), window)
     shortcut.setContext(Qt.WindowShortcut)
