@@ -30,6 +30,11 @@ def main():
         apply_global_ui(app, window)
         apply_dashboard_welcome(window)
         apply_hybrid_form_layouts(window)
+        paid = getattr(window, "paid", None)
+        if paid is not None and hasattr(window, "update_change") and not getattr(window, "_wpos_paid_change_live", False):
+            paid.valueChanged.connect(lambda _value: window.update_change())
+            window._wpos_paid_change_live = True
+            window.update_change()
 
     def change_theme(key, menu, window):
         set_theme(key)
