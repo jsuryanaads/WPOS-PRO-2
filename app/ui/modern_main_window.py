@@ -178,7 +178,7 @@ class ModernMainWindow(MainWindow):
         self.tabs = self._compat_tabs(old_tabs, titles)
         apply_premium_cashier(self)
         self._polish_dashboard()
-        self._remove_cosmetic_button_prefixes()
+        self._remove_cosmetic_prefixes()
         self._select_navigation(0)
 
     def _compat_tabs(self, old_tabs, titles):
@@ -280,28 +280,31 @@ class ModernMainWindow(MainWindow):
             value = card.findChild(QLabel, "cardValue")
             if not title or not value:
                 continue
-            card_layout = card.layout()
-            if card_layout is None:
-                continue
             self._shadow(card, blur=16, y=3)
 
         for button in dashboard.findChildren(QPushButton):
             text = button.text().strip()
-            if text == "Transaksi Baru":
+            if text in {"+ Transaksi Baru", "Transaksi Baru"}:
                 button.setObjectName("dashboardPrimary")
-            elif text == "Produk":
+            elif text in {"+ Produk", "Produk"}:
                 button.setObjectName("dashboardSecondary")
             else:
                 button.setObjectName("dashboardGhost")
 
-    def _remove_cosmetic_button_prefixes(self):
-        """Remove decorative leading symbols while preserving button actions."""
+    def _remove_cosmetic_prefixes(self):
+        """Remove decorative leading symbols while preserving widget actions."""
         if not hasattr(self, "modern_stack"):
             return
-        prefixes = ("+ ", "＋ ", "↻ ", "↥ ", "▣ ", "□ ", "▤ ", "◫ ", "◇ ", "⚙ ")
+        prefixes = ("+ ", "＋ ", "↻ ", "↥ ", "▣ ", "□ ", "▤ ", "◫ ", "◇ ", "⚙ ", "● ")
         for button in self.findChildren(QPushButton):
             text = button.text()
             for prefix in prefixes:
                 if text.startswith(prefix):
                     button.setText(text[len(prefix):])
+                    break
+        for label in self.findChildren(QLabel):
+            text = label.text()
+            for prefix in prefixes:
+                if text.startswith(prefix):
+                    label.setText(text[len(prefix):])
                     break
