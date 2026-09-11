@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.4.2**
+- Versi aplikasi: **2.4.3**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -131,12 +131,11 @@ Halaman Kasir menggunakan workflow fokus transaksi:
 - Perubahan UI tidak mengubah business logic pembayaran, stok, transaksi atau database schema.
 
 ## Numeric Input / Stok / Quantity
-- Seluruh numeric input desktop sekarang diperlakukan sebagai **angka bulat** untuk menghilangkan ambiguitas separator lokal.
+- Numeric input desktop menggunakan angka bulat pada UI untuk menghilangkan ambiguitas separator lokal.
 - `1` tetap **1**, `2` tetap **2**, `10` tetap **10**.
-- Tidak ada lagi tampilan `1.000`, `2.000` atau `10.000` pada field input yang dapat disalahartikan sebagai seribu, dua ribu atau sepuluh ribu.
-- Input stok, minimum stok, quantity kasir, quantity pembelian, harga, diskon, pembayaran dan nominal kas menggunakan langkah **1** pada UI.
 - Tidak ada faktor pengali **×1.000** pada UI maupun business service.
-- Business service tetap menerima nilai dari `.value()` dan melakukan validasi Decimal; perubahan ini hanya memperjelas kontrak input desktop.
+- Pada tabel stok, nilai `Decimal` yang secara matematis bulat sekarang dikembalikan sebagai integer untuk tampilan: `24.000` ditampilkan **24**, `10.000` ditampilkan **10**.
+- Nilai pecahan yang benar-benar ada tetap dipertahankan sebagai nilai pecahan; tidak ada pembulatan atau perkalian otomatis.
 - Data database yang sudah tersimpan tidak dimigrasikan atau dikalikan otomatis.
 
 ## Sidebar navigation
@@ -203,6 +202,13 @@ Spesifikasi:
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.4.3
+- Memperbaiki tampilan hasil `stock_summary()` agar nilai stok dan minimum yang secara matematis bulat tidak lagi ditampilkan sebagai `24.000`, `10.000`, dan format serupa.
+- Nilai bulat ditampilkan sebagai integer (`24`, `10`) tanpa mengubah nilai database.
+- Nilai pecahan tetap dipertahankan; tidak dilakukan perkalian ×1.000 maupun pembulatan otomatis.
+- Menambahkan aturan dokumentasi numeric display pada README.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.4.3**.
+
 ### 2.4.2
 - Memperbaiki akar masalah numeric input yang masih dapat dibaca sebagai format ribuan karena `QDoubleSpinBox` memakai presisi 3 desimal.
 - Numeric input desktop sekarang menggunakan presisi **0 desimal** dan langkah **1**.
@@ -256,18 +262,3 @@ Spesifikasi:
 - Menghapus override tersebut dari layer UX.
 - Menetapkan `global_ui.py` sebagai sumber tunggal kebijakan clear button.
 - Menambahkan regression test arsitektur UI.
-
-### 2.3.13
-- Memperbaiki kasus tombol **×** pada field `QLineEdit` biasa, termasuk Pengaturan Toko.
-- Menonaktifkan clear button pada seluruh `QLineEdit` dan input internal numeric spinbox.
-- Menambahkan regression test global.
-
-### 2.3.12
-- Menghapus ikon dekoratif dari shell modern, termasuk ikon menu sidebar dan simbol dekoratif Dashboard.
-- Mempertahankan logo WPOS sebagai identitas aplikasi.
-- Menambahkan regression coverage untuk UI text-first.
-
-### 2.3.11
-- Menghapus ikon dekoratif dari seluruh menu sidebar modern.
-- Sidebar hanya menampilkan nama section dan teks menu.
-- Mempertahankan `Qt.UserRole` dan index navigasi.
