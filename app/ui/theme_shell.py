@@ -23,11 +23,10 @@ QListWidget#modernNav {{ background:{p['shell']}; color:{p['sidebar_text']}; bor
 QListWidget#modernNav::item {{ background:transparent; color:{p['sidebar_text']}; padding:9px 8px; margin:1px 0; border:0; border-radius:8px; font-size:12px; }}
 QListWidget#modernNav::item:hover {{ background:{p['shell_hover']}; color:{p['sidebar_inverse']}; }}
 QListWidget#modernNav::item:selected {{ background:{p['selected']}; color:{p['selected_text']}; font-weight:800; }}
-QListWidget#modernNav::item:disabled {{ background:{p['surface_alt']}; color:{p['sidebar_inverse']}; padding:7px 10px; margin:8px 0 4px; border:1px solid {p['shell_hover']}; border-radius:6px; font-size:9px; font-weight:900; letter-spacing:0.5px; }}
-QListWidget#modernNav::item:disabled[section="OPERASIONAL"] {{ background:{p['shell_alt']}; }}
-QListWidget#modernNav::item:disabled[section="KEUANGAN"] {{ background:{p['surface_alt']}; }}
-QListWidget#modernNav::item:disabled[section="DATA MASTER"] {{ background:{p['shell_alt']}; }}
-QListWidget#modernNav::item:disabled[section="SYSTEM"] {{ background:{p['surface_alt']}; }}
+QLabel#modernNavSection {{ background:{p['shell_alt']}; color:{p['sidebar_inverse']}; border:1px solid {p['shell_hover']}; border-radius:7px; padding:6px 10px; margin:7px 0 3px; font-size:9px; font-weight:900; letter-spacing:0.8px; }}
+QLabel#modernNavSection[section="KEUANGAN"] {{ background:{p['surface_alt']}; }}
+QLabel#modernNavSection[section="DATA MASTER"] {{ background:{p['shell_alt']}; }}
+QLabel#modernNavSection[section="SYSTEM"] {{ background:{p['surface_alt']}; margin-top:12px; }}
 QFrame#modernAccount {{ background:{p['shell_alt']}; border:1px solid {p['shell_hover']}; border-radius:12px; }}
 QLabel#modernUser {{ color:{p['sidebar_inverse']}; font-weight:800; }}
 QLabel#modernRole {{ color:{p['muted']}; font-size:10px; }}
