@@ -18,10 +18,14 @@ def create_user(session, username, password, role="TEKNISI"):
     if session.query(User).filter_by(username=username).first():
         raise ValueError("Username sudah digunakan")
     user = User(username=username, password_hash=hash_password(password), role=role, active=True)
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
+    try:
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return user
+    except Exception:
+        session.rollback()
+        raise
 
 
 def set_user_active(session, user_id, active, actor_user_id=None):
@@ -35,9 +39,13 @@ def set_user_active(session, user_id, active, actor_user_id=None):
         if active_admins <= 1:
             raise ValueError("Minimal satu Administrator aktif harus tersedia")
     user.active = bool(active)
-    session.commit()
-    session.refresh(user)
-    return user
+    try:
+        session.commit()
+        session.refresh(user)
+        return user
+    except Exception:
+        session.rollback()
+        raise
 
 
 def reset_password(session, user_id, new_password):
@@ -47,6 +55,10 @@ def reset_password(session, user_id, new_password):
     if not user:
         raise ValueError("User tidak ditemukan")
     user.password_hash = hash_password(new_password)
-    session.commit()
-    session.refresh(user)
-    return user
+    try:
+        session.commit()
+        session.refresh(user)
+        return user
+    except Exception:
+        session.rollback()
+        raise
