@@ -7,20 +7,21 @@ def test_admin_has_full_access():
     assert can_access("ADMIN", "backup")
 
 
-def test_pengelola_operational_access():
-    assert can_access("PENGELOLA", "cashier")
-    assert can_access("PENGELOLA", "purchase")
-    assert can_access("PENGELOLA", "cash")
+def test_kasir_has_operational_access_only():
+    assert can_access("KASIR", "dashboard")
+    assert can_access("KASIR", "cashier")
+    assert can_access("KASIR", "customer")
+    assert not can_access("KASIR", "users")
+    assert not can_access("KASIR", "backup")
+    assert not can_access("KASIR", "settings")
+    assert not can_access("KASIR", "purchase")
+
+
+def test_removed_roles_are_denied():
+    assert not can_access("PENGELOLA", "dashboard")
+    assert not can_access("TEKNISI", "products")
     assert not can_access("PENGELOLA", "users")
-
-
-def test_teknisi_is_restricted():
-    assert can_access("TEKNISI", "products")
-    assert can_access("TEKNISI", "stock")
-    assert can_access("TEKNISI", "reports")
     assert not can_access("TEKNISI", "cashier")
-    assert not can_access("TEKNISI", "purchase")
-    assert not can_access("TEKNISI", "backup")
 
 
 def test_unknown_role_is_denied():
