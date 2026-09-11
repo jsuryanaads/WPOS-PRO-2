@@ -1,5 +1,5 @@
-from decimal import Decimal
 from ..models import Purchase, PurchaseItem, Product, Supplier, StockMovement
+from .validation import decimal_value
 
 
 def create_purchase(session, items, supplier_id, invoice_no):
@@ -17,14 +17,14 @@ def create_purchase(session, items, supplier_id, invoice_no):
         if not supplier:
             raise ValueError("Supplier tidak ditemukan")
 
-    total = Decimal("0")
+    total = decimal_value(0, "Total")
     normalized_items = []
     try:
         for row in items:
             product_id = int(row["product_id"])
-            qty = Decimal(str(row["quantity"]))
-            cost = Decimal(str(row["unit_cost"]))
-            if qty <= 0 or cost < 0:
+            qty = decimal_value(row["quantity"], "Jumlah", non_negative=True)
+            cost = decimal_value(row["unit_cost"], "Harga pembelian", non_negative=True)
+            if qty == 0:
                 raise ValueError("Jumlah/harga pembelian tidak valid")
             product = session.get(Product, product_id)
             if not product or not product.active:
