@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.7**
+- Versi aplikasi: **2.3.8**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -107,6 +107,15 @@ Header Dashboard sekarang memakai topbar modern sebagai satu-satunya area sambut
 - **STOK MENIPIS / HABIS** tetap merupakan kondisi stok saat ini.
 - **SALDO KAS** tetap saldo berjalan dan tidak dibatasi hanya hari ini.
 
+## Kasir
+Halaman Kasir menggunakan workflow fokus transaksi:
+- Input barcode di bagian atas dengan Enter untuk menambah barang.
+- Keranjang mengambil ruang utama agar daftar item mudah dipantau.
+- Ringkasan pembayaran memakai panel kanan dengan lebar minimum yang cukup untuk label dan field nominal.
+- Tombol **CLEAR** dan **BAYAR & CETAK** memiliki ukuran minimum agar teks tidak terpotong atau berhimpitan pada resolusi desktop.
+- Metode pembayaran tetap **CASH, QRIS, TRANSFER, DEBIT**.
+- Perubahan ini hanya memperbaiki geometry/presentasi UI dan tidak mengubah business logic pembayaran, stok, transaksi atau database schema.
+
 ## Form input — Hybrid UX
 Pada **v2.3.4**, form input menggunakan pola hybrid agar halaman data tidak dipenuhi form panjang:
 - **Produk:** form lengkap dibuka sebagai popup; tabel produk tetap menjadi fokus halaman.
@@ -141,6 +150,15 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.8
+- Memperbaiki geometry halaman **Kasir** berdasarkan audit screenshot produksi.
+- Memperlebar panel **Ringkasan Pembayaran** agar field Diskon, Metode dan Bayar tidak terlalu sempit.
+- Memberi ukuran minimum pada tombol **CLEAR** dan **BAYAR & CETAK** agar teks dan target klik tetap jelas.
+- Mengurangi ketergantungan pada rasio stretch sehingga panel pembayaran tetap stabil pada resolusi desktop.
+- Menambahkan regression test untuk geometry panel pembayaran dan keberadaan seluruh metode pembayaran.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.8**.
+- Tidak mengubah business logic transaksi atau database schema.
+
 ### 2.3.7
 - Memperbaiki tampilan Dashboard berdasarkan audit screenshot produksi.
 - Menghilangkan header/branding Dashboard internal yang sebelumnya menyisakan area kosong dan logo terpisah.
@@ -229,4 +247,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.7.** Perbaikan Dashboard screenshot selesai; CI untuk commit terbaru harus PASS sebelum build EXE/installer dianggap release final.
+**WPOS PRO 2 — v2.3.8.** Perbaikan Dashboard dan Kasir screenshot sudah masuk source; CI harus PASS sebelum build EXE/installer dianggap release final.
