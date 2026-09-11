@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.6.0**
+- Versi aplikasi: **2.7.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -56,7 +56,7 @@ Judul setiap kelompok memakai background section yang halus, dengan gaya konsist
 - **Pengaturan Toko/Printer:** edit dan simpan konfigurasi.
 - **Backup/Restore:** action-based.
 
-## Kasir v2.6.0
+## Kasir v2.7.0
 Workflow Kasir diperkuat untuk penggunaan cepat pada satu komputer:
 - **Cari Produk** berdasarkan nama atau barcode melalui dialog pencarian.
 - **Tambah Barang** tetap mendukung scanner barcode dan Enter.
@@ -66,8 +66,11 @@ Workflow Kasir diperkuat untuk penggunaan cepat pada satu komputer:
 - **Batal Transaksi** mengosongkan keranjang dengan konfirmasi.
 - **Riwayat Transaksi** menampilkan hingga 100 transaksi terbaru.
 - **Cetak Ulang Struk** tersedia dari Riwayat berdasarkan transaksi tersimpan.
-- Shortcut PC: **F4** bayar & cetak, **F8** riwayat, **Esc** batal transaksi.
-- Perubahan Kasir hanya berada pada lapisan UI/workflow; service `create_sale` dan aturan transaksi tidak diubah.
+- **Parkir Transaksi** menyimpan sementara keranjang aktif beserta diskon, metode pembayaran dan nominal bayar.
+- **Daftar Parkiran** memungkinkan kasir melanjutkan atau menghapus transaksi yang diparkir.
+- Parkiran bersifat **sementara di sesi aplikasi** dan tidak mengubah database transaksi sampai checkout dilakukan.
+- Shortcut PC: **F4** bayar & cetak, **F8** riwayat, **F9** daftar parkiran, **F10** parkir, **Esc** batal transaksi.
+- Perubahan Kasir tetap berada pada lapisan UI/workflow; service `create_sale` dan aturan transaksi tidak diubah.
 - Tidak ada perubahan schema database.
 
 ## Reset Data
@@ -81,7 +84,7 @@ Tersedia di halaman **Backup / Restore** untuk ADMIN:
 - Backup tetap disarankan sebelum reset karena reset bersifat permanen.
 
 ## Alur kasir
-Cari/Scan → Tambah Barang → Keranjang → Qty → Diskon → Pembayaran → Kembalian → Stok berkurang → Transaksi tersimpan → Cetak struk.
+Cari/Scan → Tambah Barang → Keranjang → Qty → Diskon → Parkir bila perlu → Pembayaran → Kembalian → Stok berkurang → Transaksi tersimpan → Cetak struk.
 
 ## Integritas transaksi
 - Invoice unik.
@@ -164,6 +167,15 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.0
+- Menambahkan **Parkir Transaksi** untuk menyimpan sementara keranjang aktif.
+- Parkiran menyimpan item, Qty, diskon, metode pembayaran dan nominal bayar selama sesi aplikasi.
+- Menambahkan **Daftar Parkiran** untuk melanjutkan atau menghapus transaksi sementara.
+- Menambahkan shortcut **F9** untuk membuka daftar parkiran dan **F10** untuk memarkir transaksi.
+- Parkiran tidak membuat transaksi penjualan, mutasi stok atau mutasi kas sampai checkout dilakukan.
+- Tidak mengubah schema database dan tetap mempertahankan service `create_sale`.
+- Menyinkronkan versi aplikasi dan installer ke **2.7.0**.
+
 ### 2.6.0
 - Menyempurnakan **Kasir** untuk workflow satu komputer.
 - Menambahkan pencarian produk berdasarkan nama/barcode.
@@ -196,65 +208,10 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Menyinkronkan `APP_VERSION` dan installer ke **2.5.0**.
 - Tidak mengubah schema database.
 
-### 2.4.4
-- Melengkapi CRUD master data **Kategori, Satuan, Supplier dan Pelanggan**.
-- Menambahkan pemilihan baris tabel untuk memuat data kembali ke form.
-- Menambahkan mode Edit dan Simpan Perubahan.
-- Menambahkan Hapus Terpilih dengan konfirmasi.
-- Penghapusan master yang masih digunakan produk/pembelian diblokir untuk menjaga integritas data.
-- Produk tetap menggunakan Nonaktifkan, bukan delete permanen.
-- Menambahkan regression test untuk create/edit/delete dan dependency protection.
-- Menyinkronkan versi aplikasi dan installer ke **2.4.4**.
-
-### 2.4.3
-- Menormalkan tampilan stok bulat agar `24.000` tampil sebagai `24` tanpa mengubah nilai database.
-- Nilai pecahan tetap dipertahankan.
-
-### 2.4.2
-- Numeric input desktop menggunakan presisi 0 dan langkah 1 untuk menghilangkan ambiguitas `1.000`.
-- Tidak ada pengali ×1.000.
-
-### 2.4.1
-- Perbaikan tampilan numeric input dan regression test.
-
-### 2.4.0
-- Export, Template dan Import Produk Excel.
-- Import mendukung Tambah dan Update Barcode.
-- Update tidak mengubah stok berjalan.
-- Menambahkan dependency openpyxl dan regression tests.
-
-### 2.3.16
-- Role resmi menjadi ADMIN dan KASIR.
-- PENGELOLA dan TEKNISI dihapus dari permission policy.
-
-### 2.3.15
-- Hardening validasi Decimal dan rollback mutation user/settings.
-
-### 2.3.14
-- Menetapkan `global_ui.py` sebagai sumber tunggal clear-button policy dan menghapus override UX.
-
-### 2.3.13
-- Clear button dinonaktifkan secara global pada input.
-
-### 2.3.12 / 2.3.11
-- Sidebar modern menjadi text-first tanpa ikon.
-
-### 2.3.3
-- Dashboard welcome header menggunakan nama user dan tanggal lokal.
-
-### 2.3.2
-- Light Mode sidebar mengikuti palette Light Mode.
-
-### 2.3.1
-- Menambahkan Light Mode; Dark Mode tetap default.
-
-### 2.3.0
-- Modern Blue, Purple Premium dan Emerald dihapus; Dark Mode menjadi tema utama sebelum Light Mode ditambahkan.
-
 ## Arsitektur
 - `app/ui/modern_main_window.py` — shell/sidebar/topbar/stack.
 - `app/ui/main_window.py` — halaman dan workflow.
-- `app/ui/premium_cashier.py` — UI Kasir dan workflow pencarian, keranjang, riwayat, reprint dan shortcut.
+- `app/ui/premium_cashier.py` — UI Kasir dan workflow pencarian, keranjang, parkir, riwayat, reprint dan shortcut.
 - `app/ui/master_data.py` — CRUD master data.
 - `app/ui/form_layouts.py` — hybrid form, Excel UI dan Reset Data.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
