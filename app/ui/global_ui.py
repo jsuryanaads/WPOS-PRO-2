@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
+from ..config import APP_NAME
 from .theme_shell import apply_theme_shell
 from .themes import current_theme
 
@@ -51,8 +52,6 @@ QTableWidget::item { padding: 7px; }
 QHeaderView::section { min-height: 32px; padding: 8px; border: 0; font-weight: 900; }
 QScrollArea { border: 0; background: transparent; }
 QScrollBar:vertical { width: 9px; margin: 2px; background: transparent; }
-
-/* Page-specific minimums: enough room for the working area without forcing tall forms. */
 QWidget[wposPageType="cashier"] QTableWidget { min-height: 250px; }
 QWidget[wposPageType="products"] QTableWidget, QWidget[wposPageType="stock"] QTableWidget, QWidget[wposPageType="reports"] QTableWidget { min-height: 280px; }
 QWidget[wposPageType="master"] QTableWidget { min-height: 250px; }
@@ -74,7 +73,6 @@ def add_application_footer(window):
     target_layout = parent.layout() if parent is not None else window.layout()
     if target_layout is None or window.findChild(QFrame, "applicationFooter") is not None:
         return
-
     footer = QFrame()
     footer.setObjectName("applicationFooter")
     footer.setFixedHeight(30)
@@ -82,8 +80,7 @@ def add_application_footer(window):
     layout = QHBoxLayout(footer)
     layout.setContentsMargins(8, 0, 8, 0)
     layout.setSpacing(0)
-
-    from ..config import APP_NAME, APP_VERSION
+    from ..config import APP_VERSION
     label = QLabel(f"{APP_NAME} | v{APP_VERSION} | {datetime.now().year} | by Jsuryana")
     label.setObjectName("applicationFooterLabel")
     label.setAlignment(Qt.AlignCenter)
@@ -136,8 +133,6 @@ def _normalize_layouts(root):
             layout.setSpacing(min(max(layout.spacing(), 8), 12))
             layout.setContentsMargins(16, 8, 16, 12)
             page.setProperty("wposLayoutReady", True)
-
-            # Keep dense master/form pages compact while allowing tables to grow.
             for child in page.findChildren(QGroupBox):
                 child.setMaximumWidth(1100)
 
@@ -151,8 +146,7 @@ def _normalize_layouts(root):
         parent = form.parentWidget()
         if isinstance(parent, QGroupBox):
             rows = form.rowCount()
-            required = 26 + (rows * 32) + (max(0, rows - 1) * 5) + 8
-            parent.setMinimumHeight(required)
+            parent.setMinimumHeight(26 + (rows * 32) + (max(0, rows - 1) * 5) + 8)
             parent.setMaximumWidth(1100)
 
     for grid in root.findChildren(QGridLayout):
@@ -221,7 +215,7 @@ def apply_global_ui(app, root=None):
     _normalize_layouts(root)
     _normalize_controls(root)
     apply_theme_shell(root, current_theme())
-    root.setWindowTitle(getattr(root, "windowTitle", lambda: "")() or "WPOS PRO 2")
+    root.setWindowTitle(APP_NAME)
     root.style().unpolish(root)
     root.style().polish(root)
     root.update()
