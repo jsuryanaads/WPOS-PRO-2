@@ -3,7 +3,9 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
     QDoubleSpinBox,
+    QFormLayout,
     QFrame,
+    QGridLayout,
     QGroupBox,
     QLabel,
     QLineEdit,
@@ -75,6 +77,28 @@ def _mark_pages(root):
         page.setProperty("wposPageType", _PAGE_TYPES[index] if index < len(_PAGE_TYPES) else "master")
 
 
+def _normalize_layouts(root):
+    """Apply one geometry contract to every page layout.
+
+    In particular, form rows receive enough vertical room for the global
+    34px control height, preventing QFormLayout rows from overlapping.
+    """
+    for form in root.findChildren(QFormLayout):
+        form.setRowWrapPolicy(QFormLayout.DontWrapRows)
+        form.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        form.setFormAlignment(Qt.AlignLeft | Qt.AlignTop)
+        form.setHorizontalSpacing(14)
+        form.setVerticalSpacing(7)
+        parent = form.parentWidget()
+        if isinstance(parent, QGroupBox) and form.rowCount() >= 5:
+            required = 26 + (form.rowCount() * 41) + 18
+            parent.setMinimumHeight(max(parent.minimumHeight(), required))
+
+    for grid in root.findChildren(QGridLayout):
+        grid.setHorizontalSpacing(max(grid.horizontalSpacing(), 10))
+        grid.setVerticalSpacing(max(grid.verticalSpacing(), 8))
+
+
 def _normalize_controls(root):
     for table in root.findChildren(QTableWidget):
         table.setAlternatingRowColors(True)
@@ -85,6 +109,7 @@ def _normalize_controls(root):
         table.verticalHeader().setVisible(False)
         table.horizontalHeader().setStretchLastSection(True)
         table.horizontalHeader().setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        table.verticalHeader().setDefaultSectionSize(34)
 
     for widget_type in (QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit):
         for widget in root.findChildren(widget_type):
@@ -118,6 +143,7 @@ def apply_global_ui(app, root=None):
     if root is None:
         return
     _mark_pages(root)
+    _normalize_layouts(root)
     _normalize_controls(root)
     apply_theme_shell(root, current_theme())
     root.style().unpolish(root)
