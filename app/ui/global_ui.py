@@ -91,7 +91,7 @@ def _normalize_layouts(root):
         form.setVerticalSpacing(7)
         parent = form.parentWidget()
         if isinstance(parent, QGroupBox) and form.rowCount() >= 5:
-            required = 26 + (form.rowCount() * 41) + 18
+            required = 28 + (form.rowCount() * 34) + ((form.rowCount() - 1) * 7)
             parent.setMinimumHeight(max(parent.minimumHeight(), required))
 
     for grid in root.findChildren(QGridLayout):
