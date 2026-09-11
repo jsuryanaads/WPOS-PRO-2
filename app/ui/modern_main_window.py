@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtWidgets import (
     QFrame,
@@ -68,21 +68,22 @@ class ModernMainWindow(MainWindow):
 
         sidebar = QFrame()
         sidebar.setObjectName("modernSidebar")
-        sidebar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sidebar.setFixedWidth(230)
         side = QVBoxLayout(sidebar)
-        side.setContentsMargins(14, 16, 14, 14)
-        side.setSpacing(6)
+        side.setContentsMargins(12, 12, 12, 12)
+        side.setSpacing(5)
 
         brand = QFrame()
         brand.setObjectName("modernBrand")
         brand_l = QHBoxLayout(brand)
-        brand_l.setContentsMargins(10, 10, 10, 10)
+        brand_l.setContentsMargins(9, 8, 9, 8)
+        brand_l.setSpacing(7)
         logo = QLabel()
         logo.setObjectName("modernBrandLogo")
         if LOGO_PATH.exists():
             pix = QPixmap(str(LOGO_PATH))
             if not pix.isNull():
-                logo.setPixmap(pix.scaled(44, 44, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                logo.setPixmap(pix.scaled(42, 42, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         brand_l.addWidget(logo)
         brand_text = QVBoxLayout()
         brand_text.setContentsMargins(0, 0, 0, 0)
@@ -95,41 +96,45 @@ class ModernMainWindow(MainWindow):
         brand_text.addWidget(version)
         brand_l.addLayout(brand_text, 1)
         side.addWidget(brand)
-        side.addSpacing(8)
+        side.addSpacing(4)
 
+        # Text-first navigation. Section headers are plain disabled items so
+        # their text is rendered reliably by Qt and never collapses into an
+        # empty custom-widget bar. Compact row heights keep all 14 pages in
+        # view on normal Windows desktop resolutions.
         self.nav_list = QListWidget()
         self.nav_list.setObjectName("modernNav")
-        self.nav_list.setSpacing(2)
+        self.nav_list.setSpacing(1)
         self.nav_list.setFrameShape(QFrame.NoFrame)
         self.nav_list.setFocusPolicy(Qt.NoFocus)
+        self.nav_list.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.nav_list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._nav_indexes = []
+        self._nav_items = {}
         for section, entries in self.NAVIGATION:
-            header = QListWidgetItem()
+            header = QListWidgetItem(section)
             header.setFlags(Qt.NoItemFlags)
             header.setData(Qt.UserRole, -1)
             header.setData(Qt.UserRole + 1, "section")
             header.setData(Qt.UserRole + 2, section)
-            header_widget = QLabel(section)
-            header_widget.setObjectName("modernNavSection")
-            header_widget.setProperty("section", section)
-            header_widget.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            header_widget.setToolTip(section)
+            header.setSizeHint(QSize(0, 25))
             self.nav_list.addItem(header)
-            self.nav_list.setItemWidget(header, header_widget)
             for _icon, title, index in entries:
                 item = QListWidgetItem(title)
                 item.setData(Qt.UserRole, index)
                 item.setData(Qt.UserRole + 1, "item")
+                item.setSizeHint(QSize(0, 30))
                 self.nav_list.addItem(item)
                 self._nav_indexes.append(index)
+                self._nav_items[index] = item
         self.nav_list.currentItemChanged.connect(self._navigate)
         side.addWidget(self.nav_list, 1)
 
         account = QFrame()
         account.setObjectName("modernAccount")
         al = QVBoxLayout(account)
-        al.setContentsMargins(10, 9, 10, 9)
-        al.setSpacing(3)
+        al.setContentsMargins(9, 8, 9, 8)
+        al.setSpacing(2)
         user_label = QLabel(f"{self.user.username}")
         user_label.setObjectName("modernUser")
         role_label = QLabel(f"{self.user.role} · Lokal")
@@ -227,13 +232,11 @@ class ModernMainWindow(MainWindow):
         title = page.property("modern_title") or self._title_for(page_index)
         self.modern_context.setText(title)
         self.modern_hint.setText(self._hint_for(page_index))
-        for row in range(self.nav_list.count()):
-            item = self.nav_list.item(row)
-            if item.data(Qt.UserRole) == page_index:
-                self.nav_list.blockSignals(True)
-                self.nav_list.setCurrentItem(item)
-                self.nav_list.blockSignals(False)
-                break
+        item = self._nav_items.get(page_index)
+        if item is not None:
+            self.nav_list.blockSignals(True)
+            self.nav_list.setCurrentItem(item)
+            self.nav_list.blockSignals(False)
         self.on_tab_changed(page_index)
 
     def _navigate(self, current, _previous):
