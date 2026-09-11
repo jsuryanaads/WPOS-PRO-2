@@ -1,0 +1,68 @@
+name: WPOS PRO Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build-windows:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[BUILD V1.1.5]') }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller pillow
+
+      - name: Verify branding asset
+        shell: pwsh
+        run: |
+          $logo = "assets\branding\wpos_logo.png"
+          if (!(Test-Path $logo)) { throw "Logo tidak ditemukan: $logo" }
+          Get-Item $logo | Format-List FullName,Length
+
+      - name: Generate Windows icon
+        shell: pwsh
+        run: |
+          python -c "from PIL import Image; Image.open('assets/branding/wpos_logo.png').convert('RGBA').save('assets/branding/wpos_logo.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+          if (!(Test-Path "assets\branding\wpos_logo.ico")) { throw "ICO tidak berhasil dibuat" }
+
+      - name: Compile Python
+        run: python -m compileall -q app
+
+      - name: Run tests
+        env:
+          PYTHONPATH: .
+        run: pytest -q
+
+      - name: Build EXE with WPOS icon
+        shell: pwsh
+        run: |
+          python -m PyInstaller --clean --noconfirm --windowed --icon "assets\branding\wpos_logo.ico" --name "WPOS PRO" --paths . --add-data "assets\branding\wpos_logo.png;assets\branding" run.py
+
+      - name: Verify EXE and branding
+        shell: pwsh
+        run: |
+          $exe = "dist\WPOS PRO\WPOS PRO.exe"
+          $logo = "dist\WPOS PRO\_internal\assets\branding\wpos_logo.png"
+          if (!(Test-Path $exe)) { throw "EXE tidak ditemukan: $exe" }
+          if (!(Test-Path $logo)) { throw "Logo tidak ikut dipaketkan: $logo" }
+          Get-Item $exe,$logo | Format-List FullName,Length
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: WPOS-PRO-V1.1.5-Windows
+          path: dist/WPOS PRO/
+          if-no-files-found: error
+          retention-days: 14
