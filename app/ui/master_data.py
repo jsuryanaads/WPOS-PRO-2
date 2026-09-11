@@ -19,13 +19,14 @@ from ..models import Category, Unit, Supplier, Customer
 
 
 class SimpleMaster(QWidget):
-    """Consistent, read-only master-data page used by category/unit/supplier/customer."""
+    """Unified master-data page used by category/unit/supplier/customer."""
 
     def __init__(self, model, title, fields):
         super().__init__()
         self.model = model
         self.fields = fields
         self.setWindowTitle(title)
+        self.setProperty("wposMasterPage", True)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(18, 16, 18, 18)
@@ -48,7 +49,9 @@ class SimpleMaster(QWidget):
         form = QFormLayout(form_box)
         form.setContentsMargins(16, 14, 16, 14)
         form.setHorizontalSpacing(14)
-        form.setVerticalSpacing(10)
+        form.setVerticalSpacing(8)
+        form.setRowWrapPolicy(QFormLayout.DontWrapRows)
+        form.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.inputs = []
         for field in fields:
             edit = QLineEdit()
@@ -58,6 +61,7 @@ class SimpleMaster(QWidget):
             form.addRow(QLabel(field), edit)
 
         actions = QHBoxLayout()
+        actions.setSpacing(8)
         save_button = QPushButton("Simpan")
         save_button.setObjectName("primary")
         save_button.clicked.connect(self.save)
@@ -98,7 +102,6 @@ class SimpleMaster(QWidget):
         table_layout.addWidget(self.table, 1)
         root.addWidget(table_card, 1)
 
-        self._apply_local_style()
         self.refresh()
 
     @staticmethod
@@ -109,40 +112,6 @@ class SimpleMaster(QWidget):
             "Supplier": "Kelola data pemasok untuk transaksi pembelian.",
             "Pelanggan": "Kelola data pelanggan untuk riwayat transaksi.",
         }.get(title, "Kelola data master WPOS PRO.")
-
-    def _apply_local_style(self):
-        self.setStyleSheet(self.styleSheet() + """
-            QFrame#masterFormCard, QFrame#masterTableCard {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 12px;
-            }
-            QLabel#sectionTitle {
-                color: #334155;
-                font-size: 13px;
-                font-weight: 800;
-                padding: 2px 4px;
-            }
-            QPushButton#primary {
-                background: #2563eb;
-                color: #ffffff;
-                border: 0;
-                min-height: 38px;
-                border-radius: 9px;
-                padding: 7px 16px;
-                font-weight: 800;
-            }
-            QPushButton#secondary {
-                background: #f1f5f9;
-                color: #334155;
-                border: 1px solid #e2e8f0;
-                min-height: 38px;
-                border-radius: 9px;
-                padding: 7px 14px;
-                font-weight: 700;
-            }
-            QPushButton#secondary:hover { background: #e2e8f0; }
-        """)
 
     def save(self):
         vals = [field.text().strip() for field in self.inputs]
