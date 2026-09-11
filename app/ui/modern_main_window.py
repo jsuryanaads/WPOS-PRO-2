@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QVBoxLayout,
     QWidget,
+    QSizePolicy,
 )
 
 from ..config import APP_NAME, APP_VERSION
@@ -47,6 +48,10 @@ class ModernMainWindow(MainWindow):
     def __init__(self, user, logout_callback=None):
         super().__init__(user, logout_callback=logout_callback)
         self._build_modern_shell()
+        # WPOS PRO V2 is designed as a desktop POS workspace: open the
+        # application maximized so every page receives the full available
+        # client area while retaining the normal Windows title bar controls.
+        self.showMaximized()
 
     def _build_modern_shell(self):
         old_tabs = self.tabs
@@ -59,12 +64,14 @@ class ModernMainWindow(MainWindow):
                 toolbar.hide()
 
         shell = QWidget()
+        shell.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         root = QHBoxLayout(shell)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
         sidebar = QFrame()
         sidebar.setObjectName("modernSidebar")
+        sidebar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         side = QVBoxLayout(sidebar)
         side.setContentsMargins(14, 16, 14, 14)
         side.setSpacing(6)
@@ -132,6 +139,7 @@ class ModernMainWindow(MainWindow):
 
         content = QFrame()
         content.setObjectName("modernContent")
+        content.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         content_l = QVBoxLayout(content)
         content_l.setContentsMargins(22, 18, 22, 12)
         content_l.setSpacing(10)
@@ -161,7 +169,9 @@ class ModernMainWindow(MainWindow):
 
         self.modern_stack = QStackedWidget()
         self.modern_stack.setObjectName("modernStack")
+        self.modern_stack.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         for page in pages:
+            page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self.modern_stack.addWidget(page)
         content_l.addWidget(self.modern_stack, 1)
 
