@@ -92,7 +92,7 @@ QScrollBar::handle:vertical {{ background: {p['border']}; border-radius: 4px; mi
 QScrollBar::handle:vertical:hover {{ background: {p['muted']}; }}
 QToolTip {{ background: {p['shell']}; color: {p['inverse']}; border: 1px solid {p['border']}; padding: 6px 8px; }}
 
-QFrame#premiumCashierPage, QFrame#premiumScanCard, QFrame#premiumCartCard, QFrame#premiumPayCard, QFrame#premiumChangeBox, QFrame#premiumTotalBox {{ background: {p['surface']}; color: {p['text']}; border: 1px solid {p['border']}; border-radius: 12px; }}
+QWidget#premiumCashierPage, QFrame#premiumScanCard, QFrame#premiumCartCard, QFrame#premiumPayCard, QFrame#premiumChangeBox, QFrame#premiumTotalBox {{ background: {p['surface']}; color: {p['text']}; border: 1px solid {p['border']}; border-radius: 12px; }}
 QLabel#premiumPageTitle, QLabel#premiumSectionTitle {{ color: {p['text']}; font-weight: 900; }}
 QLabel#premiumPageSubtitle, QLabel#premiumShortcut, QLabel#premiumMuted, QLabel#premiumFieldCaption, QLabel#premiumPayLabel, QLabel#premiumTotalCaption, QLabel#premiumChangeCaption {{ color: {p['muted']}; }}
 QLineEdit#premiumBarcode, QDoubleSpinBox#premiumQty, QDoubleSpinBox#premiumMoneyInput, QComboBox#premiumMethod {{ background: {p['input']}; color: {p['text']}; border: 1px solid {p['input_border']}; }}
