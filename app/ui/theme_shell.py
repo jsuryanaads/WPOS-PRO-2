@@ -1,17 +1,35 @@
-"""Theme-driven presentation layer for the WPOS PRO 2 shell."""
+"""Dark-only presentation layer for the WPOS PRO 2 shell."""
 
 THEME_PALETTES = {
-    "MODERN_BLUE": {"shell":"#16324f","shell_alt":"#1f4f78","shell_hover":"#275f8f","accent":"#2673b8","content":"#edf0f3","surface":"#f8f9fa","surface_alt":"#e5e9ed","border":"#c6cdd4","text":"#263442","muted":"#687787","inverse":"#ffffff","selected":"#2673b8","selected_text":"#ffffff","input":"#f8f9fa","input_border":"#c5cdd5","table_alt":"#eef1f4","header":"#d8e1e9","focus":"#2673b8","danger":"#b54747","success":"#39734a"},
-    "PURPLE_PREMIUM": {"shell":"#30204d","shell_alt":"#47306b","shell_hover":"#60418d","accent":"#7c4dff","content":"#f2eff7","surface":"#fbf9fe","surface_alt":"#e8e1f2","border":"#d1c5df","text":"#2d2340","muted":"#756984","inverse":"#ffffff","selected":"#7c4dff","selected_text":"#ffffff","input":"#fbf9fe","input_border":"#cfc2df","table_alt":"#f0ebf6","header":"#e2d7ef","focus":"#7c4dff","danger":"#b64d61","success":"#4f8768"},
-    "EMERALD": {"shell":"#123f36","shell_alt":"#1b5a4d","shell_hover":"#267664","accent":"#138a72","content":"#edf5f2","surface":"#f8fcfa","surface_alt":"#dfece7","border":"#bdd2ca","text":"#203832","muted":"#60776f","inverse":"#ffffff","selected":"#138a72","selected_text":"#ffffff","input":"#f8fcfa","input_border":"#bfd3cb","table_alt":"#e9f2ef","header":"#d5e5df","focus":"#138a72","danger":"#b34d4d","success":"#247452"},
-    "DARK": {"shell":"#15181e","shell_alt":"#242a33","shell_hover":"#303946","accent":"#396fae","content":"#20242b","surface":"#242a33","surface_alt":"#292f38","border":"#39414c","text":"#e6eaf0","muted":"#aab3c0","inverse":"#ffffff","selected":"#396fae","selected_text":"#ffffff","input":"#292f38","input_border":"#414956","table_alt":"#292f38","header":"#303946","focus":"#6ea8fe","danger":"#9d4f55","success":"#52715c"},
+    "DARK": {
+        "shell": "#15181e",
+        "shell_alt": "#242a33",
+        "shell_hover": "#303946",
+        "accent": "#396fae",
+        "content": "#20242b",
+        "surface": "#242a33",
+        "surface_alt": "#292f38",
+        "border": "#39414c",
+        "text": "#e6eaf0",
+        "muted": "#aab3c0",
+        "inverse": "#ffffff",
+        "selected": "#396fae",
+        "selected_text": "#ffffff",
+        "input": "#292f38",
+        "input_border": "#414956",
+        "table_alt": "#292f38",
+        "header": "#303946",
+        "focus": "#6ea8fe",
+        "danger": "#9d4f55",
+        "success": "#52715c",
+    },
 }
 
 
 def theme_shell_stylesheet(theme_key: str) -> str:
-    p = THEME_PALETTES.get(theme_key, THEME_PALETTES["MODERN_BLUE"])
+    p = THEME_PALETTES.get(theme_key, THEME_PALETTES["DARK"])
     return f"""
-/* WPOS PRO 2 — active theme: {theme_key} */
+/* WPOS PRO 2 — active theme: DARK */
 QFrame#modernSidebar {{ background:{p['shell']}; color:{p['inverse']}; border:0; min-width:230px; max-width:250px; }}
 QFrame#modernBrand {{ background:{p['shell_alt']}; border:1px solid {p['shell_hover']}; border-radius:14px; }}
 QLabel#modernBrandLogo {{ min-width:44px; max-width:44px; min-height:44px; max-height:44px; }}
