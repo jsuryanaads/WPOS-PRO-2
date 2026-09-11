@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.4.1**
+- Versi aplikasi: **2.4.2**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -131,13 +131,13 @@ Halaman Kasir menggunakan workflow fokus transaksi:
 - Perubahan UI tidak mengubah business logic pembayaran, stok, transaksi atau database schema.
 
 ## Numeric Input / Stok / Quantity
-- Input angka tidak dikalikan **1.000** oleh UI.
-- Nilai `1` tetap **1**, `2` tetap **2**, `10` tetap **10**.
-- Nilai pecahan tetap didukung, misalnya `1,2`/`1.2` tetap bernilai **1,2**.
-- Tampilan `QDoubleSpinBox` dikompakkan sehingga nilai `1` tidak lagi ditampilkan sebagai `1.000` yang dapat disalahartikan sebagai seribu.
-- Nilai `1000` tetap **1000**; UI tidak melakukan konversi ke ribuan.
-- Perbaikan hanya pada presentation/input display; nilai yang dikirim ke business service tetap berasal dari `spinbox.value()` tanpa faktor pengali.
-- Berlaku konsisten pada numeric input yang menggunakan `QDoubleSpinBox`, termasuk quantity, stok awal dan stok minimum, tanpa mengubah aturan database atau transaksi.
+- Seluruh numeric input desktop sekarang diperlakukan sebagai **angka bulat** untuk menghilangkan ambiguitas separator lokal.
+- `1` tetap **1**, `2` tetap **2**, `10` tetap **10**.
+- Tidak ada lagi tampilan `1.000`, `2.000` atau `10.000` pada field input yang dapat disalahartikan sebagai seribu, dua ribu atau sepuluh ribu.
+- Input stok, minimum stok, quantity kasir, quantity pembelian, harga, diskon, pembayaran dan nominal kas menggunakan langkah **1** pada UI.
+- Tidak ada faktor pengali **×1.000** pada UI maupun business service.
+- Business service tetap menerima nilai dari `.value()` dan melakukan validasi Decimal; perubahan ini hanya memperjelas kontrak input desktop.
+- Data database yang sudah tersimpan tidak dimigrasikan atau dikalikan otomatis.
 
 ## Sidebar navigation
 Navigasi sidebar menggunakan **teks saja tanpa ikon menu**.
@@ -203,6 +203,15 @@ Spesifikasi:
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.4.2
+- Memperbaiki akar masalah numeric input yang masih dapat dibaca sebagai format ribuan karena `QDoubleSpinBox` memakai presisi 3 desimal.
+- Numeric input desktop sekarang menggunakan presisi **0 desimal** dan langkah **1**.
+- `1` → `1`, `2` → `2`, `10` → `10`, tanpa `1.000`, `2.000` atau `10.000` pada field input.
+- Berlaku konsisten pada quantity kasir, stok/mutasi, stok awal, stok minimum, quantity pembelian, harga, diskon, pembayaran dan nominal kas.
+- Tidak mengalikan nilai ×1.000 dan tidak mengubah database yang sudah ada.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.4.2**.
+- Tidak mengubah database schema atau business service transaksi.
+
 ### 2.4.1
 - Memperbaiki tampilan numeric input `QDoubleSpinBox` yang sebelumnya menampilkan angka bulat seperti `1` sebagai `1.000` sehingga berpotensi disalahartikan sebagai 1.000/seribu.
 - Nilai angka sekarang ditampilkan secara compact: `1` → `1`, `2` → `2`, `10` → `10`, `1.2` → `1.2`, `1000` → `1000`.
