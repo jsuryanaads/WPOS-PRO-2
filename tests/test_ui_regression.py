@@ -73,8 +73,6 @@ def test_modern_page_surface_rules_are_present(qapp):
     window = QWidget()
     window.tabs = TabsStub()
     apply_ux2026(window)
-    # ux2026 applies to the application/window hierarchy; verify it does not
-    # fail on a lightweight regression harness.
     assert window.styleSheet() is not None
 
 
@@ -84,3 +82,15 @@ def test_dark_and_light_themes_are_exposed():
     assert list(THEMES) == ["DARK", "LIGHT"]
     assert THEMES["DARK"]["label"] == "Dark Mode"
     assert THEMES["LIGHT"]["label"] == "Light Mode"
+
+
+def test_light_theme_sidebar_uses_light_palette():
+    from app.ui.theme_shell import THEME_PALETTES, theme_shell_stylesheet
+
+    light = THEME_PALETTES["LIGHT"]
+    stylesheet = theme_shell_stylesheet("LIGHT")
+
+    assert light["shell"] == "#f7f9fb"
+    assert light["sidebar_text"] == "#435465"
+    assert "QFrame#modernSidebar { background:#f7f9fb; color:#435465;" in stylesheet
+    assert "QListWidget#modernNav { background:#f7f9fb; color:#435465;" in stylesheet
