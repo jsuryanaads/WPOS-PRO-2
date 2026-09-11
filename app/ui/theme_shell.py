@@ -103,5 +103,9 @@ QPushButton#premiumClear {{ background: {p['surface_alt']}; color: {p['text']}; 
 
 
 def apply_theme_shell(widget, theme_key: str) -> None:
-    """Append the active theme's visual contract to a window/application."""
-    widget.setStyleSheet(widget.styleSheet() + theme_shell_stylesheet(theme_key))
+    """Replace the previous theme block, then append the active one."""
+    marker = "/* WPOS PRO V2 — active theme:"
+    current = widget.styleSheet()
+    if marker in current:
+        current = current[:current.index(marker)]
+    widget.setStyleSheet(current + theme_shell_stylesheet(theme_key))
