@@ -50,8 +50,7 @@ def _search_products(window):
             products = query.order_by(Product.name).limit(100).all()
         table.setRowCount(len(products))
         for row, product in enumerate(products):
-            values = [product.barcode, product.name, str(product.stock), _money(product.selling_price)]
-            for col, value in enumerate(values):
+            for col, value in enumerate([product.barcode, product.name, str(product.stock), _money(product.selling_price)]):
                 table.setItem(row, col, QTableWidgetItem(value))
 
     def choose():
@@ -121,6 +120,110 @@ def _cancel(window):
         window.clear_cart()
 
 
+def _hold_current(window):
+    if not window.cart:
+        QMessageBox.information(window, "Parkir", "Keranjang masih kosong.")
+        return
+    name, ok = _text_input(window, "Parkir Transaksi", "Nama / label transaksi:")
+    if not ok:
+        return
+    name = name.strip() or f"Parkir {len(window._held_sales) + 1}"
+    window._held_sales.append({
+        "label": name,
+        "cart": [{"product_id": x["product_id"], "quantity": Decimal(str(x["quantity"]))} for x in window.cart],
+        "discount": Decimal(str(window.discount.value())),
+        "method": window.method.currentText(),
+        "paid": Decimal(str(window.paid.value())),
+    })
+    window.clear_cart()
+    QMessageBox.information(window, "Parkir", f"Transaksi '{name}' diparkir.")
+
+
+def _text_input(parent, title, label):
+    dialog = QDialog(parent)
+    dialog.setWindowTitle(title)
+    root = QVBoxLayout(dialog)
+    root.addWidget(QLabel(label))
+    edit = QLineEdit()
+    edit.setPlaceholderText("Contoh: Pelanggan A / Meja 1")
+    root.addWidget(edit)
+    buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    buttons.accepted.connect(dialog.accept)
+    buttons.rejected.connect(dialog.reject)
+    root.addWidget(buttons)
+    edit.setFocus()
+    return (edit.text(), True) if dialog.exec() == QDialog.Accepted else ("", False)
+
+
+def _show_held(window):
+    dialog = QDialog(window)
+    dialog.setWindowTitle("Transaksi Diparkir")
+    dialog.resize(700, 420)
+    root = QVBoxLayout(dialog)
+    table = QTableWidget(0, 3)
+    table.setHorizontalHeaderLabels(["LABEL", "ITEM", "TOTAL"])
+    table.setSelectionBehavior(QAbstractItemView.SelectRows)
+    table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+    table.setSelectionMode(QAbstractItemView.SingleSelection)
+    table.horizontalHeader().setStretchLastSection(True)
+    root.addWidget(table, 1)
+
+    def reload_rows():
+        table.setRowCount(len(window._held_sales))
+        for row, held in enumerate(window._held_sales):
+            total = Decimal("0")
+            with SessionLocal() as session:
+                for item in held["cart"]:
+                    product = session.get(Product, item["product_id"])
+                    if product:
+                        total += Decimal(str(product.selling_price)) * item["quantity"]
+            total = max(Decimal("0"), total - held["discount"])
+            table.setItem(row, 0, QTableWidgetItem(held["label"]))
+            table.setItem(row, 1, QTableWidgetItem(str(len(held["cart"]))))
+            table.setItem(row, 2, QTableWidgetItem(_money(total)))
+
+    reload_rows()
+    actions = QHBoxLayout()
+    resume = QPushButton("LANJUTKAN")
+    delete = QPushButton("HAPUS PARKIR")
+    close = QPushButton("TUTUP")
+    actions.addWidget(resume)
+    actions.addWidget(delete)
+    actions.addStretch()
+    actions.addWidget(close)
+    root.addLayout(actions)
+
+    def resume_selected():
+        row = table.currentRow()
+        if row < 0 or row >= len(window._held_sales):
+            QMessageBox.information(dialog, "Parkir", "Pilih transaksi yang akan dilanjutkan.")
+            return
+        if window.cart and QMessageBox.question(window, "Keranjang Aktif", "Keranjang aktif akan diganti. Lanjutkan?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+            return
+        held = window._held_sales.pop(row)
+        window.cart = [{"product_id": x["product_id"], "quantity": Decimal(str(x["quantity"]))} for x in held["cart"]]
+        window.discount.setValue(float(held["discount"]))
+        window.method.setCurrentText(held["method"])
+        window.paid.setValue(float(held["paid"]))
+        window.refresh_cart()
+        dialog.accept()
+        window.barcode.setFocus()
+
+    def delete_selected():
+        row = table.currentRow()
+        if row < 0 or row >= len(window._held_sales):
+            return
+        if QMessageBox.question(dialog, "Hapus Parkir", "Hapus transaksi yang diparkir?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+            return
+        window._held_sales.pop(row)
+        reload_rows()
+
+    resume.clicked.connect(resume_selected)
+    delete.clicked.connect(delete_selected)
+    close.clicked.connect(dialog.accept)
+    dialog.exec()
+
+
 def _history(window):
     dialog = QDialog(window)
     dialog.setWindowTitle("Riwayat Transaksi")
@@ -162,12 +265,7 @@ def _history(window):
                 items = []
                 for sale_item in sale.items:
                     product = session.get(Product, sale_item.product_id)
-                    items.append({
-                        "name": product.name if product else "Produk",
-                        "quantity": sale_item.quantity,
-                        "unit_price": sale_item.unit_price,
-                        "line_total": sale_item.line_total,
-                    })
+                    items.append({"name": product.name if product else "Produk", "quantity": sale_item.quantity, "unit_price": sale_item.unit_price, "line_total": sale_item.line_total})
                 printed = print_receipt(window, sale, items)
             if printed:
                 QMessageBox.information(dialog, "Cetak", f"Struk {sale.invoice_no} berhasil dicetak.")
@@ -183,11 +281,7 @@ def _history(window):
 
 def _install_shortcuts(window):
     shortcuts = []
-    for key, callback in [
-        ("F4", window.checkout),
-        ("Escape", lambda: _cancel(window)),
-        ("F8", lambda: _history(window)),
-    ]:
+    for key, callback in [("F4", window.checkout), ("Escape", lambda: _cancel(window)), ("F8", lambda: _history(window)), ("F9", lambda: _show_held(window)), ("F10", lambda: _hold_current(window))]:
         shortcut = QShortcut(QKeySequence(key), window)
         shortcut.activated.connect(callback)
         shortcuts.append(shortcut)
@@ -195,9 +289,10 @@ def _install_shortcuts(window):
 
 
 def apply_premium_cashier(window):
-    """Build the modern cashier workflow; sales business rules remain in MainWindow/services."""
     old_page = window.modern_stack.widget(1)
     current_index = window.modern_stack.currentIndex()
+    window._held_sales = getattr(window, "_held_sales", [])
+
     page = QWidget()
     page.setObjectName("premiumCashierPage")
     root = QVBoxLayout(page)
@@ -248,15 +343,8 @@ def apply_premium_cashier(window):
     window._prepare_table(window.cart_table)
     cart_l.addWidget(window.cart_table, 1)
     cart_actions = QHBoxLayout()
-    minus = QPushButton("− QTY")
-    plus = QPushButton("+ QTY")
-    remove = QPushButton("HAPUS ITEM")
-    minus.clicked.connect(lambda: _change_qty(window, -1))
-    plus.clicked.connect(lambda: _change_qty(window, 1))
-    remove.clicked.connect(lambda: _remove_item(window))
-    cart_actions.addWidget(minus)
-    cart_actions.addWidget(plus)
-    cart_actions.addWidget(remove)
+    for text, callback in [("− QTY", lambda: _change_qty(window, -1)), ("+ QTY", lambda: _change_qty(window, 1)), ("HAPUS ITEM", lambda: _remove_item(window))]:
+        b = QPushButton(text); b.clicked.connect(callback); cart_actions.addWidget(b)
     cart_actions.addStretch()
     cart_l.addLayout(cart_actions)
     body.addWidget(cart_card, 1)
@@ -267,62 +355,23 @@ def apply_premium_cashier(window):
     pay_l = QVBoxLayout(pay_card)
     pay_l.setContentsMargins(16, 14, 16, 14)
     pay_l.addWidget(_label("Ringkasan Pembayaran", "premiumSectionTitle"))
-    total_box = QFrame()
-    total_box.setObjectName("premiumTotalBox")
-    total_l = QVBoxLayout(total_box)
+    total_box = QFrame(); total_box.setObjectName("premiumTotalBox"); total_l = QVBoxLayout(total_box)
     total_l.addWidget(_label("TOTAL TRANSAKSI", "premiumTotalCaption"))
-    window.total_label = _label("Rp 0", "premiumTotal")
-    total_l.addWidget(window.total_label)
-    pay_l.addWidget(total_box)
-    discount_row = QHBoxLayout()
-    discount_row.addWidget(_label("Diskon", "premiumPayLabel"))
-    window.discount = QDoubleSpinBox()
-    window.discount.setObjectName("premiumMoneyInput")
-    window.discount.setRange(0, 999999999)
-    window.discount.setPrefix("Rp ")
-    window.discount.valueChanged.connect(window.refresh_cart)
-    discount_row.addWidget(window.discount, 1)
-    pay_l.addLayout(discount_row)
-    method_row = QHBoxLayout()
-    method_row.addWidget(_label("Metode", "premiumPayLabel"))
-    window.method = QComboBox()
-    window.method.setObjectName("premiumMethod")
-    window.method.blockSignals(True)
-    window.method.addItems(["CASH", "QRIS", "TRANSFER", "DEBIT"])
-    method_row.addWidget(window.method, 1)
-    pay_l.addLayout(method_row)
-    paid_row = QHBoxLayout()
-    paid_row.addWidget(_label("Bayar", "premiumPayLabel"))
-    window.paid = QDoubleSpinBox()
-    window.paid.setObjectName("premiumMoneyInput")
-    window.paid.setRange(0, 999999999)
-    window.paid.setPrefix("Rp ")
-    paid_row.addWidget(window.paid, 1)
-    pay_l.addLayout(paid_row)
-    window.method.currentTextChanged.connect(window.payment_method_changed)
-    window.method.blockSignals(False)
-    change_box = QFrame()
-    change_box.setObjectName("premiumChangeBox")
-    change_l = QVBoxLayout(change_box)
-    change_l.addWidget(_label("KEMBALIAN", "premiumChangeCaption"))
-    window.change_label = _label("Rp 0", "premiumChange")
-    change_l.addWidget(window.change_label)
-    pay_l.addWidget(change_box)
-    pay_l.addStretch(1)
+    window.total_label = _label("Rp 0", "premiumTotal"); total_l.addWidget(window.total_label); pay_l.addWidget(total_box)
+    discount_row = QHBoxLayout(); discount_row.addWidget(_label("Diskon", "premiumPayLabel"))
+    window.discount = QDoubleSpinBox(); window.discount.setObjectName("premiumMoneyInput"); window.discount.setRange(0, 999999999); window.discount.setPrefix("Rp "); window.discount.valueChanged.connect(window.refresh_cart); discount_row.addWidget(window.discount, 1); pay_l.addLayout(discount_row)
+    method_row = QHBoxLayout(); method_row.addWidget(_label("Metode", "premiumPayLabel"))
+    window.method = QComboBox(); window.method.setObjectName("premiumMethod"); window.method.blockSignals(True); window.method.addItems(["CASH", "QRIS", "TRANSFER", "DEBIT"]); method_row.addWidget(window.method, 1); pay_l.addLayout(method_row)
+    paid_row = QHBoxLayout(); paid_row.addWidget(_label("Bayar", "premiumPayLabel"))
+    window.paid = QDoubleSpinBox(); window.paid.setObjectName("premiumMoneyInput"); window.paid.setRange(0, 999999999); window.paid.setPrefix("Rp "); paid_row.addWidget(window.paid, 1); pay_l.addLayout(paid_row)
+    window.method.currentTextChanged.connect(window.payment_method_changed); window.method.blockSignals(False)
+    change_box = QFrame(); change_box.setObjectName("premiumChangeBox"); change_l = QVBoxLayout(change_box)
+    change_l.addWidget(_label("KEMBALIAN", "premiumChangeCaption")); window.change_label = _label("Rp 0", "premiumChange"); change_l.addWidget(window.change_label); pay_l.addWidget(change_box); pay_l.addStretch(1)
+
     actions = QHBoxLayout()
-    history = QPushButton("RIWAYAT")
-    cancel = QPushButton("BATAL TRANSAKSI")
-    clear = QPushButton("CLEAR")
-    checkout = QPushButton("BAYAR & CETAK")
-    checkout.setObjectName("premiumCheckout")
-    history.clicked.connect(lambda: _history(window))
-    cancel.clicked.connect(lambda: _cancel(window))
-    clear.clicked.connect(lambda: _cancel(window))
-    checkout.clicked.connect(window.checkout)
-    actions.addWidget(history)
-    actions.addWidget(cancel)
-    actions.addWidget(clear)
-    actions.addWidget(checkout, 1)
+    for text, callback in [("PARKIR", lambda: _hold_current(window)), ("PARKIRAN", lambda: _show_held(window)), ("RIWAYAT", lambda: _history(window)), ("BATAL", lambda: _cancel(window)), ("CLEAR", lambda: _cancel(window))]:
+        b = QPushButton(text); actions.addWidget(b); b.clicked.connect(callback)
+    checkout = QPushButton("BAYAR & CETAK"); checkout.setObjectName("premiumCheckout"); checkout.clicked.connect(window.checkout); actions.addWidget(checkout, 1)
     pay_l.addLayout(actions)
     body.addWidget(pay_card, 0)
     root.addLayout(body, 1)
