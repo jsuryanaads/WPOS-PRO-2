@@ -111,14 +111,24 @@ class LoginWindow(QDialog):
         root.addWidget(card)
         root.addStretch(1)
 
-        # The year is generated at runtime, so it remains correct permanently.
-        footer = QLabel(
-            f"{APP_NAME} {APP_VERSION}  ·  © {datetime.now().year} Jsuryana  ·  Created by Jsuryana"
+        # Keep the login footer identical to the modern application footer.
+        footer = QFrame()
+        footer.setObjectName("applicationFooter")
+        footer.setFixedHeight(30)
+        footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(8, 0, 8, 0)
+        footer_layout.setSpacing(0)
+
+        footer_label = QLabel(
+            f"{APP_NAME} | v{APP_VERSION} | {datetime.now().year} | by Jsuryana"
         )
-        footer.setObjectName("loginFooter")
-        footer.setAlignment(Qt.AlignCenter)
-        footer.setWordWrap(True)
-        root.addWidget(footer)
+        footer_label.setObjectName("applicationFooterLabel")
+        footer_label.setAlignment(Qt.AlignCenter)
+        footer_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        footer_layout.addWidget(footer_label)
+        root.addWidget(footer, 0)
 
         self.username.setFocus()
 
