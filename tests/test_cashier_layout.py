@@ -16,3 +16,11 @@ def test_cashier_keeps_existing_payment_methods():
 
     for method in ("CASH", "QRIS", "TRANSFER", "DEBIT"):
         assert method in source
+
+
+def test_numeric_spinboxes_explicitly_disable_clear_button():
+    source = Path("app/ui/global_ui.py").read_text(encoding="utf-8")
+
+    assert 'line_edit = widget.lineEdit()' in source
+    assert 'line_edit.setClearButtonEnabled(False)' in source
+    assert 'wposClearButtonDisabled' in source
