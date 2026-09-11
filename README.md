@@ -1,4 +1,4 @@
-# WPOS PRO V1.1.5
+# WPOS PRO 2
 
 Modern POS 2026 untuk toko sembako Windows offline, satu komputer.
 
@@ -42,10 +42,11 @@ Barcode → Keranjang → Diskon → Pembayaran → Kembalian → Stok berkurang
 - Mutasi stok dicatat untuk penjualan, pembelian dan penyesuaian stok.
 
 ## Versioning
+- Nama aplikasi: **WPOS PRO 2**
+- Versi aplikasi: **2.0.0**
 - Perubahan kecil: patch version.
 - Perubahan menengah: naik ke target minor patch sesuai aturan proyek.
 - Perubahan besar: naik ke versi minor baru.
-- V1.1.5 adalah milestone stabilisasi dan packaging setelah audit source, UI/navigation, database refresh, role consistency, edge cases, dan CI.
 
 ## Default login
 - Username: `admin`
@@ -54,7 +55,7 @@ Barcode → Keranjang → Diskon → Pembayaran → Kembalian → Stok berkurang
 **Penting:** ubah password default sebelum produksi.
 
 ## Data Windows
-Saat dijalankan sebagai EXE, database dan backup disimpan di `%LOCALAPPDATA%\\WPOS PRO`.
+Saat dijalankan sebagai EXE, database dan backup disimpan di `%LOCALAPPDATA%\\WPOS PRO 2`.
 
 ## Menjalankan dari source
 ```bat
@@ -73,4 +74,4 @@ Jalankan `build.bat` pada Windows dengan Python dan PyInstaller terpasang.
 Compile `installer.iss` menggunakan Inno Setup setelah EXE berhasil dibuat.
 
 ## Status
-WPOS PRO V1.1.5 adalah kandidat build setelah CI PASS. Packaging EXE/Installer harus berasal dari source yang sudah diaudit dan lulus CI.
+WPOS PRO 2 adalah target build aplikasi POS offline Windows satu komputer. Packaging EXE/Installer harus berasal dari source yang sudah diaudit dan lulus CI.
