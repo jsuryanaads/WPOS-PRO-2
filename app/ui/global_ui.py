@@ -37,6 +37,18 @@ QGroupBox { border-radius: 12px; padding: 14px 12px 10px; margin-top: 10px; font
 QGroupBox::title { subcontrol-origin: margin; left: 14px; top: 2px; padding: 0 7px; }
 
 QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { min-height: 32px; max-height: 36px; border-radius: 8px; padding: 3px 9px; }
+QSpinBox, QDoubleSpinBox { min-width: 110px; padding-right: 31px; }
+QSpinBox::up-button, QDoubleSpinBox::up-button,
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    width: 24px;
+    margin: 1px;
+    border-radius: 5px;
+}
+QSpinBox::up-button, QDoubleSpinBox::up-button { subcontrol-position: top right; }
+QSpinBox::down-button, QDoubleSpinBox::down-button { subcontrol-position: bottom right; }
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover { margin: 0px; }
 QTextEdit { max-height: 120px; }
 QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus, QTextEdit:focus { border-width: 1px; }
 
@@ -165,6 +177,10 @@ def _normalize_controls(root):
             widget.setFocusPolicy(Qt.StrongFocus)
             if isinstance(widget, QLineEdit):
                 widget.setClearButtonEnabled(True)
+            elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+                widget.setMinimumWidth(max(widget.minimumWidth(), 110))
+                widget.setMinimumHeight(max(widget.minimumHeight(), 32))
+                widget.setMaximumHeight(max(widget.maximumHeight(), 36))
 
     for button in root.findChildren(QPushButton):
         button.setCursor(Qt.PointingHandCursor)
