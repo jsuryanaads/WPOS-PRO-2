@@ -1,7 +1,9 @@
 from decimal import Decimal
+from pathlib import Path
 import pytest
 from sqlalchemy import create_engine, inspect, event
 from sqlalchemy.orm import sessionmaker
+from app.config import APP_NAME, APP_VERSION
 from app.database import Base
 from app.models import Product, Sale, SaleItem, StockMovement, Supplier, User
 from app.services.auth import hash_password, verify_password
@@ -11,6 +13,7 @@ from app.services.purchases import create_purchase
 from app.services.reports import cash_summary, stock_summary
 from app.services.users import ROLES, create_user, set_user_active
 from app.ui.modern_main_window import ModernMainWindow
+from app.ui.branding import LOGO_PATH, ICON_PATH
 
 
 def make_session():
@@ -148,3 +151,12 @@ def test_user_creation_rejects_invalid_role():
     session = make_session()
     with pytest.raises(ValueError, match="Role tidak valid"):
         create_user(session, "badrole", "secret", "INVALID")
+
+
+def test_wpos_pro_2_identity_and_branding_assets():
+    assert APP_NAME == "WPOS PRO 2"
+    assert APP_VERSION == "V2"
+    assert LOGO_PATH.name == "wpos_logo.png"
+    assert ICON_PATH.name == "wpos_icon.ico"
+    assert LOGO_PATH.exists()
+    assert ICON_PATH.exists()
