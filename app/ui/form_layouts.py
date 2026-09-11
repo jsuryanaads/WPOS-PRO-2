@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import QDialog, QFrame, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout
 
 
 COMPLEX_POPUPS = {
@@ -67,9 +67,8 @@ def _remove_widget_from_layout(layout, target):
 
 
 def _find_groupbox(page, title):
-    for box in page.findChildren(QFrame):
-        title_getter = getattr(box, "title", None)
-        if callable(title_getter) and title_getter() == title:
+    for box in page.findChildren(QGroupBox):
+        if box.title() == title:
             return box
     return None
 
