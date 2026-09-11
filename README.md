@@ -4,10 +4,19 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.5**
+- Versi aplikasi: **2.7.6**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.7.6
+- Merapikan **struktur Headerbar** menjadi tiga zona yang jelas.
+- Kiri: nama halaman aktif + subtitle/hint.
+- Tengah: informasi pengguna `Selamat datang, [username]`.
+- Kanan: tanggal otomatis dengan format Indonesia, contoh `12 September 2026`.
+- Status `OFFLINE` dan `DATABASE LOKAL` dihapus dari Headerbar agar tampilan lebih bersih.
+- Tinggi Headerbar dijaga ringkas pada kisaran 58–64 px.
+- Tidak ada perubahan database atau business logic.
 
 ## Perubahan terbaru 2.7.5
 - Memperbaiki **sidebar** agar seluruh kelompok menu tampil normal dan tidak berubah menjadi bar kosong.
@@ -19,27 +28,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Panel pembayaran dibatasi agar tidak mengambil ruang berlebihan pada layar lebar.
 - Tampilan Qty pada struk Qt/HTML dinormalisasi: `1.0`, `2.0`, `3.0` menjadi `1`, `2`, `3`.
 - Perubahan Qty hanya presentasi struk; nilai Decimal dan perhitungan transaksi tetap tidak diubah.
-
-## Perubahan terbaru 2.7.4
-- Merapikan **menu sidebar** tanpa mengubah fungsi atau index navigasi.
-- Sidebar tetap text-only tanpa ikon dekoratif.
-- Lebar sidebar dibuat lebih proporsional agar area kerja utama lebih luas.
-- Item menu dibuat lebih rapi dengan padding, margin dan active-state yang konsisten.
-- Header kelompok OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM dibuat lebih jelas.
-- Jarak antar kelompok diperbaiki, termasuk pemisahan area SYSTEM.
-- Styling tetap mengikuti Dark Mode dan Light Mode.
-- Tidak ada perubahan database atau business logic.
-
-## Perubahan terbaru 2.7.3
-- Memperbaiki **Kembalian** pada Kasir agar berubah langsung ketika nominal **Bayar** diketik/diubah.
-- Pembaruan menggunakan signal `valueChanged` pada field Bayar dan tidak mengubah aturan pembayaran pada service transaksi.
-- CASH tetap menghitung kembalian; pembayaran non-CASH tetap tidak menghasilkan kembalian.
-- Perubahan hanya pada workflow/UI pembayaran Kasir.
-
-## Perubahan 2.7.2
-- Memperbaiki crash login ketika `apply_hybrid_form_layouts()` memproses halaman Produk.
-- Helper Produk menggunakan owner `MainWindow` untuk mengakses `load_products` dan aksi Produk.
-- Fitur Hapus Produk tetap tersedia dengan perlindungan histori.
 
 ## Role
 Role resmi aplikasi:
@@ -70,11 +58,18 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 - **DATA MASTER:** Pelanggan, Supplier, Kategori, Satuan.
 - **SYSTEM:** Pengaturan Toko, Printer, Backup / Restore.
 - Sidebar text-only tanpa ikon dekoratif.
-- Section header dirender sebagai item teks disabled yang stabil, bukan custom widget yang dapat berubah menjadi bar kosong.
+- Section header dirender sebagai item teks disabled yang stabil.
 - Lebar sidebar: **230 px**.
 - Row menu compact dan konsisten; scroll horizontal dinonaktifkan.
 - Active menu, hover, section header dan spacing mengikuti tema aktif.
 - Index navigasi halaman tidak berubah.
+
+## Struktur Headerbar
+- **Kiri:** nama halaman aktif dan subtitle/hint.
+- **Tengah:** informasi pengguna, format `Selamat datang, [username]`.
+- **Kanan:** tanggal otomatis dalam bahasa Indonesia.
+- Status `OFFLINE` dan `DATABASE LOKAL` tidak lagi ditampilkan di Headerbar.
+- Headerbar ringkas, konsisten pada Dark Mode dan Light Mode.
 
 ## CRUD dan kontrol data
 - **Produk:** Tambah, Edit, Simpan, Nonaktifkan, Hapus aman.
@@ -162,6 +157,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Sidebar navigasi text-only tanpa ikon menu.
 - Section sidebar: OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM.
 - Sidebar compact 230 px dengan header teks stabil.
+- Headerbar tiga zona: context kiri, welcome pengguna di tengah, tanggal otomatis di kanan.
 - Active menu dan hover dibuat konsisten pada Dark/Light Mode.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
@@ -180,6 +176,15 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.6
+- Menata ulang Headerbar menjadi tiga zona: Context, Informasi Pengguna, dan Tanggal.
+- Menampilkan nama halaman aktif dan subtitle/hint di kiri.
+- Menampilkan `Selamat datang, [username]` di tengah.
+- Menampilkan tanggal otomatis bahasa Indonesia di kanan.
+- Menghapus badge status `OFFLINE` dan `DATABASE LOKAL` dari Headerbar.
+- Menetapkan tinggi Headerbar 58–64 px.
+- Menyinkronkan config dan installer ke **2.7.6**.
+
 ### 2.7.5
 - Memperbaiki header section sidebar yang sebelumnya tampil sebagai bar kosong.
 - Mengubah header section menjadi `QListWidgetItem` disabled dengan teks langsung agar stabil di Qt.
@@ -235,7 +240,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - `app/ui/master_data.py` — CRUD master data.
 - `app/ui/form_layouts.py` — hybrid form, Excel UI, reset dan kontrol Produk.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
-- `app/ui/theme_shell.py` — palette DARK/LIGHT dan styling sidebar/Kasir.
+- `app/ui/theme_shell.py` — palette DARK/LIGHT dan styling sidebar/Kasir/Headerbar.
 - `app/ui/ux2026.py` — interaction/accessibility.
 - `app/services/product_delete.py` — penghapusan Produk dengan perlindungan histori.
 - `app/services/receipt_display.py` — normalisasi presentasi Qty pada struk.
