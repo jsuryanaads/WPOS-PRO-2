@@ -181,6 +181,13 @@ def _normalize_controls(root):
             widget.setMinimumHeight(max(widget.minimumHeight(), 32))
             if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
                 widget.setMinimumWidth(max(widget.minimumWidth(), 110))
+                # QAbstractSpinBox owns an internal QLineEdit. Disable its
+                # clear button explicitly so Qt/style state cannot re-enable
+                # the unwanted × control inside numeric fields.
+                line_edit = widget.lineEdit()
+                if line_edit is not None:
+                    line_edit.setClearButtonEnabled(False)
+                    line_edit.setProperty("wposClearButtonDisabled", True)
 
     for button in root.findChildren(QPushButton):
         button.setCursor(Qt.PointingHandCursor)
