@@ -15,7 +15,14 @@ def apply_ui_polish(window):
     """Apply theme-neutral presentation refinements to legacy and modern shells."""
     if window.statusBar() is None:
         window.setStatusBar(QStatusBar(window))
-    window.statusBar().showMessage(FOOTER_TEXT)
+
+    # Modern V2 already renders the branded application footer inside its
+    # content area. The legacy QStatusBar would otherwise create a duplicate
+    # information strip at the very bottom of the window.
+    if hasattr(window, "modern_stack"):
+        window.statusBar().hide()
+    else:
+        window.statusBar().showMessage(FOOTER_TEXT)
 
     tabs = getattr(window, "tabs", None)
     if tabs is not None and hasattr(tabs, "tabBar"):
