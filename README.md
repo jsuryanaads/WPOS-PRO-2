@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.4.4**
+- Versi aplikasi: **2.5.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -46,6 +46,16 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 - **Dashboard/Laporan:** read-only.
 - **Pengaturan Toko/Printer:** edit dan simpan konfigurasi.
 - **Backup/Restore:** action-based.
+
+## Reset Data
+Tersedia di halaman **Backup / Restore** untuk ADMIN:
+- **RESET TRANSAKSI & STOK** — menghapus penjualan, item penjualan, pembelian, item pembelian, mutasi stok dan mutasi kas; seluruh stok produk dikembalikan ke `0`. Master produk/kategori/satuan/supplier/pelanggan tetap ada.
+- **RESET SEMUA DATA BISNIS** — menghapus seluruh transaksi, mutasi dan semua master bisnis (produk, kategori, satuan, supplier, pelanggan).
+- Akun pengguna dan pengaturan toko **tidak ikut dihapus**.
+- Reset memakai konfirmasi dua tahap dan pengguna wajib mengetik **RESET**.
+- Reset dilakukan dalam urutan yang aman terhadap foreign key.
+- Setelah reset, aplikasi diminta ditutup dan dijalankan kembali agar seluruh halaman memuat data terbaru.
+- Backup tetap disarankan sebelum reset karena reset bersifat permanen.
 
 ## Alur kasir
 Barcode → Keranjang → Diskon → Pembayaran → Kembalian → Stok berkurang → Transaksi tersimpan → Cetak struk.
@@ -129,6 +139,16 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.5.0
+- Menambahkan fitur **Reset Data** pada halaman Backup / Restore.
+- Menambahkan **RESET TRANSAKSI & STOK** untuk membersihkan histori transaksi/mutasi dan mengosongkan stok tanpa menghapus master data.
+- Menambahkan **RESET SEMUA DATA BISNIS** untuk membersihkan seluruh data bisnis tanpa menghapus akun pengguna dan pengaturan toko.
+- Reset dilindungi konfirmasi dua tahap dan wajib mengetik `RESET`.
+- Penghapusan dilakukan dalam urutan FK-safe.
+- Menambahkan regression tests untuk kedua mode reset.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.5.0**.
+- Tidak mengubah schema database.
+
 ### 2.4.4
 - Melengkapi CRUD master data **Kategori, Satuan, Supplier dan Pelanggan**.
 - Menambahkan pemilihan baris tabel untuk memuat data kembali ke form.
@@ -138,7 +158,6 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Produk tetap menggunakan Nonaktifkan, bukan delete permanen.
 - Menambahkan regression test untuk create/edit/delete dan dependency protection.
 - Menyinkronkan versi aplikasi dan installer ke **2.4.4**.
-- Tidak mengubah database schema, alur kasir, stok transaksi, kas atau business service.
 
 ### 2.4.3
 - Menormalkan tampilan stok bulat agar `24.000` tampil sebagai `24` tanpa mengubah nilai database.
@@ -189,9 +208,10 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - `app/ui/modern_main_window.py` — shell/sidebar/topbar/stack.
 - `app/ui/main_window.py` — halaman dan workflow.
 - `app/ui/master_data.py` — CRUD master data.
-- `app/ui/form_layouts.py` — hybrid form dan Excel UI.
+- `app/ui/form_layouts.py` — hybrid form, Excel UI dan Reset Data.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
 - `app/ui/theme_shell.py` — palette DARK/LIGHT.
 - `app/ui/ux2026.py` — interaction/accessibility.
+- `app/services/reset.py` — reset data bisnis dengan FK-safe deletion.
 - `app/services/` — business logic.
 - `app/models.py` — database model.
