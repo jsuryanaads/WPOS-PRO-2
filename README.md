@@ -95,13 +95,17 @@ Hasil installer:
 GitHub Actions menjalankan compile check dan test suite pada push/PR. Windows build memverifikasi source, test, EXE, associated icon, serta asset branding.
 
 ## Versioning
-Setiap perubahan pada source, konfigurasi, build, CI, atau dokumentasi menaikkan versi patch secara berurutan. Perubahan berikutnya setelah **2.0.1** menjadi **2.0.2**, kecuali perubahan tersebut memang memerlukan kenaikan minor/major.
+Aturan versi resmi WPOS PRO 2:
+- **Perubahan besar / fitur besar:** naik **MINOR**. Contoh `2.0.1` → `2.1.0`.
+- **Perbaikan / perubahan kecil:** naik **PATCH**. Contoh `2.0.1` → `2.0.2`.
+- **Setiap perubahan source, konfigurasi, build, CI, atau dokumentasi** wajib dicatat di README dan menggunakan kenaikan versi yang sesuai dengan jenis perubahannya.
+- Versi aktif saat ini: **2.0.1**.
 
 ## Changelog
 ### 2.0.1
 - Menaikkan versi aplikasi dari **2.0.0** menjadi **2.0.1**.
-- README disinkronkan dengan versi aplikasi.
-- Menetapkan aturan bahwa setiap perubahan berikutnya wajib menaikkan versi dan dicatat di README.
+- Menetapkan aturan versioning: perubahan besar menaikkan MINOR, sedangkan perbaikan/perubahan kecil menaikkan PATCH.
+- README disinkronkan dengan aturan versioning resmi.
 
 ### 2.0.0
 - Standardisasi identitas aplikasi menjadi **WPOS PRO 2**.
