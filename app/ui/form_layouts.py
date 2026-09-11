@@ -1,14 +1,4 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QDialog,
-    QFrame,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout
 
 
 COMPLEX_POPUPS = {
@@ -26,9 +16,6 @@ class _PopupController:
     def __init__(self, page, form_box, title, description, buttons=None, width=720, height=520):
         self.page = page
         self.form_box = form_box
-        self.title = title
-        self.description = description
-        self.buttons = buttons or []
         self.dialog = QDialog(page.window())
         self.dialog.setWindowTitle(title)
         self.dialog.setModal(True)
@@ -53,7 +40,7 @@ class _PopupController:
 
         actions = QHBoxLayout()
         actions.setSpacing(8)
-        for button in self.buttons:
+        for button in buttons or []:
             button.setParent(self.dialog)
             button.show()
             actions.addWidget(button)
@@ -63,7 +50,6 @@ class _PopupController:
         close.clicked.connect(self.dialog.reject)
         actions.addWidget(close)
         root.addLayout(actions)
-
         self.dialog.setProperty("wposPopup", True)
 
     def open(self):
@@ -78,36 +64,19 @@ def _remove_widget_from_layout(layout, target):
         return False
     for index in range(layout.count() - 1, -1, -1):
         item = layout.itemAt(index)
-        widget = item.widget()
-        if widget is target:
+        if item.widget() is target:
             layout.takeAt(index)
             return True
-        child_layout = item.layout()
-        if child_layout is not None and _remove_widget_from_layout(child_layout, target):
-            if child_layout.count() == 0:
-                layout.takeAt(index)
+        child = item.layout()
+        if child is not None and _remove_widget_from_layout(child, target):
             return True
     return False
 
 
-def _find_layout_with_widget(layout, target):
-    if layout is None:
-        return None
-    for index in range(layout.count()):
-        item = layout.itemAt(index)
-        if item.widget() is target:
-            return layout
-        child = item.layout()
-        if child is not None:
-            found = _find_layout_with_widget(child, target)
-            if found is not None:
-                return found
-    return None
-
-
 def _find_groupbox(page, title):
     for box in page.findChildren(QFrame):
-        if box.windowTitle() == title:
+        title_getter = getattr(box, "title", None)
+        if callable(title_getter) and title_getter() == title:
             return box
     return None
 
@@ -115,22 +84,16 @@ def _find_groupbox(page, title):
 def _popup_complex_page(page, title, dialog_title, description):
     if getattr(page, "_wpos_form_layout_mode", None) == "popup":
         return
-
     form_box = _find_groupbox(page, title)
     if form_box is None:
         return
 
-    # Keep the original controls and signal connections. Only their container
-    # and placement are changed, so business logic remains untouched.
-    buttons = [
-        button for button in page.findChildren(QPushButton)
-        if button.parent() is page
-    ]
+    buttons = [button for button in page.findChildren(QPushButton) if button.parent() is page]
     for button in buttons:
         _remove_widget_from_layout(page.layout(), button)
         button.hide()
-
     _remove_widget_from_layout(page.layout(), form_box)
+
     controller = _PopupController(
         page,
         form_box,
@@ -142,13 +105,10 @@ def _popup_complex_page(page, title, dialog_title, description):
     )
     page._wpos_form_popup = controller
 
-    trigger = QPushButton("＋ " + ("Tambah / Edit Produk" if title == "Produk" else "＋ Pembelian Baru"))
+    trigger_text = "＋ Tambah / Edit Produk" if title == "Produk" else "＋ Pembelian Baru"
+    trigger = QPushButton(trigger_text)
     trigger.setObjectName("formPopupTrigger")
-
-    def open_popup():
-        controller.open()
-
-    trigger.clicked.connect(open_popup)
+    trigger.clicked.connect(controller.open)
     page.layout().insertWidget(1, trigger)
     page._wpos_form_layout_mode = "popup"
 
@@ -156,7 +116,6 @@ def _popup_complex_page(page, title, dialog_title, description):
 def _popup_master_page(page, title, dialog_title):
     if getattr(page, "_wpos_form_layout_mode", None) == "popup":
         return
-
     form_box = page.findChild(QFrame, "masterFormCard")
     if form_box is None:
         return
@@ -180,26 +139,24 @@ def _popup_master_page(page, title, dialog_title):
     page._wpos_form_layout_mode = "popup"
 
 
-def _inline_simple_master(page, title):
+def _inline_simple_master(page):
     if getattr(page, "_wpos_form_layout_mode", None) == "inline":
         return
-
     form_box = page.findChild(QFrame, "masterFormCard")
-    if form_box is None:
-        return
-    form_layout = form_box.layout()
-    if form_layout is None:
+    if form_box is None or form_box.layout() is None:
         return
 
+    form_layout = form_box.layout()
     edit = form_box.findChild(QLineEdit)
-    if edit is None:
-        return
     label = next((item for item in form_box.findChildren(QLabel) if item.text() == "Name"), None)
     buttons = list(form_box.findChildren(QPushButton))
-    if label is None or not buttons:
+    if edit is None or label is None or not buttons:
         return
 
     _remove_widget_from_layout(page.layout(), form_box)
+    _remove_widget_from_layout(form_layout, label)
+    _remove_widget_from_layout(form_layout, edit)
+
     inline = QFrame()
     inline.setObjectName("masterInlineCard")
     layout = QHBoxLayout(inline)
@@ -211,7 +168,6 @@ def _inline_simple_master(page, title):
         widget.show()
     layout.addWidget(label)
     layout.addWidget(edit, 1)
-
     for button in buttons:
         _remove_widget_from_layout(form_layout, button)
         button.setParent(inline)
@@ -241,6 +197,6 @@ def apply_hybrid_form_layouts(window):
         if title in MASTER_POPUPS:
             _popup_master_page(page, title, MASTER_POPUPS[title])
         elif title in ("Kategori", "Satuan"):
-            _inline_simple_master(page, title)
+            _inline_simple_master(page)
 
     window.setProperty("wposHybridForms", True)
