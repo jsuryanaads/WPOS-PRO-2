@@ -32,14 +32,15 @@ QLabel#cardTitle { font-size: 10px; font-weight: 800; }
 QLabel#cardValue { font-size: 22px; font-weight: 900; }
 QLabel#total { border-radius: 9px; padding: 10px 14px; font-size: 18px; font-weight: 900; }
 
-QGroupBox { border-radius: 12px; padding: 18px 12px 12px; margin-top: 12px; font-weight: 800; }
+QGroupBox { border-radius: 12px; padding: 14px 12px 10px; margin-top: 10px; font-weight: 800; }
 QGroupBox::title { subcontrol-origin: margin; left: 14px; top: 2px; padding: 0 7px; }
 
-QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { min-height: 34px; border-radius: 8px; padding: 4px 9px; }
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit { min-height: 32px; max-height: 36px; border-radius: 8px; padding: 3px 9px; }
+QTextEdit { max-height: 120px; }
 QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus, QTextEdit:focus { border-width: 1px; }
 
-QPushButton { min-height: 34px; border-radius: 8px; padding: 7px 14px; font-weight: 800; }
-QPushButton:pressed { padding-top: 8px; }
+QPushButton { min-height: 34px; max-height: 38px; border-radius: 8px; padding: 6px 14px; font-weight: 800; }
+QPushButton:pressed { padding-top: 7px; }
 
 QTableWidget { min-height: 180px; border-radius: 10px; }
 QTableWidget::item { padding: 7px; }
@@ -78,14 +79,7 @@ def _mark_pages(root):
 
 
 def _hide_duplicate_page_headers(root):
-    """The modern shell owns the page title; legacy page headers are hidden.
-
-    Pages built by MainWindow still contain their original page_header() for
-    compatibility. Keeping it visible would produce two titles stacked on
-    top of each other. This pass only hides a header that contains both the
-    canonical pageTitle and pageSubtitle markers; business widgets remain
-    untouched.
-    """
+    """The modern shell owns the page title; legacy page headers are hidden."""
     stack = getattr(root, "modern_stack", None)
     if stack is None:
         return
@@ -107,7 +101,7 @@ def _hide_duplicate_page_headers(root):
 
 
 def _normalize_layouts(root):
-    """Apply one geometry contract to every page layout."""
+    """Apply one compact, predictable geometry contract to every page."""
     _hide_duplicate_page_headers(root)
 
     stack = getattr(root, "modern_stack", None)
@@ -117,22 +111,24 @@ def _normalize_layouts(root):
             if page is None or page.layout() is None:
                 continue
             layout = page.layout()
-            # Preserve page-specific margins, but enforce a predictable
-            # vertical rhythm between top-level content blocks.
-            if layout.spacing() < 10:
-                layout.setSpacing(10)
+            layout.setSpacing(max(layout.spacing(), 8))
+            margins = layout.contentsMargins()
+            if margins.left() < 16 or margins.right() < 16 or margins.top() < 8 or margins.bottom() < 8:
+                layout.setContentsMargins(16, 8, 16, 12)
             page.setProperty("wposLayoutReady", True)
 
     for form in root.findChildren(QFormLayout):
         form.setRowWrapPolicy(QFormLayout.DontWrapRows)
         form.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         form.setFormAlignment(Qt.AlignLeft | Qt.AlignTop)
-        form.setHorizontalSpacing(14)
-        form.setVerticalSpacing(7)
+        form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        form.setHorizontalSpacing(16)
+        form.setVerticalSpacing(5)
         parent = form.parentWidget()
-        if isinstance(parent, QGroupBox) and form.rowCount() >= 5:
-            required = 28 + (form.rowCount() * 34) + ((form.rowCount() - 1) * 7)
-            parent.setMinimumHeight(max(parent.minimumHeight(), required))
+        if isinstance(parent, QGroupBox):
+            rows = form.rowCount()
+            required = 26 + (rows * 32) + (max(0, rows - 1) * 5) + 8
+            parent.setMinimumHeight(max(0, required))
 
     for grid in root.findChildren(QGridLayout):
         grid.setHorizontalSpacing(max(grid.horizontalSpacing(), 10))
@@ -163,7 +159,7 @@ def _normalize_controls(root):
         button.setDefault(False)
 
     for group in root.findChildren(QGroupBox):
-        group.setContentsMargins(8, 12, 8, 8)
+        group.setContentsMargins(8, 10, 8, 8)
 
     for scroll in root.findChildren(QScrollArea):
         scroll.setWidgetResizable(True)
