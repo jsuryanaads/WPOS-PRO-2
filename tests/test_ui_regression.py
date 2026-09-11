@@ -77,3 +77,11 @@ def test_modern_page_surface_rules_are_present(qapp):
     assert "QWidget#modernStack > QWidget" in window.styleSheet()
     assert "background: #f8fafc" in window.styleSheet()
     assert "color: #0f172a" in window.styleSheet()
+
+
+def test_only_dark_theme_is_exposed():
+    from app.ui.themes import THEMES, current_theme
+
+    assert list(THEMES) == ["DARK"]
+    assert THEMES["DARK"]["label"] == "Dark Mode"
+    assert current_theme() == "DARK"
