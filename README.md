@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.10**
+- Versi aplikasi: **2.3.11**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -93,7 +93,7 @@ Tema yang sudah dihapus dan tidak tersedia:
 Key tema lama atau tidak valid yang tersimpan di database otomatis fallback ke **DARK**.
 
 ## Dashboard Welcome Header
-Header Dashboard sekarang memakai topbar modern sebagai satu-satunya area sambutan:
+Header Dashboard memakai topbar modern sebagai satu-satunya area sambutan:
 - **Selamat datang, {username login}**.
 - Tanggal menggunakan tanggal komputer saat aplikasi berjalan.
 - Nama hari ditampilkan dalam Bahasa Indonesia.
@@ -114,7 +114,14 @@ Halaman Kasir menggunakan workflow fokus transaksi:
 - Ringkasan pembayaran memakai panel kanan dengan lebar minimum yang cukup untuk label dan field nominal.
 - Tombol **CLEAR** dan **BAYAR & CETAK** memiliki ukuran minimum agar teks tidak terpotong atau berhimpitan pada resolusi desktop.
 - Metode pembayaran tetap **CASH, QRIS, TRANSFER, DEBIT**.
+- Clear button pada `QLineEdit`, `QSpinBox` dan `QDoubleSpinBox` dinonaktifkan agar tombol **×** tidak muncul otomatis pada field input.
 - Perubahan ini hanya memperbaiki geometry/presentasi UI dan tidak mengubah business logic pembayaran, stok, transaksi atau database schema.
+
+## Sidebar navigation
+Navigasi sidebar menggunakan **teks saja tanpa ikon menu**.
+- Ikon dekoratif seperti `▣`, `＋`, `□`, `▤`, `Rp`, `◫`, `⚙` dan simbol lain tidak lagi dirender.
+- Index halaman dan mekanisme navigasi tetap sama.
+- Penghapusan ikon hanya perubahan presentasi UI; tidak mengubah fungsi halaman atau business logic.
 
 ## Form input — Hybrid UX
 Pada **v2.3.4**, form input menggunakan pola hybrid agar halaman data tidak dipenuhi form panjang:
@@ -150,6 +157,14 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.11
+- Menghapus ikon dekoratif dari seluruh menu sidebar modern.
+- Sidebar sekarang hanya menampilkan nama section dan teks menu.
+- Mempertahankan `Qt.UserRole` dan index navigasi sehingga perpindahan halaman tetap sama.
+- Menambahkan dokumentasi sidebar text-only ke README.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.11**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.3.10
 - Memperbaiki kasus tombol **×** yang masih muncul pada `QDoubleSpinBox`/`QSpinBox` setelah clear button global pada `QLineEdit` dihapus.
 - Menonaktifkan clear button secara eksplisit pada `QLineEdit` internal milik seluruh numeric spinbox.
@@ -262,4 +277,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.10.** Perbaikan clear button pada QLineEdit dan numeric spinbox sudah masuk source, regression test ditambahkan, dan CI harus PASS sebelum build EXE/installer dianggap release final.
+**WPOS PRO 2 — v2.3.11.** Sidebar text-only sudah masuk source. CI harus PASS sebelum build EXE/installer dianggap release final.
