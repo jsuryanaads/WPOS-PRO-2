@@ -34,6 +34,7 @@ def apply_cashier_structure(window):
         "PARKIR": "PARKIR",
         "PARKIRAN": "TRANSAKSI PARKIR",
         "BATAL": "BATAL TRANSAKSI",
+        "RIWAYAT": "RIWAYAT TRANSAKSI",
         "CLEAR": "CLEAR",
     }
     buttons = []
@@ -42,6 +43,8 @@ def apply_cashier_structure(window):
         if button is not None and button.parentWidget() is pay_card:
             buttons.append((button, display))
 
+    # CLEAR duplicates BATAL in the current cashier workflow; keep it available
+    # but place it after the main transaction controls.
     checkout = _find_button(window, "BAYAR & CETAK")
     if checkout is not None and checkout.parentWidget() is pay_card:
         buttons.append((checkout, "BAYAR & CETAK"))
