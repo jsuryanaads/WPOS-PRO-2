@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.0**
+- Versi aplikasi: **2.3.1**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -94,14 +94,16 @@ Hasil installer:
 GitHub Actions menjalankan compile check dan test suite pada push/PR. Windows build memverifikasi source, test, EXE, associated icon, serta asset branding.
 
 ## Tema aplikasi
-Mulai **v2.3.0**, aplikasi menggunakan **satu tema resmi: Dark Mode**.
+Mulai **v2.3.1**, aplikasi menyediakan dua tema resmi:
+- **Dark Mode** — tema default.
+- **Light Mode** — tema terang dengan surface putih, kontras teks gelap dan aksen biru.
 
-Tema berikut dihapus dari daftar tema dan shell:
+Tema yang sudah dihapus dan tidak tersedia:
 - Modern Blue
 - Purple Premium
 - Emerald
 
-Key tema lama yang tersimpan di database otomatis dinormalisasi ke **DARK**. Menu **Tema** tetap tersedia tetapi hanya menampilkan **Dark Mode**.
+Key tema lama atau tidak valid yang tersimpan di database otomatis fallback ke **DARK**. Menu **Tema** sekarang menampilkan **Dark Mode** dan **Light Mode**.
 
 ## Footer aplikasi
 Struktur bersama:
@@ -159,6 +161,16 @@ Aturan versi resmi:
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.1
+- Menambahkan **Light Mode** sebagai tema resmi baru.
+- Mempertahankan **Dark Mode** sebagai tema default.
+- Menghapus Modern Blue, Purple Premium dan Emerald tetap berlaku.
+- Menambahkan palette Light Mode pada registry tema dan shell modern.
+- Menambahkan fallback tema tidak valid ke DARK tanpa mengubah schema database.
+- Memperbarui regression test untuk memastikan registry tema berisi DARK dan LIGHT.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.1**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.3.0
 - Menetapkan **Dark Mode** sebagai satu-satunya tema resmi WPOS PRO 2.
 - Menghapus **Modern Blue**, **Purple Premium**, dan **Emerald** dari registry tema.
@@ -225,4 +237,4 @@ Aturan versi resmi:
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.0.** Menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
+**WPOS PRO 2 — v2.3.1.** Menunggu CI PASS dan verifikasi Windows/thermal printer/installer sebelum release final.
