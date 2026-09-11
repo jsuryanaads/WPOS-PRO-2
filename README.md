@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.0.4**
+- Versi aplikasi: **2.0.5**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -94,14 +94,34 @@ Hasil installer:
 ## CI
 GitHub Actions menjalankan compile check dan test suite pada push/PR. Windows build memverifikasi source, test, EXE, associated icon, serta asset branding.
 
+## Footer aplikasi
+Footer modern shell menggunakan struktur otomatis:
+**Nama aplikasi | Versi aplikasi | Tahun otomatis | by Jsuryana**
+
+Spesifikasi footer:
+- Tinggi tetap **30 px**.
+- Teks kecil **10 px** dan tidak dominan.
+- Footer berada setelah area `QStackedWidget`, sehingga tetap menempel di bagian bawah modern content pada seluruh halaman.
+- Footer tidak menjadi bagian dari halaman individual dan tidak ikut bergeser saat navigasi.
+- Ruang footer dibatasi agar tidak mengambil area konten secara berlebihan.
+- Nama dan versi mengikuti `APP_NAME` / `APP_VERSION`; tahun mengikuti tahun sistem saat aplikasi dijalankan.
+
 ## Versioning
 Aturan versi resmi WPOS PRO 2:
 - **Perubahan besar / fitur besar:** naik **MINOR**. Contoh `2.0.1` → `2.1.0`.
 - **Perbaikan / perubahan kecil:** naik **PATCH**. Contoh `2.0.1` → `2.0.2`.
 - **Setiap perubahan source, konfigurasi, build, CI, atau dokumentasi** wajib dicatat di README dan menggunakan kenaikan versi yang sesuai dengan jenis perubahannya.
-- Versi aktif saat ini: **2.0.4**.
+- Versi aktif saat ini: **2.0.5**.
 
 ## Changelog
+### 2.0.5
+- Menetapkan tinggi footer secara eksplisit **30 px**.
+- Menetapkan size policy footer agar horizontal mengikuti area content tetapi vertikal tetap fixed.
+- Menetapkan style global `applicationFooter` dengan rentang efektif 30 px.
+- Memastikan teks footer tetap kecil, terpusat, dan tidak dominan.
+- Footer tetap berada di bawah `modernStack`, sehingga konsisten untuk seluruh halaman tanpa mengambil ruang besar.
+- Tidak mengubah business logic atau database.
+
 ### 2.0.4
 - Menyederhanakan footer aplikasi menjadi struktur: **Nama aplikasi | Versi aplikasi | Tahun otomatis | by Jsuryana**.
 - Tahun footer diambil otomatis dari tahun sistem saat aplikasi dijalankan.
@@ -139,4 +159,4 @@ Aturan versi resmi WPOS PRO 2:
 - Penambahan regression test untuk branding/build asset dan navigasi.
 
 ## Status
-**WPOS PRO 2 — v2.0.4.** Kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.
+**WPOS PRO 2 — v2.0.5.** Kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.
