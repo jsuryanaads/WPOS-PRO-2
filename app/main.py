@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel
 from PySide6.QtGui import QIcon
 from .config import APP_NAME, APP_VERSION
