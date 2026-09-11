@@ -4,7 +4,7 @@ from pathlib import Path
 from openpyxl import Workbook, load_workbook
 
 from ..models import Category, Product, Unit, StockMovement
-from .products import create_product, update_product
+from .validation import decimal_value
 
 PRODUCT_HEADERS = [
     "Barcode", "Nama Produk", "Kategori", "Satuan",
@@ -25,14 +25,10 @@ def export_products(session, path):
     products = session.query(Product).order_by(Product.name).all()
     for product in products:
         sheet.append([
-            product.barcode,
-            product.name,
-            categories.get(product.category_id, ""),
-            units.get(product.unit_id, ""),
-            float(product.purchase_price),
-            float(product.selling_price),
-            float(product.stock),
-            float(product.minimum_stock),
+            product.barcode, product.name,
+            categories.get(product.category_id, ""), units.get(product.unit_id, ""),
+            float(product.purchase_price), float(product.selling_price),
+            float(product.stock), float(product.minimum_stock),
             "YA" if product.active else "TIDAK",
         ])
     sheet.freeze_panes = "A2"
@@ -48,29 +44,18 @@ def _text(value):
     return "" if value is None else str(value).strip()
 
 
-def _number(value, default="0"):
-    if value is None or _text(value) == "":
-        value = default
-    return Decimal(str(value))
+def _number(value, label, default="0"):
+    value = default if value is None or _text(value) == "" else value
+    return decimal_value(value, label, non_negative=True)
 
 
-def _category_id(session, name):
+def _lookup(session, model, name, label):
     name = _text(name)
     if not name:
         return None
-    row = session.query(Category).filter(Category.name == name).first()
+    row = session.query(model).filter(model.name == name).first()
     if row is None:
-        raise ValueError(f"Kategori tidak ditemukan: {name}")
-    return row.id
-
-
-def _unit_id(session, name):
-    name = _text(name)
-    if not name:
-        return None
-    row = session.query(Unit).filter(Unit.name == name).first()
-    if row is None:
-        raise ValueError(f"Satuan tidak ditemukan: {name}")
+        raise ValueError(f"{label} tidak ditemukan: {name}")
     return row.id
 
 
@@ -84,59 +69,77 @@ def _active(value):
 
 
 def import_products(session, path, mode="add"):
-    path = Path(path)
-    workbook = load_workbook(path, read_only=True, data_only=True)
-    sheet = workbook.active
-    rows = list(sheet.iter_rows(values_only=True))
-    workbook.close()
+    if mode not in ("add", "update"):
+        raise ValueError("Mode import tidak valid")
+    workbook = load_workbook(Path(path), read_only=True, data_only=True)
+    try:
+        rows = list(workbook.active.iter_rows(values_only=True))
+    finally:
+        workbook.close()
     if not rows:
         raise ValueError("File Excel kosong")
-    headers = [_text(value) for value in rows[0]]
-    if headers != PRODUCT_HEADERS:
+    if [_text(value) for value in rows[0]] != PRODUCT_HEADERS:
         raise ValueError("Format Excel tidak sesuai. Gunakan file hasil Export Produk sebagai template.")
 
+    prepared, errors, seen = [], [], set()
+    for row_number, values in enumerate(rows[1:], start=2):
+        if not any(value is not None and _text(value) for value in values):
+            continue
+        try:
+            data = dict(zip(PRODUCT_HEADERS, values))
+            barcode, name = _text(data["Barcode"]), _text(data["Nama Produk"])
+            if not barcode or not name:
+                raise ValueError("Barcode dan Nama Produk wajib diisi")
+            if barcode in seen:
+                raise ValueError("Barcode duplikat di dalam file")
+            seen.add(barcode)
+            prepared.append({
+                "barcode": barcode, "name": name,
+                "category_id": _lookup(session, Category, data["Kategori"], "Kategori"),
+                "unit_id": _lookup(session, Unit, data["Satuan"], "Satuan"),
+                "purchase_price": _number(data["Harga Beli"], "Harga beli"),
+                "selling_price": _number(data["Harga Jual"], "Harga jual"),
+                "stock": _number(data["Stok Awal"], "Stok awal"),
+                "minimum_stock": _number(data["Stok Minimum"], "Stok minimum"),
+                "active": _active(data["Aktif"]),
+            })
+        except Exception as exc:
+            errors.append(f"Baris {row_number}: {exc}")
+    if errors:
+        raise ValueError("Import dibatalkan:\n" + "\n".join(errors[:20]))
+
     created = updated = 0
-    errors = []
     try:
-        for row_number, values in enumerate(rows[1:], start=2):
-            if not any(value is not None and _text(value) for value in values):
-                continue
-            try:
-                data = dict(zip(PRODUCT_HEADERS, values))
-                barcode = _text(data["Barcode"])
-                name = _text(data["Nama Produk"])
-                if not barcode or not name:
-                    raise ValueError("Barcode dan Nama Produk wajib diisi")
-                category_id = _category_id(session, data["Kategori"])
-                unit_id = _unit_id(session, data["Satuan"])
-                existing = session.query(Product).filter_by(barcode=barcode).first()
-                if existing:
-                    if mode != "update":
-                        raise ValueError("Barcode sudah digunakan")
-                    update_product(
-                        session, existing.id, name=name,
-                        purchase_price=_number(data["Harga Beli"]),
-                        selling_price=_number(data["Harga Jual"]),
-                        minimum_stock=_number(data["Stok Minimum"]),
-                        category_id=category_id, unit_id=unit_id,
-                        active=_active(data["Aktif"]),
-                    )
-                    updated += 1
-                else:
-                    create_product(
-                        session, barcode, name,
-                        purchase_price=_number(data["Harga Beli"]),
-                        selling_price=_number(data["Harga Jual"]),
-                        stock=_number(data["Stok Awal"]),
-                        minimum_stock=_number(data["Stok Minimum"]),
-                        category_id=category_id, unit_id=unit_id,
-                    )
-                    created += 1
-            except Exception as exc:
-                errors.append(f"Baris {row_number}: {exc}")
-        if errors:
-            session.rollback()
-            raise ValueError("Import dibatalkan karena ada kesalahan:\n" + "\n".join(errors[:20]))
+        for data in prepared:
+            existing = session.query(Product).filter_by(barcode=data["barcode"]).first()
+            if existing:
+                if mode != "update":
+                    raise ValueError(f"Barcode sudah digunakan: {data['barcode']}")
+                existing.name = data["name"]
+                existing.category_id = data["category_id"]
+                existing.unit_id = data["unit_id"]
+                existing.purchase_price = data["purchase_price"]
+                existing.selling_price = data["selling_price"]
+                existing.minimum_stock = data["minimum_stock"]
+                existing.active = data["active"]
+                # Stok berjalan tidak diubah oleh import Excel.
+                updated += 1
+            else:
+                product = Product(
+                    barcode=data["barcode"], name=data["name"],
+                    category_id=data["category_id"], unit_id=data["unit_id"],
+                    purchase_price=data["purchase_price"], selling_price=data["selling_price"],
+                    stock=data["stock"], minimum_stock=data["minimum_stock"], active=data["active"],
+                )
+                session.add(product)
+                session.flush()
+                if data["stock"] > 0:
+                    session.add(StockMovement(
+                        product_id=product.id, movement_type="OPENING",
+                        quantity=data["stock"], reference="IMPORT-EXCEL",
+                    ))
+                created += 1
+        session.commit()
         return {"created": created, "updated": updated}
     except Exception:
         session.rollback()
