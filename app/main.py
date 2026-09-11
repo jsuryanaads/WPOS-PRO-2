@@ -14,9 +14,6 @@ from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 
-
-FOOTER_MODE = "Offline POS"
-FOOTER_STORAGE = "Local Database"
 FOOTER_OWNER = "Jsuryana"
 
 
@@ -35,8 +32,7 @@ def add_application_footer(window):
     layout.setSpacing(0)
 
     label = QLabel(
-        f"{APP_NAME} · {FOOTER_MODE} · © {datetime.now().year} · "
-        f"{FOOTER_STORAGE} · {FOOTER_OWNER}"
+        f"{APP_NAME} | v{APP_VERSION} | {datetime.now().year} | by {FOOTER_OWNER}"
     )
     label.setObjectName("applicationFooterLabel")
     label.setAlignment(Qt.AlignCenter)
