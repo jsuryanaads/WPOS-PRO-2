@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
     QGroupBox,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QPushButton,
@@ -53,10 +54,16 @@ QWidget[wposPageType="cashier"] QTableWidget { min-height: 250px; }
 QWidget[wposPageType="products"] QTableWidget,
 QWidget[wposPageType="stock"] QTableWidget,
 QWidget[wposPageType="reports"] QTableWidget { min-height: 280px; }
-QWidget[wposPageType="master"] QTableWidget { min-height: 300px; }
+QWidget[wposPageType="master"] QTableWidget { min-height: 260px; }
+QWidget[wposPageType="purchase"] QTableWidget { min-height: 240px; }
+QWidget[wposPageType="cash"] QTableWidget { min-height: 240px; }
 QWidget[wposPageType="settings"] QGroupBox,
 QWidget[wposPageType="printer"] QGroupBox,
 QWidget[wposPageType="backup"] QGroupBox { max-width: 900px; }
+
+/* Responsive geometry: avoid oversized forms/cards and preserve usable space. */
+QWidget[wposPage="true"] QGroupBox { max-width: 1100px; }
+QWidget[wposPage="true"] QTableWidget { max-width: 1400px; }
 """
 
 _PAGE_TYPES = [
@@ -111,10 +118,8 @@ def _normalize_layouts(root):
             if page is None or page.layout() is None:
                 continue
             layout = page.layout()
-            layout.setSpacing(max(layout.spacing(), 8))
-            margins = layout.contentsMargins()
-            if margins.left() < 16 or margins.right() < 16 or margins.top() < 8 or margins.bottom() < 8:
-                layout.setContentsMargins(16, 8, 16, 12)
+            layout.setSpacing(min(max(layout.spacing(), 8), 12))
+            layout.setContentsMargins(16, 8, 16, 12)
             page.setProperty("wposLayoutReady", True)
 
     for form in root.findChildren(QFormLayout):
@@ -122,17 +127,18 @@ def _normalize_layouts(root):
         form.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         form.setFormAlignment(Qt.AlignLeft | Qt.AlignTop)
         form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
-        form.setHorizontalSpacing(16)
+        form.setHorizontalSpacing(12)
         form.setVerticalSpacing(5)
         parent = form.parentWidget()
         if isinstance(parent, QGroupBox):
             rows = form.rowCount()
             required = 26 + (rows * 32) + (max(0, rows - 1) * 5) + 8
             parent.setMinimumHeight(max(0, required))
+            parent.setMaximumWidth(1100)
 
     for grid in root.findChildren(QGridLayout):
-        grid.setHorizontalSpacing(max(grid.horizontalSpacing(), 10))
-        grid.setVerticalSpacing(max(grid.verticalSpacing(), 8))
+        grid.setHorizontalSpacing(min(max(grid.horizontalSpacing(), 10), 16))
+        grid.setVerticalSpacing(min(max(grid.verticalSpacing(), 8), 12))
 
 
 def _normalize_controls(root):
@@ -142,10 +148,17 @@ def _normalize_controls(root):
         table.setSelectionMode(QAbstractItemView.SingleSelection)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setWordWrap(False)
+        table.setSizeAdjustPolicy(QAbstractItemView.AdjustIgnored)
         table.verticalHeader().setVisible(False)
-        table.horizontalHeader().setStretchLastSection(True)
-        table.horizontalHeader().setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         table.verticalHeader().setDefaultSectionSize(34)
+        header = table.horizontalHeader()
+        header.setStretchLastSection(True)
+        header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        header.setMinimumSectionSize(70)
+        for column in range(table.columnCount()):
+            header.setSectionResizeMode(column, QHeaderView.Interactive)
+        if table.columnCount() > 0:
+            header.setSectionResizeMode(table.columnCount() - 1, QHeaderView.Stretch)
 
     for widget_type in (QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit):
         for widget in root.findChildren(widget_type):
@@ -163,6 +176,8 @@ def _normalize_controls(root):
 
     for scroll in root.findChildren(QScrollArea):
         scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     for frame in root.findChildren(QFrame, "applicationFooter"):
         frame.setMinimumHeight(28)
