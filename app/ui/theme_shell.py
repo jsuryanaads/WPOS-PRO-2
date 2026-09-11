@@ -14,19 +14,17 @@ def theme_shell_stylesheet(theme_key: str) -> str:
     p = THEME_PALETTES.get(theme_key, THEME_PALETTES["DARK"])
     return f"""
 /* WPOS PRO 2 — active theme: {theme_key} */
-QFrame#modernSidebar {{ background:{p['shell']}; color:{p['sidebar_text']}; border:0; min-width:225px; max-width:240px; }}
+QFrame#modernSidebar {{ background:{p['shell']}; color:{p['sidebar_text']}; border:0; min-width:230px; max-width:230px; }}
 QFrame#modernBrand {{ background:{p['shell_alt']}; border:1px solid {p['shell_hover']}; border-radius:14px; }}
-QLabel#modernBrandLogo {{ min-width:44px; max-width:44px; min-height:44px; max-height:44px; }}
+QLabel#modernBrandLogo {{ min-width:42px; max-width:42px; min-height:42px; max-height:42px; }}
 QLabel#modernBrandName {{ color:{p['sidebar_inverse']}; font-size:18px; font-weight:900; }}
 QLabel#modernBrandVersion {{ color:{p['muted']}; font-size:9px; font-weight:700; }}
 QListWidget#modernNav {{ background:{p['shell']}; color:{p['sidebar_text']}; border:0; outline:none; padding:0; }}
-QListWidget#modernNav::item {{ background:transparent; color:{p['sidebar_text']}; padding:8px 10px; margin:1px 2px; border:1px solid transparent; border-radius:8px; font-size:12px; }}
+QListWidget#modernNav::item {{ background:transparent; color:{p['sidebar_text']}; padding:5px 10px; margin:1px 2px; border:1px solid transparent; border-radius:8px; font-size:11px; min-height:20px; }}
 QListWidget#modernNav::item:hover {{ background:{p['shell_hover']}; color:{p['sidebar_inverse']}; }}
 QListWidget#modernNav::item:selected {{ background:{p['selected']}; color:{p['selected_text']}; font-weight:800; border:1px solid {p['selected']}; }}
-QLabel#modernNavSection {{ background:{p['shell_alt']}; color:{p['sidebar_inverse']}; border:1px solid {p['shell_hover']}; border-radius:7px; padding:6px 10px; margin:8px 2px 3px; font-size:9px; font-weight:900; letter-spacing:0.8px; }}
-QLabel#modernNavSection[section="KEUANGAN"] {{ background:{p['surface_alt']}; }}
-QLabel#modernNavSection[section="DATA MASTER"] {{ background:{p['shell_alt']}; }}
-QLabel#modernNavSection[section="SYSTEM"] {{ background:{p['surface_alt']}; margin-top:14px; }}
+QListWidget#modernNav::item:disabled {{ background:{p['shell_alt']}; color:{p['sidebar_inverse']}; padding:4px 10px; margin:5px 2px 2px; border:1px solid {p['shell_hover']}; border-radius:7px; font-size:9px; font-weight:900; }}
+QListWidget#modernNav::item:disabled:hover {{ background:{p['shell_alt']}; color:{p['sidebar_inverse']}; }}
 QFrame#modernAccount {{ background:{p['shell_alt']}; border:1px solid {p['shell_hover']}; border-radius:12px; }}
 QLabel#modernUser {{ color:{p['sidebar_inverse']}; font-weight:800; }}
 QLabel#modernRole {{ color:{p['muted']}; font-size:10px; }}
