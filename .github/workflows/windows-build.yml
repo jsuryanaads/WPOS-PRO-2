@@ -1,4 +1,4 @@
-name: WPOS PRO Windows Build
+name: WPOS PRO 2 Windows Build
 
 on:
   workflow_dispatch:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-windows:
-    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[BUILD V1.1.5]') }}
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -22,20 +21,13 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt pyinstaller pillow
+          pip install -r requirements.txt pyinstaller
 
-      - name: Verify branding asset
+      - name: Verify branding assets
         shell: pwsh
         run: |
-          $logo = "assets\branding\wpos_logo.png"
-          if (!(Test-Path $logo)) { throw "Logo tidak ditemukan: $logo" }
-          Get-Item $logo | Format-List FullName,Length
-
-      - name: Generate Windows icon
-        shell: pwsh
-        run: |
-          python -c "from PIL import Image; Image.open('assets/branding/wpos_logo.png').convert('RGBA').save('assets/branding/wpos_logo.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])"
-          if (!(Test-Path "assets\branding\wpos_logo.ico")) { throw "ICO tidak berhasil dibuat" }
+          if (!(Test-Path "assets\branding\wpos_logo.png")) { throw "Logo tidak ditemukan: wpos_logo.png" }
+          if (!(Test-Path "assets\branding\wpos_icon.ico")) { throw "Icon tidak ditemukan: wpos_icon.ico" }
 
       - name: Compile Python
         run: python -m compileall -q app
@@ -43,26 +35,33 @@ jobs:
       - name: Run tests
         env:
           PYTHONPATH: .
+          QT_QPA_PLATFORM: offscreen
         run: pytest -q
 
-      - name: Build EXE with WPOS icon
+      - name: Build EXE
         shell: pwsh
         run: |
-          python -m PyInstaller --clean --noconfirm --windowed --icon "assets\branding\wpos_logo.ico" --name "WPOS PRO" --paths . --add-data "assets\branding\wpos_logo.png;assets\branding" run.py
+          python -m PyInstaller --clean --noconfirm --windowed --icon "assets\branding\wpos_icon.ico" --name "WPOS PRO 2" --paths . --add-data "assets\branding\wpos_logo.png;assets\branding" --add-data "assets\branding\wpos_icon.ico;assets\branding" run.py
 
       - name: Verify EXE and branding
         shell: pwsh
         run: |
-          $exe = "dist\WPOS PRO\WPOS PRO.exe"
-          $logo = "dist\WPOS PRO\_internal\assets\branding\wpos_logo.png"
+          $exe = "dist\WPOS PRO 2\WPOS PRO 2.exe"
+          $logo = "dist\WPOS PRO 2\_internal\assets\branding\wpos_logo.png"
+          $icon = "dist\WPOS PRO 2\_internal\assets\branding\wpos_icon.ico"
           if (!(Test-Path $exe)) { throw "EXE tidak ditemukan: $exe" }
           if (!(Test-Path $logo)) { throw "Logo tidak ikut dipaketkan: $logo" }
-          Get-Item $exe,$logo | Format-List FullName,Length
+          if (!(Test-Path $icon)) { throw "Icon tidak ikut dipaketkan: $icon" }
+          Add-Type -AssemblyName System.Drawing
+          $associated = [System.Drawing.Icon]::ExtractAssociatedIcon((Resolve-Path $exe).Path)
+          if ($null -eq $associated) { throw "EXE tidak memiliki associated icon" }
+          $associated.Dispose()
+          Get-Item $exe,$logo,$icon | Format-List FullName,Length
 
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
-          name: WPOS-PRO-V1.1.5-Windows
-          path: dist/WPOS PRO/
+          name: WPOS-PRO-2-Windows
+          path: dist/WPOS PRO 2/
           if-no-files-found: error
           retention-days: 14

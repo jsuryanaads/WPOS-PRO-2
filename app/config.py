@@ -2,8 +2,8 @@ from pathlib import Path
 import os
 import sys
 
-APP_NAME = "WPOS PRO V2"
-APP_VERSION = "V2"
+APP_NAME = "WPOS PRO 2"
+APP_VERSION = "2.0.6"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 if getattr(sys, "frozen", False) and os.name == "nt":

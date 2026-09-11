@@ -1,7 +1,7 @@
 import sys
 from datetime import datetime
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel
+from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QSizePolicy
 from PySide6.QtGui import QIcon
 from .config import APP_NAME, APP_VERSION
 from .database import init_db
@@ -14,14 +14,11 @@ from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 
-
-FOOTER_MODE = "Offline POS"
-FOOTER_STORAGE = "Local Database"
 FOOTER_OWNER = "Jsuryana"
 
 
 def add_application_footer(window):
-    """Add one automatic application footer to the modern content area."""
+    """Add one compact, fixed-height application footer to the modern shell."""
     content = window.findChild(QFrame, "modernContent")
     if content is None or content.layout() is None:
         return
@@ -30,16 +27,19 @@ def add_application_footer(window):
 
     footer = QFrame()
     footer.setObjectName("applicationFooter")
+    footer.setFixedHeight(30)
+    footer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
     layout = QHBoxLayout(footer)
-    layout.setContentsMargins(8, 2, 8, 2)
+    layout.setContentsMargins(8, 0, 8, 0)
     layout.setSpacing(0)
 
     label = QLabel(
-        f"{APP_NAME} · {FOOTER_MODE} · © {datetime.now().year} · "
-        f"{FOOTER_STORAGE} · {FOOTER_OWNER}"
+        f"{APP_NAME} | v{APP_VERSION} | {datetime.now().year} | by {FOOTER_OWNER}"
     )
     label.setObjectName("applicationFooterLabel")
     label.setAlignment(Qt.AlignCenter)
+    label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
     layout.addWidget(label)
 
     content.layout().addWidget(footer, 0)
