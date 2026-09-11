@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import (
     QDialog, QFrame, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QVBoxLayout, QFileDialog, QMessageBox
+    QVBoxLayout, QFileDialog, QMessageBox, QInputDialog
 )
 
-from ..database import SessionLocal
+from ..database import SessionLocal, engine
 from ..services.excel import export_products, import_products
+from ..services.reset import reset_all_business_data, reset_transactions_and_stock
 
 
 COMPLEX_POPUPS = {
@@ -227,8 +228,100 @@ def _inline_simple_master(page):
     page._wpos_form_layout_mode = "inline"
 
 
+def _attach_reset_controls(window):
+    page = window.modern_stack.widget(9) if getattr(window, "modern_stack", None) and window.modern_stack.count() > 9 else None
+    if page is None or getattr(page, "_wpos_reset_actions", False):
+        return
+    box = page.findChild(QGroupBox, "")
+    if box is None:
+        boxes = page.findChildren(QGroupBox)
+        box = next((item for item in boxes if item.title() == "Database"), None)
+    if box is None or box.layout() is None:
+        return
+
+    separator = QLabel("RESET DATA")
+    separator.setObjectName("sectionTitle")
+    warning = QLabel(
+        "Fitur ini menghapus data secara permanen. Akun pengguna dan pengaturan toko tetap dipertahankan."
+    )
+    warning.setWordWrap(True)
+    warning.setObjectName("pageSubtitle")
+    tx_button = QPushButton("RESET TRANSAKSI & STOK")
+    tx_button.setObjectName("secondary")
+    all_button = QPushButton("RESET SEMUA DATA BISNIS")
+    all_button.setObjectName("danger")
+    tx_button.clicked.connect(lambda: _reset_transactions(window))
+    all_button.clicked.connect(lambda: _reset_all_business(window))
+    box.layout().addWidget(separator)
+    box.layout().addWidget(warning)
+    box.layout().addWidget(tx_button)
+    box.layout().addWidget(all_button)
+    page._wpos_reset_actions = True
+
+
+def _confirm_reset(parent, title, message):
+    first = QMessageBox.question(
+        parent, title, message + "\n\nTindakan ini tidak dapat dibatalkan. Lanjutkan?",
+        QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
+    )
+    if first != QMessageBox.Yes:
+        return False
+    text, ok = QInputDialog.getText(parent, "Konfirmasi Reset", "Ketik RESET untuk mengonfirmasi:")
+    return ok and text.strip() == "RESET"
+
+
+def _reset_transactions(window):
+    if not _confirm_reset(
+        window, "Reset Transaksi & Stok",
+        "Penjualan, pembelian, mutasi stok dan mutasi kas akan dihapus. Master Produk tetap ada dan stoknya menjadi 0."
+    ):
+        return
+    try:
+        engine.dispose()
+        with SessionLocal() as session:
+            result = reset_transactions_and_stock(session)
+        QMessageBox.information(
+            window, "Reset Berhasil",
+            "Transaksi dan stok berhasil direset.\n\nTutup dan jalankan kembali aplikasi agar seluruh halaman memuat data baru."
+        )
+    except Exception as exc:
+        QMessageBox.critical(window, "Reset Gagal", str(exc))
+
+
+def _reset_all_business(window):
+    if not _confirm_reset(
+        window, "Reset Semua Data Bisnis",
+        "SEMUA produk, kategori, satuan, supplier, pelanggan, penjualan, pembelian, mutasi stok dan mutasi kas akan dihapus."
+    ):
+        return
+    try:
+        engine.dispose()
+        with SessionLocal() as session:
+            result = reset_all_business_data(session)
+        QMessageBox.information(
+            window, "Reset Berhasil",
+            "Semua data bisnis berhasil direset. Akun pengguna dan pengaturan toko tetap ada.\n\nTutup dan jalankan kembali aplikasi."
+        )
+    except Exception as exc:
+        QMessageBox.critical(window, "Reset Gagal", str(exc))
+
+
+def _remove_widget_from_layout(layout, target):
+    if layout is None:
+        return False
+    for index in range(layout.count() - 1, -1, -1):
+        item = layout.itemAt(index)
+        if item.widget() is target:
+            layout.takeAt(index)
+            return True
+        child = item.layout()
+        if child is not None and _remove_widget_from_layout(child, target):
+            return True
+    return False
+
+
 def apply_hybrid_form_layouts(window):
-    """Apply approved presentation-only form layouts and Product Excel actions."""
+    """Apply approved presentation-only form layouts, Excel actions and reset controls."""
     stack = getattr(window, "modern_stack", None)
     if stack is None:
         return
@@ -244,4 +337,5 @@ def apply_hybrid_form_layouts(window):
             _popup_master_page(page, title, MASTER_POPUPS[title])
         elif title in ("Kategori", "Satuan"):
             _inline_simple_master(page)
+    _attach_reset_controls(window)
     window.setProperty("wposHybridForms", True)
