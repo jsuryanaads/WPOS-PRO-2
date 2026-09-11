@@ -156,7 +156,7 @@ class ModernMainWindow(MainWindow):
         title_box.addWidget(self.modern_context)
         title_box.addWidget(self.modern_hint)
         top_l.addLayout(title_box, 1)
-        offline = QLabel("● OFFLINE")
+        offline = QLabel("OFFLINE")
         offline.setObjectName("modernStatusOffline")
         local = QLabel("DATABASE LOKAL")
         local.setObjectName("modernStatusLocal")
@@ -178,6 +178,7 @@ class ModernMainWindow(MainWindow):
         self.tabs = self._compat_tabs(old_tabs, titles)
         apply_premium_cashier(self)
         self._polish_dashboard()
+        self._remove_cosmetic_button_prefixes()
         self._select_navigation(0)
 
     def _compat_tabs(self, old_tabs, titles):
@@ -274,41 +275,33 @@ class ModernMainWindow(MainWindow):
             if header.objectName() == "":
                 header.hide()
         cards = dashboard.findChildren(QFrame, "card")
-        icons = {
-            "TRANSAKSI": "↗",
-            "PRODUK AKTIF": "▦",
-            "STOK MENIPIS / HABIS": "⚠",
-            "OMZET": "Rp",
-            "SALDO KAS": "▣",
-        }
         for card in cards:
             title = card.findChild(QLabel, "cardTitle")
             value = card.findChild(QLabel, "cardValue")
             if not title or not value:
                 continue
-            title_text = title.text()
-            if title_text in icons and not card.findChild(QLabel, "dashboardMetricIcon"):
-                card_layout = card.layout()
-                if card_layout is None:
-                    continue
-                card_layout.takeAt(0)
-                card_layout.takeAt(0)
-                row = QHBoxLayout()
-                row.setContentsMargins(0, 0, 0, 0)
-                row.setSpacing(8)
-                row.addWidget(title)
-                row.addStretch()
-                icon = QLabel(icons[title_text])
-                icon.setObjectName("dashboardMetricIcon")
-                row.addWidget(icon)
-                card_layout.insertLayout(0, row)
-                card_layout.addWidget(value)
+            card_layout = card.layout()
+            if card_layout is None:
+                continue
             self._shadow(card, blur=16, y=3)
+
         for button in dashboard.findChildren(QPushButton):
             text = button.text().strip()
-            if text == "+ Transaksi Baru":
+            if text == "Transaksi Baru":
                 button.setObjectName("dashboardPrimary")
-            elif text == "+ Produk":
+            elif text == "Produk":
                 button.setObjectName("dashboardSecondary")
             else:
                 button.setObjectName("dashboardGhost")
+
+    def _remove_cosmetic_button_prefixes(self):
+        """Remove decorative leading symbols while preserving button actions."""
+        if not hasattr(self, "modern_stack"):
+            return
+        prefixes = ("+ ", "＋ ", "↻ ", "↥ ", "▣ ", "□ ", "▤ ", "◫ ", "◇ ", "⚙ ")
+        for button in self.findChildren(QPushButton):
+            text = button.text()
+            for prefix in prefixes:
+                if text.startswith(prefix):
+                    button.setText(text[len(prefix):])
+                    break
