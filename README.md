@@ -1,6 +1,13 @@
 # WPOS PRO 2
 
-Modern POS 2026 untuk toko sembako Windows offline, satu komputer.
+Modern POS desktop untuk toko sembako Windows offline, satu komputer.
+
+## Identitas
+- Nama aplikasi: **WPOS PRO 2**
+- Versi aplikasi: **2.0.0**
+- Platform: Windows
+- Mode: Offline / database lokal
+- Database: SQLite
 
 ## Teknologi
 - Python 3.11+
@@ -41,21 +48,19 @@ Barcode → Keranjang → Diskon → Pembayaran → Kembalian → Stok berkurang
 - Kembalian hanya untuk CASH.
 - Mutasi stok dicatat untuk penjualan, pembelian dan penyesuaian stok.
 
-## Versioning
-- Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.0.0**
-- Perubahan kecil: patch version.
-- Perubahan menengah: naik ke target minor patch sesuai aturan proyek.
-- Perubahan besar: naik ke versi minor baru.
+## Keamanan
+- Password menggunakan PBKDF2-SHA256 dengan salt acak.
+- User inactive tidak dapat login.
+- Minimal satu Administrator aktif dipertahankan.
+- Ganti password default sebelum produksi.
 
 ## Default login
 - Username: `admin`
 - Password: `admin123`
 
-**Penting:** ubah password default sebelum produksi.
-
 ## Data Windows
-Saat dijalankan sebagai EXE, database dan backup disimpan di `%LOCALAPPDATA%\\WPOS PRO 2`.
+Saat dijalankan sebagai EXE, database dan backup disimpan di:
+`%LOCALAPPDATA%\\WPOS PRO 2`
 
 ## Menjalankan dari source
 ```bat
@@ -68,10 +73,26 @@ pytest -q
 ```
 
 ## Build EXE
-Jalankan `build.bat` pada Windows dengan Python dan PyInstaller terpasang.
+Gunakan:
+```bat
+build.bat
+```
+
+Asset branding yang digunakan:
+- `assets\\branding\\wpos_logo.png`
+- `assets\\branding\\wpos_icon.ico`
+
+Hasil build:
+`dist\\WPOS PRO 2\\WPOS PRO 2.exe`
 
 ## Installer
-Compile `installer.iss` menggunakan Inno Setup setelah EXE berhasil dibuat.
+Setelah EXE berhasil dibuat, compile `installer.iss` menggunakan Inno Setup.
+
+Hasil installer:
+`installer\\WPOS_PRO_2_Setup.exe`
+
+## CI
+GitHub Actions menjalankan compile check dan test suite pada push/PR. Windows build memverifikasi source, test, EXE, associated icon, serta asset branding.
 
 ## Status
-WPOS PRO 2 adalah target build aplikasi POS offline Windows satu komputer. Packaging EXE/Installer harus berasal dari source yang sudah diaudit dan lulus CI.
+**WPOS PRO 2 — kandidat release setelah CI PASS dan verifikasi Windows/thermal printer/installer.**
