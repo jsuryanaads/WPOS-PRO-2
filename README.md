@@ -4,7 +4,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.13**
+- Versi aplikasi: **2.3.14**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
@@ -115,6 +115,7 @@ Halaman Kasir menggunakan workflow fokus transaksi:
 - Tombol **CLEAR** dan **BAYAR & CETAK** memiliki ukuran minimum agar teks tidak terpotong atau berhimpitan pada resolusi desktop.
 - Metode pembayaran tetap **CASH, QRIS, TRANSFER, DEBIT**.
 - Clear button pada `QLineEdit`, `QSpinBox` dan `QDoubleSpinBox` dinonaktifkan agar tombol **×** tidak muncul otomatis pada field input.
+- Kebijakan clear button dikendalikan oleh `global_ui.py`; layer UX tidak boleh mengaktifkannya kembali.
 - Perubahan ini hanya memperbaiki geometry/presentasi UI dan tidak mengubah business logic pembayaran, stok, transaksi atau database schema.
 
 ## Sidebar navigation
@@ -122,6 +123,19 @@ Navigasi sidebar menggunakan **teks saja tanpa ikon menu**.
 - Ikon dekoratif seperti `▣`, `＋`, `□`, `▤`, `Rp`, `◫`, `⚙` dan simbol lain tidak lagi dirender.
 - Index halaman dan mekanisme navigasi tetap sama.
 - Penghapusan ikon hanya perubahan presentasi UI; tidak mengubah fungsi halaman atau business logic.
+
+## Arsitektur UI
+UI modern mengikuti pembagian tanggung jawab berikut:
+- `modern_main_window.py` — shell aplikasi: sidebar, topbar, stack dan account/logout.
+- `global_ui.py` — kontrak global geometry/UX dan kebijakan kontrol bersama.
+- `theme_shell.py` — palette dan styling theme DARK/LIGHT.
+- `ux2026.py` — interaction/accessibility tanpa palette dan tanpa mengubah kebijakan global control.
+- `polish.py` — refinements theme-neutral yang tidak mengambil alih kontrak global.
+- `main_window.py`, `premium_cashier.py`, `master_data.py` — layout dan workflow halaman.
+- `form_layouts.py` — penataan form hybrid/popup sebagai presentation layer.
+- `dashboard_welcome.py` — welcome content Dashboard.
+
+Aturan penting: **global_ui.py adalah sumber aturan global untuk kontrol dan geometry; theme_shell.py adalah sumber palette; layer halaman tidak boleh mengaktifkan kembali aturan global yang sudah dinonaktifkan.** Business logic tetap berada di `app/services/` dan database model di `app/models.py`.
 
 ## Form input — Hybrid UX
 Pada **v2.3.4**, form input menggunakan pola hybrid agar halaman data tidak dipenuhi form panjang:
@@ -157,6 +171,15 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.14
+- Menemukan akar masalah tombol **×** yang kembali muncul: `ux2026.py` sebelumnya mengaktifkan `setClearButtonEnabled(True)` pada setiap `QLineEdit`, sehingga menimpa kebijakan global.
+- Menghapus override tersebut dari layer UX.
+- Menetapkan `global_ui.py` sebagai sumber tunggal kebijakan clear button.
+- Mempertahankan `ux2026.py` sebagai layer interaction/accessibility tanpa palette dan tanpa override kontrak global control.
+- Menambahkan regression test arsitektur UI untuk memastikan UX tidak mengaktifkan kembali clear button dan tanggung jawab layer tetap terpisah.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.14**.
+- Tidak mengubah business logic atau database schema.
+
 ### 2.3.13
 - Memperbaiki kasus tombol **×** yang masih terlihat pada field `QLineEdit` biasa, termasuk halaman Pengaturan Toko.
 - Menonaktifkan clear button secara eksplisit pada **setiap `QLineEdit`** yang ditemukan di seluruh root window.
@@ -220,7 +243,7 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Mengubah tanggal welcome header menjadi tanggal komputer aktual dengan nama hari Bahasa Indonesia.
 - Memperbarui regression test agar tidak bergantung pada tanggal statis.
 - Menyinkronkan `APP_VERSION` dan installer ke **2.3.6**.
-- Tidak mengubah business logic transaksi atau database schema.
+- Tidak mengubah business logic atau database schema.
 
 ### 2.3.5
 - Memperbaiki deteksi container `QGroupBox` pada lapisan hybrid form sehingga popup Produk dan Pembelian benar-benar terpasang pada form produksi.
@@ -292,4 +315,4 @@ Audit v2.2.0 mencakup seluruh 14 halaman dengan normalisasi spacing, margin, for
 - Sinkronisasi nama aplikasi, data directory, EXE, installer dan branding.
 
 ## Status
-**WPOS PRO 2 — v2.3.13.** Clear button dinonaktifkan secara eksplisit pada seluruh QLineEdit dan numeric spinbox. CI harus PASS sebelum build EXE/installer dianggap release final.
+**WPOS PRO 2 — v2.3.14.** Arsitektur UI diperketat: `global_ui.py` menjadi sumber kebijakan global control, `theme_shell.py` menangani theme, dan `ux2026.py` tidak lagi menimpa aturan global. CI harus PASS sebelum build EXE/installer dianggap release final.
