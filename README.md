@@ -4,10 +4,19 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.3.15**
+- Versi aplikasi: **2.3.16**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Role & Administrasi
+Role resmi aplikasi hanya:
+- **ADMIN** — akses penuh dan fungsi administrasi.
+- **KASIR** — akses operasional kasir terbatas.
+
+Role **PENGELOLA** dan **TEKNISI** telah dihapus dari role policy dan tidak lagi dapat dibuat atau memperoleh akses melalui permission system. Database `users` dan field `role` tetap dipertahankan agar cleanup tidak merusak schema/data transaksi.
+
+Aturan keamanan Administrator tetap berlaku: minimal satu Administrator aktif harus tersedia dan Administrator tidak boleh menonaktifkan akun sendiri.
 
 ## 14 halaman aplikasi
 1. Dashboard
@@ -171,103 +180,41 @@ Spesifikasi:
 - Setiap perubahan source, konfigurasi, build, CI atau dokumentasi wajib dicatat di README dan menggunakan kenaikan versi yang sesuai.
 
 ## Changelog
+### 2.3.16
+- **Role cleanup:** role resmi disederhanakan menjadi **ADMIN** dan **KASIR**.
+- Menghapus `PENGELOLA` dan `TEKNISI` dari permission policy.
+- `create_user()` tidak lagi menerima/membuat role yang sudah dihapus.
+- Default role pembuatan user menjadi `KASIR`.
+- Permission KASIR dibatasi ke Dashboard, Kasir dan Pelanggan.
+- Menambahkan regression test untuk role yang dihapus dan permission KASIR.
+- Mempertahankan tabel/field user dan aturan minimal satu Administrator aktif untuk menjaga kompatibilitas database.
+- Menyinkronkan `APP_VERSION` dan installer ke **2.3.16**.
+- Tidak mengubah database schema, transaksi, stok, pembayaran atau business flow.
+
 ### 2.3.15
 - Hardening business-service untuk nilai Decimal: `NaN`, `Infinity` dan nilai non-finite lain sekarang ditolak secara konsisten pada produk, pembelian dan penyesuaian stok.
 - Menambahkan `app/services/validation.py` sebagai validator Decimal terpusat.
-- Menambahkan rollback protection pada `create_user`, `set_user_active`, `reset_password` dan `set_setting` agar kegagalan commit tidak meninggalkan mutation parsial pada session.
+- Menambahkan rollback protection pada mutation user/settings.
 - Menambahkan regression tests untuk validasi finite Decimal dan rollback mutation.
 - Menyinkronkan `APP_VERSION` dan installer ke **2.3.15**.
-- Tidak mengubah database schema, alur kasir, aturan pembayaran atau business flow.
 
 ### 2.3.14
 - Menemukan akar masalah tombol **×** yang kembali muncul: `ux2026.py` sebelumnya mengaktifkan `setClearButtonEnabled(True)` pada setiap `QLineEdit`, sehingga menimpa kebijakan global.
 - Menghapus override tersebut dari layer UX.
 - Menetapkan `global_ui.py` sebagai sumber tunggal kebijakan clear button.
-- Mempertahankan `ux2026.py` sebagai layer interaction/accessibility tanpa palette dan tanpa override kontrak global control.
 - Menambahkan regression test arsitektur UI.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.14**.
-- Tidak mengubah business logic atau database schema.
 
 ### 2.3.13
 - Memperbaiki kasus tombol **×** pada field `QLineEdit` biasa, termasuk Pengaturan Toko.
 - Menonaktifkan clear button pada seluruh `QLineEdit` dan input internal numeric spinbox.
 - Menambahkan regression test global.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.13**.
 
 ### 2.3.12
 - Menghapus ikon dekoratif dari shell modern, termasuk ikon menu sidebar dan simbol dekoratif Dashboard.
 - Mempertahankan logo WPOS sebagai identitas aplikasi.
 - Menambahkan regression coverage untuk UI text-first.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.12**.
 
 ### 2.3.11
 - Menghapus ikon dekoratif dari seluruh menu sidebar modern.
 - Sidebar hanya menampilkan nama section dan teks menu.
 - Mempertahankan `Qt.UserRole` dan index navigasi.
-- Menambahkan dokumentasi sidebar text-only.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.11**.
-
-### 2.3.10
-- Memperbaiki clear button pada `QDoubleSpinBox`/`QSpinBox`.
-- Menambahkan marker `wposClearButtonDisabled` dan regression test numeric spinbox.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.10**.
-
-### 2.3.9
-- Menghapus aktivasi global tombol clear **×** pada seluruh `QLineEdit`.
-- Mempertahankan normalisasi geometry field input.
-- Menambahkan regression test global.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.9**.
-
-### 2.3.8
-- Memperbaiki geometry halaman **Kasir** berdasarkan audit screenshot produksi.
-- Memperlebar panel Ringkasan Pembayaran.
-- Memberi ukuran minimum pada tombol CLEAR dan BAYAR & CETAK.
-- Menambahkan regression test geometry pembayaran.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.8**.
-
-### 2.3.7
-- Memperbaiki tampilan Dashboard.
-- Menghilangkan header/branding Dashboard internal yang menyisakan area kosong.
-- Memusatkan sambutan pada topbar modern.
-- Mempertahankan KPI harian dan saldo kas berjalan.
-- Menambahkan regression coverage.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.7**.
-
-### 2.3.6
-- Memperbaiki Dashboard agar TRANSAKSI dan OMZET menggunakan rentang hari kalender lokal.
-- Memisahkan SALDO KAS sebagai saldo berjalan.
-- Welcome header memakai username dan tanggal komputer aktual.
-- Memperbarui regression test.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.6**.
-
-### 2.3.5
-- Memperbaiki deteksi `QGroupBox` pada hybrid form Produk dan Pembelian.
-- Menjaga popup/inline sebagai perubahan presentasi UI.
-- Menambahkan regression coverage 14 halaman.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.5**.
-
-### 2.3.4
-- Menerapkan hybrid form UX pada 14 halaman.
-- Produk, Pembelian, Supplier dan Pelanggan menggunakan popup.
-- Kategori dan Satuan menggunakan form inline/horizontal.
-- Stok & Mutasi, Kas, Pengaturan Toko dan Printer mempertahankan pola input cepat/horizontal.
-- Menambahkan `app/ui/form_layouts.py` sebagai presentation layer.
-- Menambahkan regression test.
-- Menyinkronkan `APP_VERSION` dan installer ke **2.3.4**.
-
-### 2.3.3
-- Mengganti branding strip Dashboard dengan welcome header sesuai desain.
-- Menjaga kompatibilitas Dark/Light Mode.
-- Menambahkan regression test Dashboard Welcome Header.
-
-### 2.3.2
-- Memperbaiki Light Mode agar sidebar modern mengikuti palette Light Mode.
-- Menambahkan `sidebar_text` dan `sidebar_inverse` serta regression test.
-
-### 2.3.0–2.3.1
-- 2.3.0: Dark Mode dijadikan tema tunggal setelah Modern Blue, Purple Premium dan Emerald dihapus.
-- 2.3.1: Light Mode ditambahkan kembali sebagai tema resmi bersama Dark Mode.
-- Key tema lama/tidak valid fallback ke DARK.
-
-### Riwayat sebelumnya
-Riwayat versi sebelum 2.3.0 tetap dapat ditelusuri melalui Git history repository.
