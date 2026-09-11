@@ -12,7 +12,6 @@ from .ui.branding import ICON_PATH
 from .ui.global_ui import apply_global_ui
 from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
-from .ui.global_ui import apply_global_ui
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 
 
