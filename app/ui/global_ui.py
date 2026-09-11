@@ -24,6 +24,7 @@ from .themes import current_theme
 GLOBAL_UI_STYLE = """
 /* WPOS PRO V2 — unified geometry/UX contract; colors come from the active theme. */
 QWidget { font-family: 'Segoe UI'; font-size: 11px; }
+QFrame#applicationFooter { min-height: 30px; max-height: 30px; }
 QLabel#applicationFooterLabel { font-size: 10px; font-weight: 600; }
 QLabel#pageTitle { font-size: 24px; font-weight: 900; }
 QLabel#pageSubtitle { font-size: 11px; }
@@ -196,7 +197,7 @@ def _normalize_controls(root):
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     for frame in root.findChildren(QFrame, "applicationFooter"):
-        frame.setMinimumHeight(28)
+        frame.setFixedHeight(30)
         label = frame.findChild(QLabel, "applicationFooterLabel")
         if label:
             label.setAlignment(Qt.AlignCenter)
