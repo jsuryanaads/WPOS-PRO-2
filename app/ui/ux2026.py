@@ -113,4 +113,70 @@ def apply_ux2026(window):
         QWidget#modernStack QWidget {
             font-size: 11px;
         }
+
+        /* WPOS PRO V2 sidebar is a dedicated shell surface. Keep its visual
+           contract isolated from theme-level QListWidget rules. */
+        QFrame#modernSidebar {
+            background: #0b1220;
+            color: #e2e8f0;
+            border: 0;
+            min-width: 230px;
+            max-width: 250px;
+        }
+        QFrame#modernBrand {
+            background: #151f32;
+            border: 1px solid #263550;
+            border-radius: 14px;
+        }
+        QLabel#modernBrandName { color: #ffffff; font-size: 18px; font-weight: 900; }
+        QLabel#modernBrandVersion { color: #94a3b8; font-size: 9px; font-weight: 700; }
+        QListWidget#modernNav {
+            background: #0b1220;
+            color: #94a3b8;
+            border: 0;
+            outline: none;
+            padding: 0;
+        }
+        QListWidget#modernNav::item {
+            background: transparent;
+            color: #94a3b8;
+            padding: 9px 8px;
+            margin: 1px 0;
+            border: 0;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        QListWidget#modernNav::item:hover {
+            background: #151f32;
+            color: #ffffff;
+        }
+        QListWidget#modernNav::item:selected {
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 800;
+        }
+        QListWidget#modernNav::item:disabled {
+            background: transparent;
+            color: #64748b;
+            padding: 11px 8px 4px;
+            margin-top: 5px;
+            font-size: 9px;
+            font-weight: 900;
+        }
+        QFrame#modernAccount {
+            background: #151f32;
+            border: 1px solid #263550;
+            border-radius: 12px;
+        }
+        QLabel#modernUser { color: #ffffff; font-weight: 800; }
+        QLabel#modernRole { color: #94a3b8; font-size: 10px; }
+        QPushButton#modernLogout {
+            background: #202d45;
+            color: #e2e8f0;
+            border: 1px solid #31425f;
+            border-radius: 8px;
+            padding: 7px;
+            margin-top: 5px;
+        }
+        QPushButton#modernLogout:hover { background: #2b3b59; }
     """)
