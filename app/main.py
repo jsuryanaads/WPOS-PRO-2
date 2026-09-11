@@ -13,6 +13,21 @@ from .ui.ux2026 import apply_ux2026
 from .ui.dashboard_welcome import apply_dashboard_welcome
 from .ui.form_layouts import apply_hybrid_form_layouts
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
+from .services import printer as printer_service
+from .services.receipt_display import format_receipt_html_qty
+
+
+# Keep receipt calculations/database values untouched while normalizing the
+# cosmetic quantity representation used by the Qt/HTML receipt path.
+_original_receipt_html = printer_service.receipt_html
+
+
+def _receipt_html_with_integer_qty(sale, items, settings):
+    html = _original_receipt_html(sale, items, settings)
+    return format_receipt_html_qty(html)
+
+
+printer_service.receipt_html = _receipt_html_with_integer_qty
 
 
 def main():
