@@ -9,6 +9,7 @@ from .ui.login import LoginWindow
 from .ui.modern_main_window import ModernMainWindow
 from .ui.user_management import UserManagementDialog
 from .ui.branding import ICON_PATH
+from .ui.global_ui import apply_global_ui
 from .ui.polish import apply_ui_polish
 from .ui.ux2026 import apply_ux2026
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
@@ -50,12 +51,14 @@ def main():
     if ICON_PATH.exists():
         app.setWindowIcon(QIcon(str(ICON_PATH)))
     apply_theme(app, current_theme())
+    apply_global_ui(app)
     holder = {}
 
     def refresh_ui(window):
         apply_ui_polish(window)
         window._apply_modern_style()
         apply_ux2026(window)
+        apply_global_ui(app, window)
 
     def change_theme(key, menu, window):
         set_theme(key)
@@ -73,6 +76,7 @@ def main():
             window.close()
             login_window = LoginWindow(success)
             holder["login"] = login_window
+            apply_global_ui(app, login_window)
             login_window.show()
 
         window = ModernMainWindow(user, logout_callback=logout_callback)
@@ -80,6 +84,7 @@ def main():
         apply_theme(app, current_theme())
         refresh_ui(window)
         add_application_footer(window)
+        apply_global_ui(app, window)
         holder["main"] = window
 
         theme_menu = window.menuBar().addMenu("Tema")
@@ -99,6 +104,7 @@ def main():
 
     login = LoginWindow(success)
     holder["login"] = login
+    apply_global_ui(app, login)
     login.show()
     sys.exit(app.exec())
 
