@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json databaseId,isDraft,isPrerelease,isLatest,tagName,targetCommitish,assets 2>/tmp/release-error.txt)
+          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json databaseId,isDraft,isPrerelease,tagName,targetCommitish,assets 2>/tmp/release-error.txt)
           RELEASE_RC=$?
           TAG_JSON=$(gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" 2>/tmp/tag-error.txt)
           TAG_RC=$?
@@ -109,7 +109,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets)
+          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,targetCommitish,assets)
           echo "$RELEASE_JSON"
           test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
           test "$(echo "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$TARGET_SHA"
@@ -122,7 +122,7 @@ jobs:
         run: |
           set -euo pipefail
           gh release edit "$RELEASE_TAG" --repo "$REPO" --draft=false --latest
-          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets)
+          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,targetCommitish,assets)
           echo "$RELEASE_JSON"
           test "$(echo "$RELEASE_JSON" | jq -r '.isDraft')" = "false"
           test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
