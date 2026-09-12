@@ -11,7 +11,7 @@ from app.services.sales import create_sale
 from app.services.stock import adjust_stock
 from app.services.purchases import create_purchase
 from app.services.reports import cash_summary, stock_summary
-from app.services.users import ROLES, create_user, set_user_active
+from app.services.users import ROLES, create_user, set_user_active, delete_user
 from app.ui.modern_main_window import ModernMainWindow
 from app.ui.branding import LOGO_PATH, ICON_PATH
 
@@ -38,6 +38,7 @@ def test_required_tables_and_constraints():
     assert {"users", "products", "sales", "sale_items", "purchases", "purchase_items", "stock_movements", "cash_movements", "settings"}.issubset(tables)
     assert any(c.name == "ck_products_stock_nonnegative" for c in Product.__table__.constraints)
     assert any(c.name == "ck_sale_items_quantity_positive" for c in SaleItem.__table__.constraints)
+    assert "name" in {column.name for column in User.__table__.columns}
 
 
 def test_money_math():
@@ -128,7 +129,7 @@ def test_supported_roles_are_stable():
 
 def test_admin_cannot_be_left_without_active_admin():
     session = make_session()
-    admin = User(username="admin", password_hash=hash_password("secret"), role="ADMIN", active=True)
+    admin = User(username="admin", name="Administrator", password_hash=hash_password("secret"), role="ADMIN", active=True)
     session.add(admin)
     session.commit()
     with pytest.raises(ValueError, match="Minimal satu Administrator aktif"):
@@ -136,10 +137,32 @@ def test_admin_cannot_be_left_without_active_admin():
     assert session.get(User, admin.id).active is True
 
 
+def test_user_creation_requires_name_and_stores_it():
+    session = make_session()
+    with pytest.raises(ValueError, match="Nama user wajib diisi"):
+        create_user(session, "kasir", "secret", "KASIR", "")
+    user = create_user(session, "kasir", "secret", "KASIR", "Kasir Toko")
+    assert user.name == "Kasir Toko"
+
+
+def test_user_deletion_is_safe():
+    session = make_session()
+    admin = User(username="admin", name="Administrator", password_hash=hash_password("secret"), role="ADMIN", active=True)
+    cashier = User(username="kasir", name="Kasir Toko", password_hash=hash_password("secret"), role="KASIR", active=True)
+    session.add_all([admin, cashier])
+    session.commit()
+    with pytest.raises(ValueError, match="tidak boleh dihapus"):
+        delete_user(session, admin.id, actor_user_id=admin.id)
+    delete_user(session, cashier.id, actor_user_id=admin.id)
+    assert session.query(User).filter_by(username="kasir").first() is None
+    with pytest.raises(ValueError, match="Administrator aktif terakhir"):
+        delete_user(session, admin.id, actor_user_id=999)
+
+
 def test_user_creation_rejects_invalid_role():
     session = make_session()
     with pytest.raises(ValueError, match="Role tidak valid"):
-        create_user(session, "badrole", "secret", "INVALID")
+        create_user(session, "badrole", "secret", "INVALID", "Bad Role")
 
 
 def test_wpos_pro_2_identity_and_branding_assets():
