@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 # Stage 1: the pipeline starts here. Only one CI Health run per main ref.
+# A workflow-only commit is intentionally sufficient to revalidate the current main tree.
 concurrency:
   group: wpos-ci-health-main
   cancel-in-progress: true
