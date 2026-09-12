@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.services.access import can_access
-from app.ui.access_control import PAGE_FEATURES
+from app.ui.access_control import PAGE_FEATURES, QUICK_ACTION_PAGES
 
 
 KASIR_ALLOWED_PAGES = {0, 1, 13}
@@ -21,6 +21,14 @@ def test_admin_navigation_policy_is_full_access():
     assert all(can_access("ADMIN", feature) for feature in PAGE_FEATURES.values())
 
 
+def test_kasir_quick_actions_are_limited_to_allowed_pages():
+    assert QUICK_ACTION_PAGES["+ Transaksi Baru"] == 1
+    assert QUICK_ACTION_PAGES["+ Produk"] == 2
+    assert QUICK_ACTION_PAGES["Stok & Mutasi"] == 3
+    assert QUICK_ACTION_PAGES["Laporan"] == 6
+    assert all(not can_access("KASIR", PAGE_FEATURES[index]) for index in (2, 3, 6))
+
+
 def test_main_applies_role_access_layer():
     source = Path("app/main.py").read_text(encoding="utf-8")
     assert "from .ui.access_control import apply_role_access" in source
@@ -32,3 +40,4 @@ def test_role_access_has_runtime_navigation_guard():
     assert "window._select_navigation = guarded_select" in source
     assert "page_allowed(window.user, page_index)" in source
     assert "setItemHidden" in source
+    assert "button.setVisible(page_allowed(window.user, target_page))" in source
