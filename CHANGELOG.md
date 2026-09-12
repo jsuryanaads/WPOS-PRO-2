@@ -1,5 +1,15 @@
 # WPOS PRO 2 Changelog
 
+## 2.8.2 — Headerbar Stabilization
+
+- Memperbaiki Headerbar agar tidak melakukan `setParent(None)`, `layout.removeItem`, atau reparenting widget Qt saat refresh.
+- Menjaga ownership/lifetime widget Qt tetap stabil dengan memperbarui QLabel yang sudah ada di tempatnya.
+- Headerbar sekarang menampilkan nama toko + alamat toko di tengah dan nama display user + tanggal Indonesia di kanan tanpa mengganti struktur layout saat runtime.
+- `Dashboard Welcome` tidak lagi menimpa context/hint Headerbar global dengan username atau tanggal legacy.
+- Menambahkan regression test untuk kontrak ownership-safe Headerbar dan pemisahan tanggung jawab Dashboard.
+- Tidak mengubah business logic transaksi, database, authentication, atau struktur 14 halaman.
+- Menetapkan **2.8.2** sebagai PATCH release stabilisasi.
+
 ## 2.8.0 — User Management & Account Administration
 
 - Menambahkan field **Nama** pada akun user sehingga identitas user tidak hanya bergantung pada username.
