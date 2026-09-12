@@ -1,4 +1,5 @@
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QPushButton
 
 from ..services.access import can_access
 
@@ -23,6 +24,17 @@ PAGE_FEATURES = {
 }
 
 
+# Dashboard quick actions that navigate directly to another page.
+QUICK_ACTION_PAGES = {
+    "+ Transaksi Baru": 1,
+    "Transaksi Baru": 1,
+    "+ Produk": 2,
+    "Produk": 2,
+    "Stok & Mutasi": 3,
+    "Laporan": 6,
+}
+
+
 def page_allowed(user, page_index):
     return can_access(getattr(user, "role", ""), PAGE_FEATURES.get(page_index, ""))
 
@@ -32,7 +44,7 @@ def apply_role_access(window):
 
     The existing access policy remains the single source of truth. This layer
     prevents a non-authorized role from reaching restricted pages through the
-    sidebar or compatibility navigation calls.
+    sidebar, dashboard shortcuts, or compatibility navigation calls.
     """
     if not hasattr(window, "nav_list") or not hasattr(window, "_nav_items"):
         return
@@ -65,8 +77,17 @@ def apply_role_access(window):
         current_section = item.data(Qt.UserRole + 2)
         window.nav_list.setItemHidden(item, not section_visible.get(current_section, False))
 
-    # Guard compatibility/legacy programmatic navigation. Sidebar items are
-    # hidden above, while this guard prevents direct setCurrentIndex bypasses.
+    # Remove quick actions for pages unavailable to the current role.
+    if hasattr(window, "modern_stack") and window.modern_stack.count() > 0:
+        dashboard = window.modern_stack.widget(0)
+        if dashboard is not None:
+            for button in dashboard.findChildren(QPushButton):
+                target_page = QUICK_ACTION_PAGES.get(button.text().strip())
+                if target_page is not None:
+                    button.setVisible(page_allowed(window.user, target_page))
+
+    # Guard compatibility/legacy programmatic navigation. Sidebar items and
+    # dashboard shortcuts are hidden above; this guard blocks direct calls too.
     if not getattr(window, "_wpos_role_select_guard", False):
         original_select = window._select_navigation
 
