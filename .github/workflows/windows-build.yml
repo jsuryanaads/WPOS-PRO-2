@@ -1,6 +1,6 @@
 name: WPOS PRO 2 Windows Build
 
-# Stage 3: starts only after Tests completes successfully on main.
+# Stage 3: starts after Tests completes. The gate fails unless Tests succeeded.
 on:
   workflow_run:
     workflows: ["WPOS PRO Tests"]
@@ -12,8 +12,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gate:
+    name: Gate - Tests must succeed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Tests result
+        env:
+          UPSTREAM_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          echo "Tests conclusion: $UPSTREAM_CONCLUSION"
+          if [ "$UPSTREAM_CONCLUSION" != "success" ]; then
+            echo "Tests did not succeed. Windows Build is stopped."
+            exit 1
+          fi
+
   build-windows:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Build Windows EXE
+    needs: gate
     runs-on: windows-2022
     steps:
       - name: Checkout
