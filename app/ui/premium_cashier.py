@@ -196,7 +196,7 @@ def _show_held(window):
     def resume_selected():
         row = table.currentRow()
         if row < 0 or row >= len(window._held_sales):
-            QMessageBox.information(dialog, "Parkir", "Pilih transaksi yang akan dilanjutkan.")
+            QMessageBox.information(window, "Parkir", "Pilih transaksi yang akan dilanjutkan.")
             return
         if window.cart and QMessageBox.question(window, "Keranjang Aktif", "Keranjang aktif akan diganti. Lanjutkan?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
             return
@@ -280,6 +280,9 @@ def _history(window):
 
 
 def _install_shortcuts(window):
+    """Install cashier shortcuts once and retain them for the window lifetime."""
+    if getattr(window, "_cashier_shortcuts", None):
+        return
     shortcuts = []
     for key, callback in [("F4", window.checkout), ("Escape", lambda: _cancel(window)), ("F8", lambda: _history(window)), ("F9", lambda: _show_held(window)), ("F10", lambda: _hold_current(window))]:
         shortcut = QShortcut(QKeySequence(key), window)
@@ -289,6 +292,12 @@ def _install_shortcuts(window):
 
 
 def apply_premium_cashier(window):
+    """Build the premium cashier page once; subsequent calls are no-ops."""
+    if getattr(window, "_wpos_premium_cashier_applied", False):
+        return
+    if not hasattr(window, "modern_stack") or window.modern_stack.count() <= 1:
+        return
+
     old_page = window.modern_stack.widget(1)
     current_index = window.modern_stack.currentIndex()
     window._held_sales = getattr(window, "_held_sales", [])
@@ -382,4 +391,5 @@ def apply_premium_cashier(window):
     if current_index == 1:
         window.modern_stack.setCurrentIndex(1)
     _install_shortcuts(window)
+    window._wpos_premium_cashier_applied = True
     window.barcode.setFocus()
