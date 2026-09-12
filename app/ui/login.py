@@ -1,17 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import (
-    QDialog,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLineEdit,
-    QPushButton,
-    QLabel,
-    QMessageBox,
-    QFrame,
-    QSizePolicy,
-)
-
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QFrame, QSizePolicy
 from ..config import APP_NAME
 from ..database import SessionLocal
 from ..services.auth import login
@@ -27,19 +16,16 @@ class LoginWindow(QDialog):
         self.setFixedSize(430, 590)
         self.setModal(True)
         self.setObjectName("loginWindow")
-
         root = QVBoxLayout(self)
         root.setContentsMargins(32, 24, 32, 22)
         root.setSpacing(0)
         root.addStretch(1)
-
         card = QFrame()
         card.setObjectName("loginCard")
         card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(30, 24, 30, 24)
         card_layout.setSpacing(10)
-
         logo = QLabel()
         logo.setAlignment(Qt.AlignCenter)
         logo.setMinimumHeight(82)
@@ -49,43 +35,35 @@ class LoginWindow(QDialog):
             if not pixmap.isNull():
                 logo.setPixmap(pixmap.scaled(92, 92, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         card_layout.addWidget(logo)
-
         title = QLabel(APP_NAME)
         title.setObjectName("loginTitle")
         title.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(title)
-
         subtitle = QLabel("Point of Sale")
         subtitle.setObjectName("loginSubtitle")
         subtitle.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(subtitle)
-
         welcome = QLabel("Silakan masuk untuk melanjutkan")
         welcome.setObjectName("loginWelcome")
         welcome.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(welcome)
-
         mode = QLabel("Offline  •  Database Lokal")
         mode.setObjectName("loginMode")
         mode.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(mode)
         card_layout.addSpacing(6)
-
         user_label = QLabel("USERNAME")
         user_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(user_label)
-
         self.username = QLineEdit()
         self.username.setObjectName("loginInput")
         self.username.setPlaceholderText("👤  Masukkan username")
         self.username.setMinimumHeight(44)
         self.username.returnPressed.connect(self.handle_login)
         card_layout.addWidget(self.username)
-
         password_label = QLabel("PASSWORD")
         password_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(password_label)
-
         password_row = QHBoxLayout()
         password_row.setSpacing(6)
         self.password = QLineEdit()
@@ -95,7 +73,6 @@ class LoginWindow(QDialog):
         self.password.setMinimumHeight(44)
         self.password.returnPressed.connect(self.handle_login)
         password_row.addWidget(self.password, 1)
-
         self.show_password = QPushButton("Lihat")
         self.show_password.setObjectName("loginSecondaryButton")
         self.show_password.setCheckable(True)
@@ -105,17 +82,14 @@ class LoginWindow(QDialog):
         password_row.addWidget(self.show_password)
         card_layout.addLayout(password_row)
         card_layout.addSpacing(8)
-
         self.login_button = QPushButton("MASUK")
         self.login_button.setObjectName("loginPrimaryButton")
         self.login_button.setMinimumHeight(46)
         self.login_button.setDefault(True)
         self.login_button.clicked.connect(self.handle_login)
         card_layout.addWidget(self.login_button)
-
         root.addWidget(card)
         root.addStretch(1)
-
         add_application_footer(self)
         self.username.setFocus()
 
@@ -129,7 +103,6 @@ class LoginWindow(QDialog):
         if not username or not password:
             QMessageBox.warning(self, "Login", "Username dan password wajib diisi.")
             return
-
         self.login_button.setEnabled(False)
         try:
             with SessionLocal() as session:
