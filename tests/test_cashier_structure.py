@@ -18,10 +18,19 @@ def test_main_applies_cashier_structure():
     assert "apply_cashier_structure(window)" in source
 
 
-def test_version_is_277():
+def test_cashier_payment_card_stays_compact():
+    source = Path("app/ui/cashier_structure.py").read_text(encoding="utf-8")
+    assert 'pay_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)' in source
+    assert 'pay_layout.setSpacing(8)' in source
+    assert 'item.spacerItem() is not None' in source
+
+
+def test_version_is_286():
     config = Path("app/config.py").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.7.7"' in config
-    assert '#define MyAppVersion "2.7.7"' in installer
-    assert "Versi aplikasi: **2.7.7**" in readme
+    changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+    assert 'APP_VERSION = "2.8.6"' in config
+    assert '#define MyAppVersion "2.8.6"' in installer
+    assert "Versi aplikasi: **2.8.6**" in readme
+    assert "## 2.8.6 — Compact Payment Summary" in changelog
