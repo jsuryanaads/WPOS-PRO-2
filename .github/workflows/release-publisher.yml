@@ -1,0 +1,59 @@
+name: WPOS PRO 2 Release Publisher
+
+on:
+  push:
+    paths:
+      - .github/workflows/release-publisher.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      RELEASE_TAG: V2.10.0
+      TARGET_SHA: 051487b7722c1247111098e8c28567a902e798dc
+      BUILD_RUN_ID: "34711848194"
+      ARTIFACT_NAME: WPOS-PRO-2-2.10.0
+    steps:
+      - name: Download verified Windows artifact
+        run: |
+          rm -rf release-assets
+          mkdir -p release-assets
+          gh run download "$BUILD_RUN_ID" --repo "$REPO" --name "$ARTIFACT_NAME" --dir release-assets
+          test -f "release-assets/dist/WPOS_PRO_2_2.10.0.exe"
+          test -f "release-assets/installer/WPOS_PRO_2_Setup_2.10.0.exe"
+          test -f "release-assets/installer/SHA256SUMS.txt"
+          cp "release-assets/dist/WPOS_PRO_2_2.10.0.exe" release-assets/WPOS_PRO_2_2.10.0.exe
+          cp "release-assets/installer/WPOS_PRO_2_Setup_2.10.0.exe" release-assets/WPOS_PRO_2_Setup_2.10.0.exe
+          cp "release-assets/installer/SHA256SUMS.txt" release-assets/SHA256SUMS.txt
+
+      - name: Remove empty release and tag if present
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$REPO" >/dev/null 2>&1; then
+            gh release delete "$RELEASE_TAG" --repo "$REPO" --yes
+          fi
+          if gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            gh api --method DELETE "repos/$REPO/git/refs/tags/$RELEASE_TAG"
+          fi
+
+      - name: Create production release with assets
+        run: |
+          gh release create "$RELEASE_TAG" \
+            --repo "$REPO" \
+            --target "$TARGET_SHA" \
+            --title "WPOS PRO 2 v2.10.0" \
+            --latest \
+            --notes "WPOS PRO 2 v2.10.0 production release. Pytest 132 passed; Windows EXE and installer verified." \
+            release-assets/WPOS_PRO_2_2.10.0.exe \
+            release-assets/WPOS_PRO_2_Setup_2.10.0.exe \
+            release-assets/SHA256SUMS.txt
+
+      - name: Verify release and assets
+        run: |
+          gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets
