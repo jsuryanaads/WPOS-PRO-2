@@ -14,6 +14,14 @@ def test_headerbar_does_not_reparent_existing_widgets():
     assert "_wpos_user_date_label" in source
 
 
+def test_headerbar_has_three_equal_zones_for_true_center_alignment():
+    source = HEADERBAR.read_text(encoding="utf-8")
+    assert "layout.setStretch(0, 1)" in source
+    assert "layout.setStretch(1, 1)" in source
+    assert "layout.setStretch(2, 1)" in source
+    assert "store_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)" in source
+
+
 def test_headerbar_uses_display_name_and_indonesian_date():
     source = HEADERBAR.read_text(encoding="utf-8")
     assert "getattr(user, \"name\", \"\")" in source
