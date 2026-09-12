@@ -11,15 +11,16 @@ def setup_function():
 
 def test_create_user_hashes_password_and_role():
     with SessionLocal() as s:
-        u = create_user(s, "kasir", "Rahasia123", "TEKNISI")
-        assert u.role == "TEKNISI"
+        u = create_user(s, "kasir", "Rahasia123", "KASIR", name="Kasir Test")
+        assert u.role == "KASIR"
+        assert u.name == "Kasir Test"
         assert u.password_hash != "Rahasia123"
         assert verify_password("Rahasia123", u.password_hash)
 
 
 def test_last_admin_cannot_be_disabled():
     with SessionLocal() as s:
-        admin = User(username="admin", password_hash="x", role="ADMIN", active=True)
+        admin = User(username="admin", name="Admin", password_hash="x", role="ADMIN", active=True)
         s.add(admin); s.commit()
         try:
             set_user_active(s, admin.id, False)
@@ -30,8 +31,8 @@ def test_last_admin_cannot_be_disabled():
 
 def test_self_deactivation_is_blocked():
     with SessionLocal() as s:
-        admin = User(username="admin", password_hash="x", role="ADMIN", active=True)
-        other = User(username="other", password_hash="x", role="TEKNISI", active=True)
+        admin = User(username="admin", name="Admin", password_hash="x", role="ADMIN", active=True)
+        other = User(username="other", name="Other", password_hash="x", role="KASIR", active=True)
         s.add_all([admin, other]); s.commit()
         try:
             set_user_active(s, admin.id, False, actor_user_id=admin.id)
@@ -42,7 +43,7 @@ def test_self_deactivation_is_blocked():
 
 def test_reset_password_changes_hash():
     with SessionLocal() as s:
-        u = create_user(s, "kasir", "lama", "TEKNISI")
+        u = create_user(s, "kasir", "lama", "KASIR", name="Kasir Test")
         old_hash = u.password_hash
         reset_password(s, u.id, "baru")
         assert u.password_hash != old_hash
