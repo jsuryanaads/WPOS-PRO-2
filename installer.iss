@@ -23,13 +23,11 @@ UninstallDisplayName=WPOS PRO 2
 
 [Files]
 Source: "dist\WPOS PRO 2\WPOS PRO 2.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\WPOS PRO 2\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\WPOS PRO 2"; Filename: "{app}\WPOS PRO 2.exe"
-Name: "{autodesktop}\WPOS PRO 2"; Filename: "{app}\WPOS PRO 2.exe"; Tasks: desktopicon
-
-[Tasks]
-Name: "desktopicon"; Description: "Buat shortcut di Desktop"; GroupDescription: "Shortcut tambahan:"
+Name: "{autodesktop}\WPOS PRO 2"; Filename: "{app}\WPOS PRO 2.exe"
 
 [Run]
 Filename: "{app}\WPOS PRO 2.exe"; Description: "Jalankan WPOS PRO 2"; Flags: nowait postinstall skipifsilent
