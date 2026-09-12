@@ -21,8 +21,11 @@ def get_settings(session):
     try:
         return {key: get_setting(actual, key, default) for key, default in DEFAULT_SETTINGS.items()}
     finally:
-        if wrapper is not None and hasattr(session, "close"):
-            session.close()
+        # _SessionContext deliberately wraps a real SQLAlchemy Session so
+        # callers can use get_settings(self._session()) without leaking a
+        # connection. Raw sessions remain owned by their caller.
+        if wrapper is not None and hasattr(actual, "close"):
+            actual.close()
 
 
 def set_setting(session, key, value):
