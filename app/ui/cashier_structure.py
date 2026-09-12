@@ -10,9 +10,33 @@ def _find_button(window, text):
     return None
 
 
+def _install_payment_label_contract(window):
+    """Keep the compact payment labels intact after legacy refresh methods run."""
+    if getattr(window, "_wpos_cashier_payment_labels_v292", False):
+        return
+
+    original_update_change = getattr(window, "update_change", None)
+    if original_update_change is None:
+        return
+
+    def update_change_with_contract(*args, **kwargs):
+        result = original_update_change(*args, **kwargs)
+        total_label = getattr(window, "total_label", None)
+        change_label = getattr(window, "change_label", None)
+        if total_label is not None:
+            total_label.setText(total_label.text().removeprefix("TOTAL "))
+        if change_label is not None:
+            change_label.setText(change_label.text().removeprefix("Kembalian: "))
+        return result
+
+    window.update_change = update_change_with_contract
+    window._wpos_cashier_payment_labels_v292 = True
+
+
 def apply_cashier_structure(window):
     """Reorganize existing Kasir widgets once per window."""
     if getattr(window, "_wpos_cashier_structure_v277", False):
+        _install_payment_label_contract(window)
         return
     page = window.modern_stack.widget(1) if hasattr(window, "modern_stack") else None
     if page is None:
@@ -58,6 +82,7 @@ def apply_cashier_structure(window):
 
     if not buttons:
         window._wpos_cashier_structure_v277 = True
+        _install_payment_label_contract(window)
         return
 
     for button, display in buttons:
@@ -87,3 +112,4 @@ def apply_cashier_structure(window):
     root.addWidget(controls, 0)
     checkout.setObjectName("premiumCheckout")
     window._wpos_cashier_structure_v277 = True
+    _install_payment_label_contract(window)
