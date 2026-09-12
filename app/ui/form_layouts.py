@@ -214,7 +214,7 @@ def _popup_complex_page(page, title, dialog_title, description):
 def _popup_master_page(page, title, dialog_title):
     if getattr(page, "_wpos_form_layout_mode", None) == "popup":
         return
-    form_box = page.findChild(QFrame, "masterFormCard")
+    form_box = page.findChild(QWidget, "masterFormCard")
     if form_box is None:
         return
     _remove_widget_from_layout(page.layout(), form_box)
@@ -231,7 +231,7 @@ def _popup_master_page(page, title, dialog_title):
 def _inline_simple_master(page):
     if getattr(page, "_wpos_form_layout_mode", None) == "inline":
         return
-    form_box = page.findChild(QFrame, "masterFormCard")
+    form_box = page.findChild(QWidget, "masterFormCard")
     if form_box is None or form_box.layout() is None:
         return
     form_layout = form_box.layout()
