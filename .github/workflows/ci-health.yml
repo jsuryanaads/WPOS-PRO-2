@@ -3,13 +3,11 @@ name: WPOS PRO 2 CI Health
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
-# Prevent duplicate CI jobs from piling up on the same branch/PR.
+# Stage 1: the pipeline starts here. Only one CI Health run per main ref.
 concurrency:
-  group: wpos-ci-health-${{ github.workflow }}-${{ github.ref }}
+  group: wpos-ci-health-main
   cancel-in-progress: true
 
 jobs:
