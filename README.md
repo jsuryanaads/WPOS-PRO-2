@@ -15,29 +15,17 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Menyinkronkan config, installer dan regression test ke versi **2.7.15**.
 - Tidak mengubah UI, authentication flow, database, schema, atau business logic.
 
+## Build Windows aktif
+- `windows-build.yml`: build EXE Windows otomatis pada push ke `main` dan tetap tersedia melalui `workflow_dispatch`.
+- `windows-installer.yml`: build installer Windows otomatis pada push ke `main` dan tetap tersedia melalui `workflow_dispatch`.
+- Kedua workflow menggunakan `windows-2022`, Python 3.12, compileall, pytest, PyInstaller, pemeriksaan branding, dan validasi output.
+- Artifact build: `WPOS-PRO-2-Windows`.
+- Artifact installer: `WPOS-PRO-2-Installer`.
+
 ## Perubahan 2.7.14
 - Memperbaiki jalur CI Windows dengan mengganti runner `windows-latest` menjadi `windows-2022` pada workflow Build dan Installer.
 - Menambahkan diagnostic runner pada workflow Windows agar identitas runner/image dapat terlihat jika terjadi kegagalan sebelum proses build.
 - Tidak mengubah UI, authentication flow, database, schema, atau business logic.
-
-## Perubahan 2.7.13
-- Memperbaiki regression test Kasir yang masih mengunci versi lama `2.7.10` setelah aplikasi sudah berada di `2.7.12`.
-- Menyinkronkan test, config, dan installer ke versi **2.7.13**.
-- Tidak mengubah UI, authentication flow, database, schema, atau business logic.
-
-## Perubahan 2.7.12
-- Menghapus tampilan versi aplikasi dari kartu Login agar tidak duplikat.
-- Versi aplikasi tetap ditampilkan pada Footer global.
-- Identitas Login tetap menampilkan **WPOS PRO 2** dan **Point of Sale**.
-- Authentication flow, database, dan business logic login tetap dipertahankan.
-
-## Perubahan 2.7.11
-- Mendesain ulang struktur layar Login agar lebih rapi dan fokus sebagai gerbang utama aplikasi.
-- Menampilkan logo, nama aplikasi, tipe Point of Sale, dan mode Offline / Database Lokal secara terstruktur.
-- Input Username dan Password dibuat lebih jelas dengan placeholder dan tombol Lihat/Sembunyikan password.
-- Tombol **MASUK** menjadi default action sehingga Enter dapat digunakan untuk login.
-- Authentication flow, database, dan business logic login tetap dipertahankan.
-- Menambahkan regression test untuk struktur Login.
 
 ## 14 halaman
 1. Dashboard
@@ -161,10 +149,10 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 
 ## CI
 - `ci-health.yml`: health check otomatis di Ubuntu untuk compile dan pytest.
-- `windows-build.yml`: build EXE Windows melalui **workflow_dispatch**.
-- `windows-installer.yml`: build installer Windows melalui **workflow_dispatch**.
+- `windows-build.yml`: build EXE Windows otomatis pada push ke `main` atau melalui **workflow_dispatch**.
+- `windows-installer.yml`: build installer Windows otomatis pada push ke `main` atau melalui **workflow_dispatch**.
 - Workflow Windows menggunakan `windows-2022` dan diagnostic runner.
-- Windows workflow sengaja tidak berjalan otomatis pada setiap push agar kegagalan runner tidak menghasilkan run berulang sebelum environment GitHub Actions sehat.
+- Artifact hasil build tersedia pada masing-masing workflow jika seluruh validasi berhasil.
 
 ## Tema
 - **Dark Mode** — default.
