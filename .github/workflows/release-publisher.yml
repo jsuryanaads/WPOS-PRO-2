@@ -44,28 +44,28 @@ jobs:
           TAG_JSON=$(gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" 2>/tmp/tag-error.txt)
           TAG_RC=$?
           set -e
-          echo "release_rc=$RELEASE_RC"
-          echo "tag_rc=$TAG_RC"
           if [ "$RELEASE_RC" -eq 0 ]; then
             echo "release_exists=true" >> "$GITHUB_OUTPUT"
             printf '%s' "$RELEASE_JSON" > /tmp/release.json
           else
             echo "release_exists=false" >> "$GITHUB_OUTPUT"
           fi
-          if [ "$TAG_RC" -eq 0 ]; then echo "tag_exists=true" >> "$GITHUB_OUTPUT"; else echo "tag_exists=false" >> "$GITHUB_OUTPUT"; fi
+          if [ "$TAG_RC" -eq 0 ]; then
+            echo "tag_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag_exists=false" >> "$GITHUB_OUTPUT"
+          fi
           if [ "$RELEASE_RC" -ne 0 ]; then cat /tmp/release-error.txt || true; fi
           if [ "$TAG_RC" -ne 0 ]; then cat /tmp/tag-error.txt || true; fi
-          if [ "$RELEASE_RC" -eq 0 ]; then cat /tmp/release.json; fi
-          if [ "$TAG_RC" -eq 0 ]; then printf '%s\n' "$TAG_JSON"; fi
 
-      - name: Reject immutable release
+      - name: Reject published release
         if: steps.inspect.outputs.release_exists == 'true'
         shell: bash
         run: |
           set -euo pipefail
           IS_DRAFT=$(jq -r '.isDraft' /tmp/release.json)
           if [ "$IS_DRAFT" != "true" ]; then
-            echo "ERROR: $RELEASE_TAG already exists as a published release. Do not modify it automatically."
+            echo "ERROR: $RELEASE_TAG already exists as a published release. Refusing to modify it."
             exit 1
           fi
 
@@ -91,40 +91,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RELEASE_ID=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json databaseId,isDraft --jq '.databaseId + " " + (.isDraft|tostring)')
-          set -- $RELEASE_ID
-          RELEASE_ID="$1"
-          IS_DRAFT="$2"
+          IS_DRAFT=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json isDraft --jq '.isDraft')
           if [ "$IS_DRAFT" != "true" ]; then
-            echo "ERROR: $RELEASE_TAG is not a draft. Refusing to upload to a published/immutable release."
+            echo "ERROR: $RELEASE_TAG is not a draft. Refusing to upload assets."
             exit 1
           fi
-          upload_asset() {
-            local file="$1"
-            local name="$2"
-            local url="https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets?name=${name}"
-            echo "Uploading ${name} to draft release ${RELEASE_ID}"
-            curl --fail-with-body --silent --show-error \
-              --request POST \
-              --url "$url" \
-              --header "Accept: application/vnd.github+json" \
-              --header "Authorization: Bearer ${GH_TOKEN}" \
-              --header "X-GitHub-Api-Version: 2022-11-28" \
-              --header "Content-Type: application/octet-stream" \
-              --data-binary "@${file}"
-            echo
-          }
-          upload_asset "release-assets/WPOS_PRO_2_2.10.0.exe" "WPOS_PRO_2_2.10.0.exe"
-          upload_asset "release-assets/WPOS_PRO_2_Setup_2.10.0.exe" "WPOS_PRO_2_Setup_2.10.0.exe"
-          upload_asset "release-assets/SHA256SUMS.txt" "SHA256SUMS.txt"
+          gh release upload "$RELEASE_TAG" \
+            "release-assets/WPOS_PRO_2_2.10.0.exe" \
+            "release-assets/WPOS_PRO_2_Setup_2.10.0.exe" \
+            "release-assets/SHA256SUMS.txt" \
+            --repo "$REPO" --clobber
 
-      - name: Verify draft assets
+      - name: Verify draft assets and target
         shell: bash
         run: |
           set -euo pipefail
-          gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets
+          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets)
+          echo "$RELEASE_JSON"
+          test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
+          test "$(echo "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$TARGET_SHA"
           for asset in WPOS_PRO_2_2.10.0.exe WPOS_PRO_2_Setup_2.10.0.exe SHA256SUMS.txt; do
-            gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | grep -Fx "$asset"
+            echo "$RELEASE_JSON" | jq -r '.assets[].name' | grep -Fx "$asset"
           done
 
       - name: Publish verified release
@@ -132,7 +119,11 @@ jobs:
         run: |
           set -euo pipefail
           gh release edit "$RELEASE_TAG" --repo "$REPO" --draft=false --latest
-          gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets
-          gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | grep -Fx 'WPOS_PRO_2_2.10.0.exe'
-          gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | grep -Fx 'WPOS_PRO_2_Setup_2.10.0.exe'
-          gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | grep -Fx 'SHA256SUMS.txt'
+          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets)
+          echo "$RELEASE_JSON"
+          test "$(echo "$RELEASE_JSON" | jq -r '.isDraft')" = "false"
+          test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
+          test "$(echo "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$TARGET_SHA"
+          for asset in WPOS_PRO_2_2.10.0.exe WPOS_PRO_2_Setup_2.10.0.exe SHA256SUMS.txt; do
+            echo "$RELEASE_JSON" | jq -r '.assets[].name' | grep -Fx "$asset"
+          done
