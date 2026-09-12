@@ -380,7 +380,7 @@ def apply_premium_cashier(window):
     change_l.addWidget(_label("KEMBALIAN", "premiumChangeCaption")); window.change_label = _label("Rp 0", "premiumChange"); change_l.addWidget(window.change_label); pay_l.addWidget(change_box); pay_l.addStretch(1)
 
     actions = QHBoxLayout()
-    for text, callback in [("PARKIR", lambda: _hold_current(window)), ("PARKIRAN", lambda: _show_held(window)), ("RIWAYAT", lambda: _history(window)), ("BATAL", lambda: _cancel(window)), ("CLEAR", lambda: _cancel(window))]:
+    for text, callback in [("PARKIR", lambda: _hold_current(window)), ("PARKIRAN", lambda: _show_held(window)), ("RIWAYAT", lambda: _history(window)), ("BATAL TRANSAKSI", lambda: _cancel(window)), ("CLEAR", lambda: _cancel(window))]:
         b = QPushButton(text); actions.addWidget(b); b.clicked.connect(callback)
     checkout = QPushButton("BAYAR & CETAK"); checkout.setObjectName("premiumCheckout"); checkout.clicked.connect(window.checkout); actions.addWidget(checkout, 1)
     pay_l.addLayout(actions)
