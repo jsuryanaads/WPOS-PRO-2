@@ -25,12 +25,22 @@ def test_cashier_payment_card_stays_compact():
     assert 'item.spacerItem() is not None' in source
 
 
-def test_version_is_286():
+def test_cashier_payment_value_labels_are_not_redundant():
+    source = Path("app/ui/premium_cashier.py").read_text(encoding="utf-8")
+    assert 'total_l.addWidget(_label("TOTAL TRANSAKSI", "premiumTotalCaption"))' in source
+    assert 'window.total_label = _label("Rp 0", "premiumTotal")' in source
+    assert 'change_l.addWidget(_label("KEMBALIAN", "premiumChangeCaption"))' in source
+    assert 'window.change_label = _label("Rp 0", "premiumChange")' in source
+    assert 'Kembalian: Rp 0' not in source
+    assert 'TOTAL Rp 0' not in source
+
+
+def test_version_is_290():
     config = Path("app/config.py").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.8.6"' in config
-    assert '#define MyAppVersion "2.8.6"' in installer
-    assert "Versi aplikasi: **2.8.6**" in readme
-    assert "## 2.8.6 — Compact Payment Summary" in changelog
+    assert 'APP_VERSION = "2.9.0"' in config
+    assert '#define MyAppVersion "2.9.0"' in installer
+    assert "Versi aplikasi: **2.9.0**" in readme
+    assert "## 2.9.0 — Multi-Item Purchase" in changelog
