@@ -19,9 +19,6 @@ from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 from .services import printer as printer_service
 from .services.receipt_display import format_receipt_html_qty
 
-
-# Keep receipt calculations/database values untouched while normalizing the
-# cosmetic quantity representation used by the Qt/HTML receipt path.
 _original_receipt_html = printer_service.receipt_html
 
 
@@ -43,12 +40,7 @@ def main():
     holder = {}
 
     def refresh_ui(window):
-        """Apply window-level presentation once per layer.
-
-        Individual UI layers are responsible for their own idempotence. This
-        coordinator deliberately keeps a single initialization path so theme
-        changes cannot accidentally duplicate widgets, shortcuts, or signals.
-        """
+        """Apply window-level presentation once per layer."""
         apply_ui_polish(window)
         apply_ux2026(window)
         apply_global_ui(app, window)
@@ -60,8 +52,6 @@ def main():
         add_application_footer(window)
         apply_global_ui(app, window)
 
-        # The active user's display name/date already live in the global
-        # Headerbar. Keep the sidebar navigation-only and retain only Keluar.
         for object_name in ("modernUser", "modernRole"):
             label = window.findChild(QWidget, object_name)
             if label is not None:
@@ -86,6 +76,8 @@ def main():
             action.setChecked(action.text() == THEMES[key]["label"])
 
     def success(user):
+        printer_service.set_current_cashier(user)
+
         def logout_callback(window):
             holder.pop("main", None)
             window.close()
