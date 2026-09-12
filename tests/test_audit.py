@@ -167,7 +167,7 @@ def test_user_creation_rejects_invalid_role():
 
 def test_wpos_pro_2_identity_and_branding_assets():
     assert APP_NAME == "WPOS PRO 2"
-    assert APP_VERSION == "2.8.0"
+    assert APP_VERSION == "2.10.0"
     assert LOGO_PATH.name == "wpos_logo.png"
     assert ICON_PATH.name == "wpos_icon.ico"
     assert LOGO_PATH.exists()
