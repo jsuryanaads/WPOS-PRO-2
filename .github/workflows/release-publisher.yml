@@ -1,9 +1,6 @@
 name: WPOS PRO 2 Release Publisher
 
 on:
-  push:
-    paths:
-      - .github/workflows/release-publisher.yml
   workflow_dispatch:
 
 permissions:
@@ -32,18 +29,19 @@ jobs:
           cp "release-assets/dist/WPOS_PRO_2_2.10.0.exe" release-assets/WPOS_PRO_2_2.10.0.exe
           cp "release-assets/installer/WPOS_PRO_2_Setup_2.10.0.exe" release-assets/WPOS_PRO_2_Setup_2.10.0.exe
           cp "release-assets/installer/SHA256SUMS.txt" release-assets/SHA256SUMS.txt
-          sha256sum release-assets/*.exe release-assets/SHA256SUMS.txt
 
       - name: Inspect existing release and tag
         id: inspect
         shell: bash
         run: |
           set +e
-          gh release view "$RELEASE_TAG" --repo "$REPO" >/tmp/release-view.txt 2>&1
+          gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets >/tmp/release-view.txt 2>&1
           RELEASE_RC=$?
           gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" >/tmp/tag-view.txt 2>&1
           TAG_RC=$?
           set -e
+          echo "release_rc=$RELEASE_RC"
+          echo "tag_rc=$TAG_RC"
           if [ "$RELEASE_RC" -eq 0 ]; then echo "release_exists=true" >> "$GITHUB_OUTPUT"; else echo "release_exists=false" >> "$GITHUB_OUTPUT"; fi
           if [ "$TAG_RC" -eq 0 ]; then echo "tag_exists=true" >> "$GITHUB_OUTPUT"; else echo "tag_exists=false" >> "$GITHUB_OUTPUT"; fi
           cat /tmp/release-view.txt || true
@@ -52,10 +50,21 @@ jobs:
       - name: Upload assets to existing release
         if: steps.inspect.outputs.release_exists == 'true'
         run: |
-          gh release upload "$RELEASE_TAG" --repo "$REPO" --clobber \
-            release-assets/WPOS_PRO_2_2.10.0.exe \
-            release-assets/WPOS_PRO_2_Setup_2.10.0.exe \
-            release-assets/SHA256SUMS.txt
+          RELEASE_ID=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json databaseId --jq '.databaseId')
+          API="https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets"
+          upload_asset() {
+            local file="$1"
+            local name="$2"
+            echo "Uploading ${name} to release ${RELEASE_ID}"
+            gh api --method POST "$API" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Content-Type: application/octet-stream" \
+              --field name="$name" \
+              --input "$file"
+          }
+          upload_asset "release-assets/WPOS_PRO_2_2.10.0.exe" "WPOS_PRO_2_2.10.0.exe"
+          upload_asset "release-assets/WPOS_PRO_2_Setup_2.10.0.exe" "WPOS_PRO_2_Setup_2.10.0.exe"
+          upload_asset "release-assets/SHA256SUMS.txt" "SHA256SUMS.txt"
 
       - name: Create release on existing tag
         if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists == 'true'
@@ -83,5 +92,3 @@ jobs:
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_2.10.0.exe'
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_Setup_2.10.0.exe'
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'SHA256SUMS.txt'
-
-# Revalidation trigger: 2026-09-13
