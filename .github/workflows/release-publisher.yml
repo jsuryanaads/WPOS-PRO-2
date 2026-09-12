@@ -83,3 +83,5 @@ jobs:
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_2.10.0.exe'
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_Setup_2.10.0.exe'
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'SHA256SUMS.txt'
+
+# Revalidation trigger: 2026-09-13
