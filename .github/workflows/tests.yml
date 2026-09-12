@@ -1,32 +1,40 @@
 name: WPOS PRO Tests
 
-# The consolidated CI health workflow owns push validation on main.
-# Keep this workflow for pull requests and manual test runs to avoid duplicate push CI.
+# Stage 2: starts only after CI Health completes successfully on main.
 on:
-  pull_request:
+  workflow_run:
+    workflows: ["WPOS PRO 2 CI Health"]
+    types: [completed]
     branches: [main]
-  workflow_dispatch:
 
 concurrency:
-  group: wpos-tests-${{ github.workflow }}-${{ github.ref }}
+  group: wpos-tests-main
   cancel-in-progress: true
 
 jobs:
   test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Install Linux Qt runtime
         run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1
+
       - name: Install dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
       - name: Compile Python
         run: python -m compileall -q app
+
       - name: Run tests
         env:
           PYTHONPATH: .
