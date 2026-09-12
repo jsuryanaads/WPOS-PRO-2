@@ -81,8 +81,13 @@ def apply_headerbar(window):
     if store_label is None or user_date_label is None:
         return
 
-    # Keep the existing QLabel objects in their original layouts. This is
-    # intentionally safer than setParent()/layout removal/reinsertion.
+    # Three equal layout zones make the store block geometrically centered
+    # against the entire Headerbar, independent of title/user text widths.
+    # This only changes stretch factors; no widget is detached or reparented.
+    layout.setStretch(0, 1)
+    layout.setStretch(1, 1)
+    layout.setStretch(2, 1)
+
     store_label.setObjectName("modernStoreName")
     store_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
     store_label.setWordWrap(True)
