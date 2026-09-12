@@ -5,7 +5,7 @@ def test_login_structure_has_identity_fields_and_offline_mode():
     text = Path("app/ui/login.py").read_text(encoding="utf-8")
     assert "loginLogo" in text
     assert "loginTitle" in text
-    assert "loginVersion" in text
+    assert "loginSubtitle" in text
     assert "loginWelcome" in text
     assert "loginMode" in text
     assert "Offline  •  Database Lokal" in text
@@ -13,6 +13,9 @@ def test_login_structure_has_identity_fields_and_offline_mode():
     assert "Masukkan password" in text
     assert 'QPushButton("MASUK")' in text
     assert "setDefault(True)" in text
+    assert "APP_VERSION" not in text
+    assert "loginVersion" not in text
+    assert "Point of Sale" in text
 
 
 def test_login_keeps_authentication_flow():
@@ -23,8 +26,8 @@ def test_login_keeps_authentication_flow():
     assert "self.on_success(user)" in text
 
 
-def test_login_uses_current_app_version():
-    text = Path("app/ui/login.py").read_text(encoding="utf-8")
-    assert "APP_NAME" in text
-    assert "APP_VERSION" in text
-    assert 'f"{APP_VERSION}  ·  Point of Sale"' in text
+def test_login_version_is_reserved_for_footer():
+    login_text = Path("app/ui/login.py").read_text(encoding="utf-8")
+    footer_text = Path("app/ui/global_ui.py").read_text(encoding="utf-8")
+    assert "APP_VERSION" not in login_text
+    assert "APP_VERSION" in footer_text
