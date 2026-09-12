@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLineEdit, QComboBox,
-    QCheckBox, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
+    QAbstractItemView, QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLineEdit,
+    QComboBox, QCheckBox, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
 )
 from ..database import SessionLocal
 from ..services.users import (
@@ -54,8 +54,8 @@ class UserManagementDialog(QDialog):
 
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(["ID", "Nama", "Username", "Role", "Status"])
-        self.table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.cellClicked.connect(self.select_user)
         root.addWidget(self.table)
         self.refresh()
@@ -78,6 +78,7 @@ class UserManagementDialog(QDialog):
         if self.table.columnCount() >= 5:
             self.table.setColumnWidth(1, max(160, self.table.columnWidth(1)))
             self.table.setColumnWidth(2, max(130, self.table.columnWidth(2)))
+            self.table.setColumnWidth(4, max(90, self.table.columnWidth(4)))
 
     def select_user(self, row, _column):
         self.selected_user_id = int(self.table.item(row, 0).text())
@@ -138,9 +139,11 @@ class UserManagementDialog(QDialog):
         if not self.selected_user_id:
             QMessageBox.warning(self, "User", "Pilih user terlebih dahulu")
             return
+        target_active = not self.active.isChecked()
         try:
             with SessionLocal() as s:
-                set_user_active(s, self.selected_user_id, self.active.isChecked(), self.actor.id)
+                set_user_active(s, self.selected_user_id, target_active, self.actor.id)
+            self.active.setChecked(target_active)
             self.refresh()
         except Exception as exc:
             QMessageBox.warning(self, "User", str(exc))
