@@ -4,10 +4,24 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.8.6**
+- Versi aplikasi: **2.9.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.9.0
+- Menambahkan **multi-item purchase** pada menu **Pembelian**.
+- Satu invoice pembelian sekarang dapat berisi banyak produk dalam satu transaksi.
+- Menambahkan keranjang item pembelian dengan produk, barcode, qty, harga beli, subtotal, dan aksi hapus per baris.
+- Item produk yang sama pada keranjang digabung: qty ditambahkan dan harga beli diperbarui ke input terakhir.
+- Menampilkan jumlah item dan **TOTAL PEMBELIAN** secara realtime sebelum disimpan.
+- Supplier dan nomor invoice berlaku untuk seluruh item dalam satu transaksi pembelian.
+- Nomor invoice tetap dibuat otomatis jika field invoice dikosongkan.
+- Penyimpanan tetap menggunakan `create_purchase()` sehingga validasi, stok, PurchaseItem, dan StockMovement tetap berada di service layer.
+- Setelah pembelian berhasil, tampilan Produk dan Stok & Mutasi direfresh agar stok terbaru langsung terlihat.
+- Tidak mengubah schema database karena backend `Purchase` → `PurchaseItem` sebelumnya sudah mendukung banyak item.
+- Release **2.9.0** dikategorikan sebagai MINOR karena menambahkan fungsi multi-item pada UI secara backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.6
 - Merapikan **Ringkasan Pembayaran** pada halaman Kasir agar lebih compact dan proporsional.
@@ -17,7 +31,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Kontrol transaksi tetap berada di area khusus **Kontrol Transaksi**.
 - Tidak mengubah business logic checkout, perhitungan total, metode pembayaran, stok, database, atau fungsi cetak.
 - Release **2.8.6** dikategorikan sebagai PATCH karena merupakan penyempurnaan UI backward-compatible.
-- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.5
 - Menambahkan **Kasir: <Nama User>** pada receipt/struk.
