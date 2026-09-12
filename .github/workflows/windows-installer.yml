@@ -2,8 +2,6 @@ name: WPOS PRO 2 Windows Installer
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
 
 permissions:
   contents: write
