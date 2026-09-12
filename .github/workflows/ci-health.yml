@@ -8,6 +8,7 @@ on:
 # Stage 1: the pipeline starts here. Only one CI Health run per main ref.
 # A workflow-only commit is intentionally sufficient to revalidate the current main tree.
 # Revalidation marker: 2026-09-13
+# GitHub Actions runtime: Node24-compatible action majors.
 concurrency:
   group: wpos-ci-health-main
   cancel-in-progress: true
@@ -17,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
