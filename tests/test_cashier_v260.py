@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from app.config import APP_VERSION
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,6 +26,6 @@ def test_cashier_does_not_replace_sales_service():
     assert "sales business rules remain in MainWindow/services" in source
 
 
-def test_version_is_260():
+def test_version_matches_current_release():
     source = (ROOT / "app" / "config.py").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.6.0"' in source
+    assert f'APP_VERSION = "{APP_VERSION}"' in source
