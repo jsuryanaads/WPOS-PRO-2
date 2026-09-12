@@ -1,5 +1,18 @@
 # WPOS PRO 2 Changelog
 
+## 2.10.0 — Role-Based Access Control
+
+- Menerapkan pemisahan akses role **ADMIN** dan **KASIR** pada navigasi aplikasi.
+- ADMIN memiliki akses penuh ke seluruh 14 halaman dan Manajemen User.
+- KASIR dibatasi pada **Dashboard, Kasir, dan Pelanggan** sesuai `ROLE_PERMISSIONS` yang sudah menjadi policy aplikasi.
+- Menyembunyikan item navigasi yang tidak diizinkan untuk role aktif.
+- Menyembunyikan section navigasi yang seluruh isinya tidak tersedia untuk role aktif.
+- Menambahkan runtime guard pada compatibility/legacy navigation agar `setCurrentIndex()` tidak dapat membuka halaman terlarang.
+- Menjadikan mapping page index → permission feature terpusat pada `app/ui/access_control.py`.
+- Menambahkan regression test untuk coverage 14 halaman serta perbedaan akses ADMIN/KASIR.
+- Tidak mengubah login UI, business logic transaksi, database transaksi, receipt thermal, atau workflow multi-item purchase.
+- Menetapkan **2.10.0** sebagai MINOR release karena menambahkan functionality role-based access yang backward-compatible.
+
 ## 2.9.3 — Thermal Receipt Item Formatting Fix
 
 - Memperbaiki formatter item pada receipt thermal 58mm agar Qty integral seperti `1.0` dicetak sebagai `1`.
