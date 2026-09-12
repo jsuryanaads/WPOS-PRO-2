@@ -1,6 +1,9 @@
 name: WPOS PRO 2 Release Publisher
 
 on:
+  push:
+    paths:
+      - .github/workflows/release-publisher.yml
   workflow_dispatch:
 
 permissions:
@@ -20,6 +23,7 @@ jobs:
     steps:
       - name: Download verified Windows artifact
         run: |
+          set -euo pipefail
           rm -rf release-assets
           mkdir -p release-assets
           gh run download "$BUILD_RUN_ID" --repo "$REPO" --name "$ARTIFACT_NAME" --dir release-assets
@@ -29,6 +33,7 @@ jobs:
           cp "release-assets/dist/WPOS_PRO_2_2.10.0.exe" release-assets/WPOS_PRO_2_2.10.0.exe
           cp "release-assets/installer/WPOS_PRO_2_Setup_2.10.0.exe" release-assets/WPOS_PRO_2_Setup_2.10.0.exe
           cp "release-assets/installer/SHA256SUMS.txt" release-assets/SHA256SUMS.txt
+          sha256sum release-assets/*.exe release-assets/SHA256SUMS.txt
 
       - name: Inspect existing release and tag
         id: inspect
@@ -49,18 +54,24 @@ jobs:
 
       - name: Upload assets to existing release
         if: steps.inspect.outputs.release_exists == 'true'
+        shell: bash
         run: |
+          set -euo pipefail
           RELEASE_ID=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json databaseId --jq '.databaseId')
-          API="https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets"
           upload_asset() {
             local file="$1"
             local name="$2"
+            local url="https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets?name=${name}"
             echo "Uploading ${name} to release ${RELEASE_ID}"
-            gh api --method POST "$API" \
-              -H "Accept: application/vnd.github+json" \
-              -H "Content-Type: application/octet-stream" \
-              --field name="$name" \
-              --input "$file"
+            curl --fail-with-body --silent --show-error \
+              --request POST \
+              --url "$url" \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer ${GH_TOKEN}" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --header "Content-Type: application/octet-stream" \
+              --data-binary "@${file}"
+            echo
           }
           upload_asset "release-assets/WPOS_PRO_2_2.10.0.exe" "WPOS_PRO_2_2.10.0.exe"
           upload_asset "release-assets/WPOS_PRO_2_Setup_2.10.0.exe" "WPOS_PRO_2_Setup_2.10.0.exe"
@@ -88,6 +99,7 @@ jobs:
 
       - name: Verify release and assets
         run: |
+          set -euo pipefail
           gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_2.10.0.exe'
           gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_Setup_2.10.0.exe'
