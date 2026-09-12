@@ -1,6 +1,6 @@
 name: WPOS PRO Tests
 
-# Stage 2: starts only after CI Health completes successfully on main.
+# Stage 2: starts after CI Health completes. The gate fails unless CI Health succeeded.
 on:
   workflow_run:
     workflows: ["WPOS PRO 2 CI Health"]
@@ -12,8 +12,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gate:
+    name: Gate - CI Health must succeed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify CI Health result
+        env:
+          UPSTREAM_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          echo "CI Health conclusion: $UPSTREAM_CONCLUSION"
+          if [ "$UPSTREAM_CONCLUSION" != "success" ]; then
+            echo "CI Health did not succeed. Tests pipeline is stopped."
+            exit 1
+          fi
+
   test:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Run Tests
+    needs: gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
