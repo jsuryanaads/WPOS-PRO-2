@@ -1,5 +1,15 @@
 # WPOS PRO 2 Changelog
 
+## 2.9.3 — Thermal Receipt Item Formatting Fix
+
+- Memperbaiki formatter item pada receipt thermal 58mm agar Qty integral seperti `1.0` dicetak sebagai `1`.
+- Memperbaiki perhitungan lebar baris item dengan memperhitungkan dua separator sehingga nominal terakhir tidak terpotong.
+- Mencegah nominal seperti `30,000` berubah menjadi `30,00` pada printer 32-CPL.
+- Menyamakan formatting Qty pada renderer Qt/HTML dan RAW ESC/POS.
+- Menambahkan regression test untuk panjang baris 32 karakter, Qty integer, dan nominal item lengkap.
+- Tidak mengubah business logic transaksi, perhitungan Decimal, database, pembayaran, stok, atau workflow multi-item purchase.
+- Menetapkan **2.9.3** sebagai PATCH release untuk bug fix receipt backward-compatible.
+
 ## 2.9.2 — Cashier Payment Label Runtime Fix
 
 - Memperbaiki runtime halaman **Kasir** yang sebelumnya menimpa label compact menjadi `TOTAL Rp ...` dan `Kembalian: Rp ...` setiap kali cart/payment di-refresh.
