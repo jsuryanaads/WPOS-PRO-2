@@ -26,4 +26,4 @@ def test_cashier_change_fix_is_documented_and_versioned():
     changelog = CHANGELOG.read_text(encoding="utf-8")
     assert "## 2.9.2 — Cashier Payment Label Runtime Fix" in changelog
     assert "runtime halaman **Kasir**" in changelog
-    assert "Regression test" in changelog
+    assert "Menambahkan regression test" in changelog
