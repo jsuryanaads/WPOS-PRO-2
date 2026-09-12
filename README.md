@@ -4,10 +4,19 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.9.0**
+- Versi aplikasi: **2.9.1**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.9.1
+- Menambahkan **print-safe top area** pada struk thermal 58mm agar nama toko tidak terlalu dekat dengan tepi fisik kertas.
+- Menambahkan dua blank feed line pada jalur RAW ESC/POS setelah inisialisasi printer.
+- Menambahkan top padding 2mm pada renderer Qt/HTML tanpa mengubah lebar cetak 48mm.
+- Mempertahankan format Qty bulat tanpa `.0` pada tampilan struk; nilai transaksi tetap menggunakan Decimal.
+- Mempertahankan business logic transaksi, database, pembayaran, stok, dan multi-item purchase.
+- Release **2.9.1** dikategorikan sebagai PATCH karena merupakan penyempurnaan output receipt backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.9.0
 - Menambahkan **multi-item purchase** pada menu **Pembelian**.
@@ -21,7 +30,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Setelah pembelian berhasil, tampilan Produk dan Stok & Mutasi direfresh agar stok terbaru langsung terlihat.
 - Tidak mengubah schema database karena backend `Purchase` → `PurchaseItem` sebelumnya sudah mendukung banyak item.
 - Release **2.9.0** dikategorikan sebagai MINOR karena menambahkan fungsi multi-item pada UI secara backward-compatible.
-- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.6
 - Merapikan **Ringkasan Pembayaran** pada halaman Kasir agar lebih compact dan proporsional.
