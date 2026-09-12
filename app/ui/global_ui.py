@@ -29,6 +29,7 @@ from .themes import current_theme
 GLOBAL_UI_STYLE = """
 /* WPOS PRO 2 — unified geometry/UX contract for all 14 business pages. */
 QWidget { font-family: 'Segoe UI'; font-size: 11px; }
+QLabel { background: transparent; }
 QFrame#applicationFooter { min-height: 30px; max-height: 30px; }
 QLabel#applicationFooterLabel { font-size: 10px; font-weight: 600; }
 QLabel#pageTitle { font-size: 24px; font-weight: 900; }
@@ -155,9 +156,6 @@ def _normalize_layouts(root):
 
 
 def _normalize_controls(root):
-    # Explicitly disable the native clear button on every QLineEdit. This is
-    # required even when Qt's default is false because platform styles or a
-    # previous widget state can otherwise expose the trailing × control.
     for widget in root.findChildren(QLineEdit):
         widget.setClearButtonEnabled(False)
         widget.setProperty("wposClearButtonDisabled", True)
@@ -190,9 +188,6 @@ def _normalize_controls(root):
             widget.setMinimumHeight(max(widget.minimumHeight(), 32))
             if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
                 widget.setMinimumWidth(max(widget.minimumWidth(), 110))
-                # QAbstractSpinBox owns an internal QLineEdit. Disable its
-                # clear button explicitly so Qt/style state cannot re-enable
-                # the unwanted × control inside numeric fields.
                 line_edit = widget.lineEdit()
                 if line_edit is not None:
                     line_edit.setClearButtonEnabled(False)
