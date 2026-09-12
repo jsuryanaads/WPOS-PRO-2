@@ -29,7 +29,7 @@ class LoginWindow(QDialog):
         self.setObjectName("loginWindow")
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(32, 28, 32, 24)
+        root.setContentsMargins(32, 24, 32, 22)
         root.setSpacing(0)
         root.addStretch(1)
 
@@ -37,17 +37,17 @@ class LoginWindow(QDialog):
         card.setObjectName("loginCard")
         card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(30, 28, 30, 28)
-        card_layout.setSpacing(12)
+        card_layout.setContentsMargins(30, 24, 30, 24)
+        card_layout.setSpacing(10)
 
         logo = QLabel()
         logo.setAlignment(Qt.AlignCenter)
-        logo.setMinimumHeight(96)
+        logo.setMinimumHeight(82)
         logo.setObjectName("loginLogo")
         if LOGO_PATH.exists():
             pixmap = QPixmap(str(LOGO_PATH))
             if not pixmap.isNull():
-                logo.setPixmap(pixmap.scaled(105, 105, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                logo.setPixmap(pixmap.scaled(92, 92, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         card_layout.addWidget(logo)
 
         title = QLabel(APP_NAME)
@@ -64,7 +64,12 @@ class LoginWindow(QDialog):
         welcome.setObjectName("loginWelcome")
         welcome.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(welcome)
-        card_layout.addSpacing(8)
+
+        mode = QLabel("Offline  •  Database Lokal")
+        mode.setObjectName("loginMode")
+        mode.setAlignment(Qt.AlignCenter)
+        card_layout.addWidget(mode)
+        card_layout.addSpacing(6)
 
         user_label = QLabel("USERNAME")
         user_label.setObjectName("loginFieldLabel")
@@ -72,7 +77,7 @@ class LoginWindow(QDialog):
 
         self.username = QLineEdit()
         self.username.setObjectName("loginInput")
-        self.username.setPlaceholderText("Masukkan username")
+        self.username.setPlaceholderText("👤  Masukkan username")
         self.username.setMinimumHeight(44)
         self.username.returnPressed.connect(self.handle_login)
         card_layout.addWidget(self.username)
@@ -85,7 +90,7 @@ class LoginWindow(QDialog):
         password_row.setSpacing(6)
         self.password = QLineEdit()
         self.password.setObjectName("loginInput")
-        self.password.setPlaceholderText("Masukkan password")
+        self.password.setPlaceholderText("🔒  Masukkan password")
         self.password.setEchoMode(QLineEdit.Password)
         self.password.setMinimumHeight(44)
         self.password.returnPressed.connect(self.handle_login)
@@ -104,6 +109,7 @@ class LoginWindow(QDialog):
         self.login_button = QPushButton("MASUK")
         self.login_button.setObjectName("loginPrimaryButton")
         self.login_button.setMinimumHeight(46)
+        self.login_button.setDefault(True)
         self.login_button.clicked.connect(self.handle_login)
         card_layout.addWidget(self.login_button)
 
