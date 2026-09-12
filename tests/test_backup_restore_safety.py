@@ -52,7 +52,7 @@ def test_restore_creates_safety_backup(tmp_path, monkeypatch):
     assert safety.exists()
     with sqlite3.connect(active) as db:
         tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    assert REQUIRED_TABLES == tables
+    assert set(REQUIRED_TABLES) == tables
     assert safety.parent == backup_dir
 
 
