@@ -1,5 +1,19 @@
 # WPOS PRO 2 Changelog
 
+## 2.9.0 — Multi-Item Purchase
+
+- Menambahkan workflow **multi-item** pada menu **Pembelian**.
+- Satu invoice pembelian dapat memuat banyak produk dalam satu keranjang sebelum disimpan.
+- Menambahkan kolom Produk, Barcode, Qty, Harga Beli, Subtotal, dan aksi Hapus.
+- Produk yang sama digabung ke baris yang sama: Qty ditambahkan dan harga beli mengikuti input terakhir.
+- Menampilkan jumlah item dan total pembelian secara realtime.
+- Supplier dan nomor invoice digunakan untuk seluruh item dalam satu purchase.
+- Nomor invoice otomatis tetap tersedia jika field invoice dikosongkan.
+- Penyimpanan tetap didelegasikan ke `create_purchase()` sehingga aturan transaksi dan stock movement tidak diduplikasi di UI.
+- Tidak memerlukan perubahan schema database karena model `Purchase` dan `PurchaseItem` sudah mendukung relasi satu purchase ke banyak item.
+- Menambahkan regression test untuk kontrak UI dan sinkronisasi versi.
+- Menetapkan **2.9.0** sebagai MINOR release karena menambahkan functionality backward-compatible.
+
 ## 2.8.6 — Compact Payment Summary
 
 - Merapikan **Ringkasan Pembayaran** pada halaman Kasir agar lebih compact dan proporsional.
