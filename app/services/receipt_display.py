@@ -2,14 +2,16 @@
 
 import re
 
+from .receipt_polish import format_quantity
 
-_QTY_DECIMAL_ZERO_RE = re.compile(r">([0-9]+)\.0+\s+x\s+")
+
+_QTY_RE = re.compile(r">([0-9]+(?:\.[0-9]+)?)\s+x\s+")
 
 
 def format_receipt_html_qty(html: str) -> str:
-    """Render whole-number quantities without a cosmetic '.0' suffix.
+    """Render receipt quantities without cosmetic decimal zeros.
 
     This changes only receipt presentation; transaction/database values remain
     Decimal and are not modified.
     """
-    return _QTY_DECIMAL_ZERO_RE.sub(r">\1 x ", html)
+    return _QTY_RE.sub(lambda match: f">{format_quantity(match.group(1))} x ", html)
