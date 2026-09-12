@@ -28,6 +28,26 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Resolve application version
+        shell: pwsh
+        run: |
+          $version = python -c "from app.config import APP_VERSION; print(APP_VERSION)"
+          if ($version -notmatch '^\\d+\\.\\d+\\.\\d+$') { throw "APP_VERSION bukan SemVer: $version" }
+          "APP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Building WPOS PRO 2 version $version"
+
+      - name: Verify version consistency
+        shell: pwsh
+        run: |
+          $config = Get-Content -Raw app\config.py
+          $installer = Get-Content -Raw installer.iss
+          if ($config -notmatch 'APP_VERSION\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"') { throw "APP_VERSION tidak ditemukan" }
+          $configVersion = $Matches[1]
+          if ($configVersion -ne $env:APP_VERSION) { throw "Versi config tidak konsisten" }
+          if ($installer -notmatch '#define MyAppVersion\s+"([0-9]+\.[0-9]+\.[0-9]+)"') { throw "MyAppVersion tidak ditemukan di installer.iss" }
+          $installerVersion = $Matches[1]
+          if ($installerVersion -ne $env:APP_VERSION) { throw "Versi installer ($installerVersion) != APP_VERSION ($env:APP_VERSION)" }
+
       - name: Install dependencies
         shell: pwsh
         run: |
@@ -67,6 +87,8 @@ jobs:
           $associated = [System.Drawing.Icon]::ExtractAssociatedIcon((Resolve-Path $exe).Path)
           if ($null -eq $associated) { throw "EXE tidak memiliki associated icon" }
           $associated.Dispose()
+          Copy-Item $exe "dist\WPOS_PRO_2_$env:APP_VERSION.exe"
+          Get-FileHash "dist\WPOS_PRO_2_$env:APP_VERSION.exe" -Algorithm SHA256 | Format-List
 
       - name: Install Inno Setup
         shell: pwsh
@@ -77,21 +99,27 @@ jobs:
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
-      - name: Verify installer
+      - name: Verify installer and checksum
         shell: pwsh
         run: |
-          $setup = "installer\WPOS_PRO_2_Setup.exe"
+          $setup = "installer\WPOS_PRO_2_Setup_$env:APP_VERSION.exe"
           if (!(Test-Path $setup)) { throw "Installer tidak ditemukan: $setup" }
           if ((Get-Item $setup).Length -lt 100000) { throw "Installer terlalu kecil atau tidak valid" }
           $iss = Get-Content -Raw installer.iss
           if ($iss -notmatch 'SetupIconFile=assets\\branding\\wpos_icon\.ico') { throw "SetupIconFile tidak konsisten" }
           if ($iss -notmatch 'WPOS PRO 2\.exe') { throw "Nama EXE installer tidak konsisten" }
+          if ($iss -notmatch [regex]::Escape($env:APP_VERSION)) { throw "Versi installer tidak ditemukan di installer.iss" }
+          Get-FileHash $setup -Algorithm SHA256 | ForEach-Object { "$($_.Hash)  $($_.Path | Split-Path -Leaf)" } | Set-Content "installer\SHA256SUMS.txt"
           Get-Item $setup | Format-List FullName,Length
+          Get-Content "installer\SHA256SUMS.txt"
 
-      - name: Upload installer artifact
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: WPOS-PRO-2-Installer
-          path: installer/WPOS_PRO_2_Setup.exe
+          name: WPOS-PRO-2-${{ env.APP_VERSION }}
+          path: |
+            dist/WPOS_PRO_2_${{ env.APP_VERSION }}.exe
+            installer/WPOS_PRO_2_Setup_${{ env.APP_VERSION }}.exe
+            installer/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 14
