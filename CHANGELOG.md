@@ -1,5 +1,18 @@
 # WPOS PRO 2 Changelog
 
+## 2.8.0 — User Management & Account Administration
+
+- Menambahkan field **Nama** pada akun user sehingga identitas user tidak hanya bergantung pada username.
+- Menambahkan fitur **Simpan Perubahan** untuk mengubah nama, role, dan status user.
+- Menambahkan fitur **Hapus User** dengan konfirmasi sebelum penghapusan permanen.
+- Melindungi akun yang sedang digunakan agar tidak dapat dihapus sendiri.
+- Melindungi Administrator aktif terakhir agar tidak dapat dihapus atau dinonaktifkan sehingga sistem selalu memiliki minimal satu Administrator aktif.
+- Mengunci field username saat mode edit untuk mencegah perubahan identitas login secara tidak sengaja.
+- Menstandarkan role aplikasi menjadi `ADMIN` dan `KASIR`; data role legacy `TEKNISI` dinormalisasi menjadi `KASIR` saat migrasi user.
+- Menambahkan regression coverage untuk kontrak role dan manajemen akun.
+- Memperbarui UI Manajemen User menjadi tabel lima kolom: ID, Nama, Username, Role, Status.
+- Menetapkan **2.8.0** sebagai MINOR release karena menambahkan functionality backward-compatible serta perubahan schema user yang diperlukan untuk fitur Nama.
+
 ## 2.7.17 — Global UI Refinement
 
 - Applied a global UI rule across all 14 business pages: decorative label backgrounds are transparent by default.
