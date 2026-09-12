@@ -1,5 +1,14 @@
 # WPOS PRO 2 Changelog
 
+## 2.8.4 — True-Centered Headerbar
+
+- Memposisikan **nama toko + alamat toko** tepat di tengah geometris Headerbar.
+- Headerbar menggunakan tiga zona dengan stretch seimbang: kiri untuk judul/hint, tengah untuk identitas toko, kanan untuk user/tanggal.
+- Perubahan posisi dilakukan tanpa `setParent(None)`, `layout.removeItem`, atau reparenting widget Qt.
+- Menambahkan regression test untuk memastikan zona Headerbar tetap true-centered.
+- Tidak mengubah business logic, database, authentication, transaksi, atau struktur 14 halaman.
+- Menetapkan **2.8.4** sebagai PATCH release untuk penyempurnaan UI backward-compatible.
+
 ## 2.8.3 — Sidebar Account Cleanup
 
 - Menghilangkan label **Admin** dan **ADMIN · Lokal** dari area sidebar yang berada tepat di atas tombol **Keluar**.
