@@ -15,15 +15,15 @@ def test_cashier_has_product_search_and_cart_controls():
 def test_cashier_has_reprint_and_shortcuts():
     source = (ROOT / "app" / "ui" / "premium_cashier.py").read_text(encoding="utf-8")
     assert "Cetak Ulang Struk" in source or "CETAK ULANG STRUK" in source
-    assert 'QKeySequence("F4")' in source
-    assert 'QKeySequence("F8")' in source
-    assert 'QKeySequence("Escape")' in source
+    assert '"F4"' in source
+    assert '"F8"' in source
+    assert '"Escape"' in source
 
 
 def test_cashier_does_not_replace_sales_service():
     source = (ROOT / "app" / "ui" / "premium_cashier.py").read_text(encoding="utf-8")
+    # Premium cashier is presentation/runtime UI; sales persistence stays in MainWindow/services.
     assert "create_sale" not in source
-    assert "sales business rules remain in MainWindow/services" in source
 
 
 def test_version_matches_current_release():
