@@ -4,12 +4,16 @@ Header contract:
     KIRI   = active page title + dynamic hint
     TENGAH = store name + store address from Pengaturan Toko
     KANAN  = logged-in user name + Indonesian date
+
+The implementation deliberately updates the existing topbar labels in place.
+It does not detach/reparent Qt widgets, which keeps QObject ownership stable
+and avoids introducing lifetime-sensitive UI mutations during refresh.
 """
 
 from datetime import datetime
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFrame, QLabel, QSizePolicy, QVBoxLayout
+from PySide6.QtWidgets import QFrame, QLabel
 
 from ..database import SessionLocal
 from ..services.settings import get_settings
@@ -45,23 +49,24 @@ def _user_display_name(window):
 
 
 def _update_headerbar(window):
-    if not hasattr(window, "_wpos_store_name_label"):
+    """Refresh header values without changing Qt widget ownership."""
+    store_label = getattr(window, "_wpos_store_label", None)
+    user_date_label = getattr(window, "_wpos_user_date_label", None)
+    if store_label is None or user_date_label is None:
         return
 
     store_name, store_address = _store_settings(window)
-    window._wpos_store_name_label.setText(store_name)
-    window._wpos_store_address_label.setText(store_address or "Alamat toko belum diatur")
-    window._wpos_store_address_label.setVisible(bool(store_address))
-    window._wpos_header_user_name_label.setText(_user_display_name(window))
-    window._wpos_date_label.setText(_format_date(datetime.now()))
+    store_label.setText(store_name if not store_address else f"{store_name}\n{store_address}")
+    user_date_label.setText(f"{_user_display_name(window)}\n{_format_date(datetime.now())}")
 
 
 def apply_headerbar(window):
-    """Apply the fixed three-zone Headerbar without changing business logic."""
+    """Apply the fixed three-zone Headerbar using existing widgets only."""
     topbar = window.findChild(QFrame, "modernTopbar")
     if topbar is None or topbar.layout() is None:
         return
-    if getattr(window, "_wpos_headerbar_v218", False):
+
+    if getattr(window, "_wpos_headerbar_v219", False):
         _update_headerbar(window)
         return
 
@@ -71,72 +76,28 @@ def apply_headerbar(window):
 
     center_item = layout.itemAt(1)
     date_item = layout.itemAt(2)
-    center_widget = center_item.widget() if center_item else None
-    date_label = date_item.widget() if date_item else None
-    if center_widget is None or date_label is None:
+    store_label = center_item.widget() if center_item else None
+    user_date_label = date_item.widget() if date_item else None
+    if store_label is None or user_date_label is None:
         return
 
-    # CENTER: store name + address.
-    center_widget.setParent(None)
-    store_host = QFrame()
-    store_host.setObjectName("modernStoreHost")
-    store_host.setFrameShape(QFrame.NoFrame)
-    store_host.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-    store_host.setStyleSheet("background: transparent; border: none;")
-    store_layout = QVBoxLayout(store_host)
-    store_layout.setContentsMargins(0, 0, 0, 0)
-    store_layout.setSpacing(0)
+    # Keep the existing QLabel objects in their original layouts. This is
+    # intentionally safer than setParent()/layout removal/reinsertion.
+    store_label.setObjectName("modernStoreName")
+    store_label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+    store_label.setWordWrap(True)
+    store_label.setToolTip("Nama dan alamat toko dari Pengaturan Toko")
 
-    store_name = center_widget
-    store_name.setObjectName("modernStoreName")
-    store_name.setAlignment(Qt.AlignCenter)
-    store_name.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-    store_name.setToolTip("Nama toko dari Pengaturan Toko")
-    store_layout.addWidget(store_name)
+    user_date_label.setObjectName("modernHeaderUserName")
+    user_date_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+    user_date_label.setWordWrap(True)
+    user_date_label.setToolTip("Nama pengguna yang sedang login dan tanggal otomatis")
 
-    address = QLabel()
-    address.setObjectName("modernStoreAddress")
-    address.setAlignment(Qt.AlignCenter)
-    address.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-    address.setToolTip("Alamat toko dari Pengaturan Toko")
-    store_layout.addWidget(address)
-
-    layout.removeItem(center_item)
-    layout.insertWidget(1, store_host, 1)
-
-    window._wpos_store_name_label = store_name
-    window._wpos_store_address_label = address
-
-    # RIGHT: user display name + automatic Indonesian date.
-    date_label.setParent(None)
-    right_host = QFrame()
-    right_host.setObjectName("modernHeaderAccount")
-    right_host.setFrameShape(QFrame.NoFrame)
-    right_host.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-    right_host.setStyleSheet("background: transparent; border: none;")
-    right_layout = QVBoxLayout(right_host)
-    right_layout.setContentsMargins(0, 0, 0, 0)
-    right_layout.setSpacing(0)
-
-    user_name = QLabel(_user_display_name(window))
-    user_name.setObjectName("modernHeaderUserName")
-    user_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-    user_name.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-    user_name.setToolTip("Nama pengguna yang sedang login")
-    right_layout.addWidget(user_name)
-    right_layout.addWidget(date_label)
-
-    layout.removeItem(date_item)
-    layout.addWidget(right_host, 0)
-
-    window._wpos_header_user_name_label = user_name
-    window._wpos_date_label = date_label
-    date_label.setObjectName("modernDate")
-    date_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-    date_label.setToolTip("Tanggal otomatis")
+    window._wpos_store_label = store_label
+    window._wpos_user_date_label = user_date_label
+    window._wpos_headerbar_v219 = True
 
     _update_headerbar(window)
-    window._wpos_headerbar_v218 = True
 
     if hasattr(window, "modern_stack") and not getattr(window, "_wpos_headerbar_signal", False):
         window.modern_stack.currentChanged.connect(lambda _index: _update_headerbar(window))
