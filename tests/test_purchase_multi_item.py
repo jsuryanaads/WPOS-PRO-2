@@ -1,11 +1,13 @@
 from pathlib import Path
 
 
-def test_multi_item_purchase_is_wired():
+def test_purchase_page_is_wired_to_current_purchase_service():
     source = Path("app/ui/main_window.py").read_text(encoding="utf-8")
-    assert "MainWindow.purchase_page = multi_item_purchase_page" in source
-    assert "MainWindow.add_purchase_item = multi_item_add_purchase_item" in source
-    assert "MainWindow.save_purchase = multi_item_save_purchase" in source
+    assert "def purchase_page(self):" in source
+    assert "def save_purchase(self):" in source
+    assert "create_purchase" in source
+    assert "Pembelian Barang" in source
+    assert "Simpan Pembelian & Tambah Stok" in source
 
 
 def test_version_is_current_release():
