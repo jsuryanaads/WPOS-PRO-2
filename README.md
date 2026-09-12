@@ -69,14 +69,15 @@ Menggunakan **Semantic Versioning (MAJOR.MINOR.PATCH)**.
 ## Struktur Headerbar FINAL
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ KASIR                    TOKO SEMBAKO SAPNI        Selamat datang, Admin    │
-│ Transaksi cepat · barcode first                    12 September 2026        │
-│                                                     Sabtu                    │
+│ KASIR                    TOKO SEMBAKO SAPNI                 Admin           │
+│ Transaksi cepat · barcode first                         12 September 2026   │
+│                              Alamat Toko                                   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
-- **Kiri:** halaman aktif + subtitle/hint.
-- **Tengah:** nama toko dari `store_name`.
-- **Kanan:** pengguna + tanggal + hari otomatis.
+- **Kiri:** judul halaman aktif + subtitle/hint dinamis; berubah mengikuti halaman yang dipilih.
+- **Tengah:** nama toko + alamat toko dari `Pengaturan Toko`, selalu diposisikan center.
+- **Kanan:** username pengguna yang sedang login + tanggal otomatis dalam format Indonesia.
+- Username tidak ditampilkan di zona tengah.
 - Status OFFLINE/DATABASE LOKAL tidak ditampilkan di Headerbar.
 
 ## Aturan UI Global
@@ -194,7 +195,7 @@ Output installer menggunakan nama `WPOS_PRO_2_Setup_<APP_VERSION>.exe`.
 
 ## UI
 - Sidebar text-only 230 px.
-- Headerbar tiga zona: Context kiri, Nama Toko tengah, Pengguna + Tanggal kanan.
+- Headerbar tiga zona: Context kiri, Nama Toko + Alamat tengah, Username + Tanggal kanan.
 - Kasir menggunakan struktur Input Produk → Keranjang + Pembayaran → Kontrol Transaksi.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
@@ -218,99 +219,3 @@ Output installer menggunakan nama `WPOS_PRO_2_Setup_<APP_VERSION>.exe`.
 ### 2.7.16
 - Hardening Backup / Restore SQLite.
 - Backup restore sekarang menolak file yang corrupt atau tidak memiliki tabel inti yang diperlukan.
-- Database aktif dibuatkan safety backup sebelum restore mengganti database.
-- Menambahkan regression test untuk validasi backup, integrity check, safety backup dan restore valid.
-
-### 2.7.15
-- Menjadikan Windows Build dan Windows Installer sebagai manual dispatch sementara.
-- Menambahkan `ci-health.yml` untuk health check otomatis di Ubuntu.
-- Menyinkronkan config, installer dan regression test ke **2.7.15**.
-- Tidak mengubah schema/database/business logic.
-
-### 2.7.14
-- Mengubah runner Windows dari `windows-latest` menjadi `windows-2022` pada Build dan Installer.
-- Menambahkan diagnostic runner untuk memperjelas image/runner bila job gagal sebelum build.
-- Menyinkronkan `app/config.py`, `installer.iss`, dan regression test ke **2.7.14**.
-- Tidak mengubah schema/database/business logic.
-
-### 2.7.13
-- Memperbaiki test `test_version_and_docs_are_synchronized` yang masih mengharapkan versi **2.7.10**.
-- Menyinkronkan test dengan versi aplikasi baru.
-- Menyinkronkan `app/config.py` dan `installer.iss` ke **2.7.13**.
-- Perubahan ini dibuat untuk memperbaiki kegagalan CI run #294.
-- Tidak mengubah schema/database/business logic.
-
-### 2.7.12
-- Menghapus versi dari kartu Login agar tidak duplikat dengan Footer.
-- Mempertahankan **WPOS PRO 2** dan **Point of Sale** pada Login.
-- Menyinkronkan config dan installer ke **2.7.12**.
-- Memperbarui regression test Login.
-- Tidak mengubah authentication flow, database, schema, atau business logic.
-
-### 2.7.11
-- Mendesain ulang struktur Login.
-- Menambahkan mode Offline / Database Lokal, placeholder input, tombol password dan default action MASUK.
-
-### 2.7.10
-- Memperbaiki refresh tampilan Stok Produk agar normalisasi `20.000 → 20` dilakukan setelah reload tabel.
-- Menambahkan deferred refresh saat menu Produk dibuka kembali.
-- Menyinkronkan version config dan installer ke **2.7.10**.
-- Tidak mengubah schema/database/business logic.
-
-### 2.7.9
-- Memperbaiki presentasi Stok tabel Produk agar angka bulat tidak tampil sebagai `20.000`.
-- Menambahkan kolom Status `AKTIF` / `NONAKTIF`.
-- Menambahkan `app/ui/product_display.py`.
-- Memanggil normalisasi tabel Produk dari UI refresh.
-- Tidak mengubah schema/database/business logic.
-
-### 2.7.8
-- Menambahkan struktur Headerbar final dan sumber nama toko dari pengaturan.
-
-### 2.7.7
-- Menata struktur Kasir PRO dan kontrol transaksi.
-
-### 2.7.6
-- Menata Headerbar tiga zona.
-
-### 2.7.5
-- Memperbaiki sidebar text-only dan area Keranjang Kasir.
-- Menghilangkan `.0` pada Qty struk.
-
-### 2.7.4
-- Penyempurnaan visual sidebar.
-
-### 2.7.3
-- Kembalian Kasir live saat nominal Bayar berubah.
-
-### 2.7.2
-- Memperbaiki crash `form_layouts.py` saat mengakses `load_products` pada widget halaman.
-
-### 2.7.1
-- Hapus Produk aman dengan perlindungan histori.
-
-### 2.7.0
-- Pengembangan workflow Kasir PRO dan Parkir Transaksi.
-
-### 2.6.0
-- Pencarian produk, Qty, hapus item, batal transaksi, riwayat, cetak ulang dan shortcut.
-
-### 2.5.1
-- Penyempurnaan section sidebar dan styling Dark/Light Mode.
-
-### 2.5.0
-- Reset Data dengan konfirmasi dua tahap.
-
-## Arsitektur
-- `app/ui/modern_main_window.py` — shell/sidebar/topbar/stack.
-- `app/ui/main_window.py` — halaman dan workflow bisnis.
-- `app/ui/premium_cashier.py` — UI Kasir.
-- `app/ui/cashier_structure.py` — struktur presentasi Kasir.
-- `app/ui/headerbar.py` — struktur Headerbar.
-- `app/ui/product_display.py` — presentasi Stok dan Status tabel Produk.
-- `app/ui/master_data.py` — CRUD master data.
-- `app/ui/form_layouts.py` — hybrid form, Excel, reset dan kontrol Produk.
-- `app/ui/global_ui.py` — aturan global UI.
-- `app/ui/theme_shell.py` — palette dan styling.
-- `app/services/product_delete.py` — penghapusan Produk aman.
-- `app/services/receipt_display.py` — presentasi Qty struk.
