@@ -11,21 +11,11 @@ from PySide6.QtPrintSupport import QPrinter, QPrinterInfo, QPrintDialog
 
 from .settings import get_settings
 
-
-RECEIPT_PROFILE = {
-    "paper_width_mm": 58.0,
-    "printable_width_mm": 48.0,
-    "margin_mm": 5.0,
-    "font_size_pt": 9,
-    "cpl_hint": 32,
-    "bottom_feed_lines": 30,
-}
-
+RECEIPT_PROFILE = {"paper_width_mm": 58.0, "printable_width_mm": 48.0, "margin_mm": 5.0, "font_size_pt": 9, "cpl_hint": 32, "bottom_feed_lines": 30}
 _CURRENT_CASHIER_NAME = "Pengguna"
 
 
 def set_current_cashier(user):
-    """Set the display name used by receipt renderers for the active session."""
     global _CURRENT_CASHIER_NAME
     name = getattr(user, "name", None) if user is not None else None
     _CURRENT_CASHIER_NAME = str(name or "Pengguna").strip() or "Pengguna"
@@ -33,7 +23,6 @@ def set_current_cashier(user):
 
 def current_cashier_name():
     return _CURRENT_CASHIER_NAME
-
 
 ESC = b"\x1b"
 GS = b"\x1d"
@@ -158,7 +147,7 @@ def _item_lines(name, qty, price, amount, width=32):
     lines = []
     for index, part in enumerate(name_parts):
         if index == 0:
-            left = f"{part:<{available}"
+            left = f"{part:<{available}}"
             lines.append(f"{left} {prefix} {amount_s}"[:width])
         else:
             lines.append(part[:width])
@@ -175,7 +164,6 @@ def _label_value(label, value, width=32):
 
 def _escpos_receipt_bytes(store_name, address, phone, invoice_no, created_at, items, subtotal, discount, total, payment_method, paid, change, footer):
     width = RECEIPT_PROFILE["cpl_hint"]
-    cashier = current_cashier_name()
     out = bytearray(CMD_INIT + CMD_ALIGN_CENTER)
     out += CMD_BOLD_ON + _escpos_line(store_name) + CMD_BOLD_OFF
     for line in _fit_line(address, width):
@@ -185,7 +173,7 @@ def _escpos_receipt_bytes(store_name, address, phone, invoice_no, created_at, it
     out += CMD_ALIGN_LEFT + _escpos_line("-" * width)
     out += _escpos_line(f"No: {invoice_no}")
     out += _escpos_line(created_at.strftime("%d/%m/%Y %H:%M:%S"))
-    out += _escpos_line(f"Kasir: {cashier}")
+    out += _escpos_line(f"Kasir: {current_cashier_name()}")
     out += _escpos_line("-" * width)
     for item in items:
         for line in _item_lines(item["name"], item["quantity"], item["unit_price"], item["line_total"], width):
@@ -209,15 +197,12 @@ def _windows_raw_print(printer_name, data, job_name="WPOS PRO Receipt"):
         return False
     import ctypes
     from ctypes import wintypes
-
     spooler = ctypes.WinDLL("winspool.drv")
     handle = wintypes.HANDLE()
     if not spooler.OpenPrinterW(printer_name, ctypes.byref(handle), None):
         return False
-
     class DOC_INFO_1(ctypes.Structure):
         _fields_ = [("pDocName", wintypes.LPWSTR), ("pOutputFile", wintypes.LPWSTR), ("pDatatype", wintypes.LPWSTR)]
-
     doc = DOC_INFO_1(job_name, None, "RAW")
     started = False
     ok = False
@@ -260,10 +245,7 @@ def _raw_print_test(printer_name, settings):
     if not printer_name:
         return False
     now = datetime.now()
-    items = [
-        {"name": "Indomie", "quantity": Decimal("2"), "unit_price": Decimal("3500"), "line_total": Decimal("7000")},
-        {"name": "Teh", "quantity": Decimal("1"), "unit_price": Decimal("5000"), "line_total": Decimal("5000")},
-    ]
+    items = [{"name": "Indomie", "quantity": Decimal("2"), "unit_price": Decimal("3500"), "line_total": Decimal("7000")}, {"name": "Teh", "quantity": Decimal("1"), "unit_price": Decimal("5000"), "line_total": Decimal("5000")}]
     data = _escpos_receipt_bytes(settings.get("store_name", "TOKO SEMBAKO"), settings.get("store_address", "Alamat toko") or "Alamat toko", settings.get("store_phone", ""), "INV-00001", now, items, Decimal("12000"), Decimal("0"), Decimal("12000"), "CASH", Decimal("20000"), Decimal("8000"), settings.get("receipt_footer", "Terima kasih") or "Terima kasih")
     return _windows_raw_print(printer_name, data, "WPOS PRO TEST PRINT")
 
