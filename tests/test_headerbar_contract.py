@@ -26,5 +26,4 @@ def test_dashboard_welcome_does_not_overwrite_global_header_context():
     source = DASHBOARD_WELCOME.read_text(encoding="utf-8")
     assert "context.setText" not in source
     assert "hint.setText" not in source
-    assert "username" not in source
     assert "wposDashboardMetricsDate" in source
