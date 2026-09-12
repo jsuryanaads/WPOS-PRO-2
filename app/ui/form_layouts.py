@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from PySide6.QtWidgets import (
     QDialog, QFrame, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QVBoxLayout, QFileDialog, QMessageBox, QInputDialog
+    QVBoxLayout, QFileDialog, QMessageBox, QInputDialog, QWidget
 )
 
 from ..database import SessionLocal, engine
