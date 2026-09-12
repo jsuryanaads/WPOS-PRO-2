@@ -5,6 +5,14 @@ from .config import APP_NAME, APP_VERSION
 from .database import init_db
 from .ui.login import LoginWindow
 from .ui.modern_main_window import ModernMainWindow
+from .ui.main_window import MainWindow
+from .ui.purchase_multi import (
+    purchase_page as multi_item_purchase_page,
+    load_purchase_options as multi_item_load_purchase_options,
+    add_purchase_item as multi_item_add_purchase_item,
+    clear_purchase_items as multi_item_clear_purchase_items,
+    save_purchase as multi_item_save_purchase,
+)
 from .ui.user_management import UserManagementDialog
 from .ui.branding import ICON_PATH
 from .ui.global_ui import add_application_footer, apply_global_ui
@@ -28,6 +36,15 @@ def _receipt_html_with_integer_qty(sale, items, settings):
 
 
 printer_service.receipt_html = _receipt_html_with_integer_qty
+
+# The legacy MainWindow owns the business pages, while the modern shell only
+# wraps them. Replace only the purchase presentation methods so the same
+# business service can accept a basket of multiple products per invoice.
+MainWindow.purchase_page = multi_item_purchase_page
+MainWindow.load_purchase_options = multi_item_load_purchase_options
+MainWindow.add_purchase_item = multi_item_add_purchase_item
+MainWindow.clear_purchase_items = multi_item_clear_purchase_items
+MainWindow.save_purchase = multi_item_save_purchase
 
 
 def main():
