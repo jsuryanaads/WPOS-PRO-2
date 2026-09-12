@@ -4,10 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.8.0**
+- Versi aplikasi: **2.8.2**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.8.2
+- Memperbaiki Headerbar agar update dilakukan pada widget yang sudah ada tanpa `setParent(None)` atau `layout.removeItem`.
+- Menjaga ownership/lifetime widget Qt tetap stabil saat UI direfresh atau berpindah halaman.
+- Headerbar menampilkan **judul + hint halaman aktif** di kiri, **nama toko + alamat toko** di tengah, dan **nama display user + tanggal Indonesia** di kanan.
+- `Dashboard Welcome` tidak lagi menimpa Headerbar global dengan username atau tanggal legacy.
+- Menambahkan regression test untuk kontrak Headerbar ownership-safe dan pemisahan Dashboard.
+- Tidak mengubah business logic transaksi, database, authentication, atau struktur 14 halaman.
+- Release **2.8.2** dikategorikan sebagai PATCH karena merupakan bug fix/hardening backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.0
 - Menambahkan **Nama lengkap user** pada Manajemen User.
@@ -19,7 +29,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Menambahkan perlindungan agar user tidak dapat menghapus akun yang sedang digunakan.
 - Tabel Manajemen User sekarang menampilkan ID, Nama, Username, Role dan Status.
 - Release **2.8.0** dikategorikan sebagai MINOR karena menambahkan functionality backward-compatible dan field Nama pada schema user.
-- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.7.17
 - Menerapkan aturan UI global pada seluruh 14 halaman: background dekoratif di belakang label dibuat transparan secara default.
@@ -80,15 +89,15 @@ Menggunakan **Semantic Versioning (MAJOR.MINOR.PATCH)**.
 ## Struktur Headerbar FINAL
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ KASIR                    TOKO SEMBAKO SAPNI                 Admin           │
-│ Transaksi cepat · barcode first                         12 September 2026   │
+│ KASIR                    TOKO SEMBAKO SAPNI                 Jajang Suryana  │
+│ Transaksi cepat · barcode first                              12 September  │
 │                              Alamat Toko                                   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 - **Kiri:** judul halaman aktif + subtitle/hint dinamis; berubah mengikuti halaman yang dipilih.
 - **Tengah:** nama toko + alamat toko dari `Pengaturan Toko`, selalu diposisikan center.
-- **Kanan:** username pengguna yang sedang login + tanggal otomatis dalam format Indonesia.
-- Username tidak ditampilkan di zona tengah.
+- **Kanan:** **Nama** pengguna yang sedang login + tanggal otomatis dalam format Indonesia.
+- Username login tidak ditampilkan di Headerbar.
 - Status OFFLINE/DATABASE LOKAL tidak ditampilkan di Headerbar.
 
 ## Aturan UI Global
@@ -217,7 +226,7 @@ Output installer menggunakan nama `WPOS_PRO_2_Setup_<APP_VERSION>.exe`.
 
 ## UI
 - Sidebar text-only 230 px.
-- Headerbar tiga zona: Context kiri, Nama Toko + Alamat tengah, Username + Tanggal kanan.
+- Headerbar tiga zona: Context kiri, Nama Toko + Alamat tengah, Nama User + Tanggal kanan.
 - Kasir menggunakan struktur Input Produk → Keranjang + Pembayaran → Kontrol Transaksi.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
@@ -232,6 +241,12 @@ Output installer menggunakan nama `WPOS_PRO_2_Setup_<APP_VERSION>.exe`.
 - Update tidak mengubah stok berjalan.
 
 ## Changelog
+### 2.8.2
+- Headerbar dibuat ownership-safe dengan memperbarui widget yang sudah ada.
+- Dashboard Welcome tidak lagi menimpa context/hint Headerbar.
+- Menambahkan regression test untuk mencegah reparenting widget Qt pada Headerbar.
+- Menetapkan 2.8.2 sebagai PATCH release stabilisasi.
+
 ### 2.8.0
 - Menambahkan field Nama user.
 - Menambahkan edit user, hapus user dan perlindungan akun kritis.
