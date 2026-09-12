@@ -13,9 +13,15 @@ def test_headerbar_has_three_requested_zones():
     assert 'QLabel("DATABASE LOKAL")' not in source
 
 
-def test_headerbar_theme_defines_welcome_and_date_styles():
+def test_headerbar_theme_defines_store_user_and_date_styles():
     source = Path("app/ui/theme_shell.py").read_text(encoding="utf-8")
-    assert "QLabel#modernWelcome" in source
+    # The current Headerbar contract uses the existing three-zone widgets:
+    # page context/hint, store identity, and user/date. The old
+    # modernWelcome selector belonged to the superseded Headerbar design.
+    assert "QLabel#modernContext" in source
+    assert "QLabel#modernHint" in source
+    assert "QLabel#modernStoreName" in source
+    assert "QLabel#modernHeaderUsername" in source
     assert "QLabel#modernDate" in source
     assert "min-height:58px" in source
     assert "max-height:64px" in source
