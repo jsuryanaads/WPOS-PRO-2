@@ -1,10 +1,15 @@
 name: WPOS PRO Tests
 
+# The consolidated CI health workflow owns push validation on main.
+# Keep this workflow for pull requests and manual test runs to avoid duplicate push CI.
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: wpos-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
