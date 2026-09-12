@@ -7,6 +7,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Prevent duplicate CI jobs from piling up on the same branch/PR.
+concurrency:
+  group: wpos-ci-health-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-linux:
     runs-on: ubuntu-latest
