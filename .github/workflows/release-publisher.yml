@@ -2,6 +2,9 @@ name: WPOS PRO 2 Release Publisher
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/release-publisher.yml'
 
 permissions:
   contents: write
