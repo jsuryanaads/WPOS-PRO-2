@@ -35,12 +35,20 @@ def test_cashier_payment_value_labels_are_not_redundant():
     assert 'TOTAL Rp 0' not in source
 
 
-def test_version_is_290():
+def test_cashier_runtime_reapplies_compact_payment_labels():
+    source = Path("app/ui/cashier_structure.py").read_text(encoding="utf-8")
+    assert "_install_payment_label_contract" in source
+    assert "window.update_change = update_change_with_contract" in source
+    assert 'removeprefix("TOTAL ")' in source
+    assert 'removeprefix("Kembalian: ")' in source
+
+
+def test_version_is_292():
     config = Path("app/config.py").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.9.0"' in config
-    assert '#define MyAppVersion "2.9.0"' in installer
-    assert "Versi aplikasi: **2.9.0**" in readme
-    assert "## 2.9.0 — Multi-Item Purchase" in changelog
+    assert 'APP_VERSION = "2.9.2"' in config
+    assert '#define MyAppVersion "2.9.2"' in installer
+    assert "Versi aplikasi: **2.9.2**" in readme
+    assert "## 2.9.2 — Cashier Payment Label Runtime Fix" in changelog
