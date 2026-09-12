@@ -9,6 +9,7 @@ class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
+    name: Mapped[str | None] = mapped_column(String(150), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(256), nullable=False)
     role: Mapped[str] = mapped_column(String(30), default="ADMIN", nullable=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
