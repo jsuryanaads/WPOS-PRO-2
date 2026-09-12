@@ -31,16 +31,22 @@ def _migrate_users_name():
     if "users" not in inspector.get_table_names():
         return
     columns = {column["name"] for column in inspector.get_columns("users")}
-    if "name" in columns:
-        return
+    if "name" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE users ADD COLUMN name VARCHAR(150)"))
+
+
+def _migrate_legacy_user_roles():
+    """Normalize the removed legacy TEKNISI role to the supported KASIR role."""
     with engine.begin() as connection:
-        connection.execute(text("ALTER TABLE users ADD COLUMN name VARCHAR(150)"))
+        connection.execute(text("UPDATE users SET role = 'KASIR' WHERE UPPER(role) = 'TEKNISI'"))
 
 
 def init_db():
     from . import models
     Base.metadata.create_all(engine)
     _migrate_users_name()
+    _migrate_legacy_user_roles()
     from .services.auth import ensure_default_admin
     with SessionLocal() as session:
         ensure_default_admin(session)
