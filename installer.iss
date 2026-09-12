@@ -1,6 +1,6 @@
 ; WPOS PRO 2 Inno Setup
 #define MyAppName "WPOS PRO 2"
-#define MyAppVersion "2.7.12"
+#define MyAppVersion "2.7.13"
 #define MyAppPublisher "WPOS PRO"
 #define MyAppExeName "WPOS PRO 2.exe"
 
