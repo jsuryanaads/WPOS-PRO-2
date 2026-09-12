@@ -1,3 +1,5 @@
+from PySide6.QtCore import Qt
+
 from ..services.access import can_access
 
 
@@ -30,47 +32,44 @@ def apply_role_access(window):
 
     The existing access policy remains the single source of truth. This layer
     prevents a non-authorized role from reaching restricted pages through the
-    sidebar or legacy/compatibility navigation calls.
+    sidebar or compatibility navigation calls.
     """
     if not hasattr(window, "nav_list") or not hasattr(window, "_nav_items"):
         return
 
     role = getattr(window.user, "role", "")
-
-    for index, item in window._nav_items.items():
-        window.nav_list.setItemHidden(item, not can_access(role, PAGE_FEATURES.get(index, "")))
-
-    # Hide section headings that have no visible child page.
-    section_has_visible_page = {}
-    for item in window.nav_list.findItems("", 0):
-        section = item.data(256 + 1)  # Qt.UserRole + 1
-        if section == "section":
-            section_has_visible_page[item.data(256 + 2)] = False
-
-    for index, item in window._nav_items.items():
-        if can_access(role, PAGE_FEATURES.get(index, "")):
-            for row in range(window.nav_list.count()):
-                header = window.nav_list.item(row)
-                if header.data(256 + 1) == "section":
-                    entries = [
-                        entry_index
-                        for entry_index, nav_item in window._nav_items.items()
-                        if nav_item.data(256 + 2) == header.data(256 + 2)
-                    ]
-                    if index in entries:
-                        section_has_visible_page[header.data(256 + 2)] = True
+    section_visible = {}
+    current_section = None
 
     for row in range(window.nav_list.count()):
-        header = window.nav_list.item(row)
-        if header.data(256 + 1) == "section":
-            window.nav_list.setItemHidden(
-                header, not section_has_visible_page.get(header.data(256 + 2), False)
-            )
+        item = window.nav_list.item(row)
+        item_type = item.data(Qt.UserRole + 1)
+        if item_type == "section":
+            current_section = item.data(Qt.UserRole + 2)
+            section_visible[current_section] = False
+            continue
+        if item_type != "item":
+            continue
 
-    # Guard both modern navigation entry points. This is intentionally
-    # installed on the instance so legacy callers cannot bypass the policy.
-    original_select = window._select_navigation
+        index = item.data(Qt.UserRole)
+        allowed = isinstance(index, int) and can_access(role, PAGE_FEATURES.get(index, ""))
+        window.nav_list.setItemHidden(item, not allowed)
+        if allowed and current_section is not None:
+            section_visible[current_section] = True
+
+    current_section = None
+    for row in range(window.nav_list.count()):
+        item = window.nav_list.item(row)
+        if item.data(Qt.UserRole + 1) != "section":
+            continue
+        current_section = item.data(Qt.UserRole + 2)
+        window.nav_list.setItemHidden(item, not section_visible.get(current_section, False))
+
+    # Guard compatibility/legacy programmatic navigation. Sidebar items are
+    # hidden above, while this guard prevents direct setCurrentIndex bypasses.
     if not getattr(window, "_wpos_role_select_guard", False):
+        original_select = window._select_navigation
+
         def guarded_select(page_index):
             if not page_allowed(window.user, page_index):
                 return False
@@ -78,16 +77,3 @@ def apply_role_access(window):
 
         window._select_navigation = guarded_select
         window._wpos_role_select_guard = True
-
-    original_navigate = window._navigate
-    if not getattr(window, "_wpos_role_navigate_guard", False):
-        def guarded_navigate(current, previous):
-            if current is None:
-                return original_navigate(current, previous)
-            index = current.data(256)
-            if not isinstance(index, int) or not page_allowed(window.user, index):
-                return False
-            return original_navigate(current, previous)
-
-        window._navigate = guarded_navigate
-        window._wpos_role_navigate_guard = True
