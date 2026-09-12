@@ -3,6 +3,7 @@ from datetime import datetime
 from contextlib import closing
 import os
 import sqlite3
+import time
 from ..config import DATA_DIR, BACKUP_DIR
 
 REQUIRED_TABLES = {
@@ -52,6 +53,27 @@ def _validate_backup(source):
         raise ValueError(f"Backup tidak kompatibel: tabel wajib tidak ditemukan ({names})")
 
 
+def _replace_database(source, destination):
+    """Replace the active database, tolerating short-lived Windows file locks."""
+    attempts = 10 if os.name == "nt" else 1
+    delay = 0.1
+    last_error = None
+
+    for attempt in range(attempts):
+        try:
+            os.replace(source, destination)
+            return
+        except PermissionError as exc:
+            last_error = exc
+            if attempt == attempts - 1:
+                raise
+            time.sleep(delay)
+            delay = min(delay * 2, 1.0)
+
+    if last_error is not None:
+        raise last_error
+
+
 def restore_database(path):
     source = Path(path)
     destination = _database_path()
@@ -68,7 +90,7 @@ def restore_database(path):
     try:
         # sqlite3.Connection is a transaction context manager, not a close
         # context manager. Use closing() so Windows releases the temp file
-        # handle before os.replace().
+        # handle before replacement.
         with closing(sqlite3.connect(source)) as src, closing(sqlite3.connect(temp)) as dst:
             src.backup(dst)
             integrity = dst.execute("PRAGMA integrity_check").fetchone()
@@ -76,7 +98,10 @@ def restore_database(path):
                 raise ValueError("Backup gagal disalin dengan benar")
 
         # Both SQLite handles above are explicitly closed before replacement.
-        os.replace(temp, destination)
+        # Windows can still report WinError 5/32 briefly while antivirus,
+        # indexing, or another process releases a newly-created file handle.
+        _replace_database(temp, destination)
+
         for suffix in ("-wal", "-shm"):
             sidecar = Path(str(destination) + suffix)
             if sidecar.exists():
