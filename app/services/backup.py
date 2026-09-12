@@ -53,25 +53,23 @@ def _validate_backup(source):
         raise ValueError(f"Backup tidak kompatibel: tabel wajib tidak ditemukan ({names})")
 
 
-def _replace_database(source, destination):
-    """Atomically replace the active database, with Windows lock handling."""
+def _restore_into_database(source, destination):
+    """Restore directly into the existing SQLite file, avoiding Windows rename locks."""
     attempts = 10 if os.name == "nt" else 1
     delay = 0.1
-    last_error = None
-
     for attempt in range(attempts):
         try:
-            os.replace(source, destination)
+            with closing(sqlite3.connect(source)) as src, closing(sqlite3.connect(destination)) as dst:
+                src.backup(dst)
+                integrity = dst.execute("PRAGMA integrity_check").fetchone()
+                if not integrity or integrity[0] != "ok":
+                    raise ValueError("Backup gagal disalin dengan benar")
             return
-        except PermissionError as exc:
-            last_error = exc
+        except (PermissionError, sqlite3.OperationalError):
             if attempt == attempts - 1:
                 raise
             time.sleep(delay)
             delay = min(delay * 2, 1.0)
-
-    if last_error is not None:
-        raise last_error
 
 
 def restore_database(path):
@@ -84,41 +82,22 @@ def restore_database(path):
 
     _validate_backup(source)
 
-    # Always preserve the currently active database before replacing it.
+    # Always preserve the currently active database before replacing/restoring it.
     safety_backup = backup_database() if destination.exists() else None
     temp = destination.with_suffix(".restore.tmp")
-    active_stash = destination.with_suffix(".restore.active")
     try:
-        # Build and validate the replacement while no handle is open on temp.
-        with closing(sqlite3.connect(source)) as src, closing(sqlite3.connect(temp)) as dst:
-            src.backup(dst)
-            integrity = dst.execute("PRAGMA integrity_check").fetchone()
-            if not integrity or integrity[0] != "ok":
-                raise ValueError("Backup gagal disalin dengan benar")
-
-        # On Windows, replacing an existing file can fail with WinError 5
-        # even when SQLite has no open handle. Stash the active file first,
-        # then atomically move the prepared database into its final location.
-        if destination.exists() and os.name == "nt":
-            for attempt in range(10):
-                try:
-                    os.replace(destination, active_stash)
-                    break
-                except PermissionError:
-                    if attempt == 9:
-                        raise
-                    time.sleep(min(0.1 * (2 ** attempt), 1.0))
-
-        try:
-            _replace_database(temp, destination)
-        except Exception:
-            # Restore the active database if the second move failed.
-            if active_stash.exists() and not destination.exists():
-                _replace_database(active_stash, destination)
-            raise
+        if destination.exists():
+            # Do not rename the active DB on Windows: another process may hold
+            # a valid SQLite handle. SQLite Backup API can update the existing
+            # database without requiring an OS-level rename/delete.
+            _restore_into_database(source, destination)
         else:
-            if active_stash.exists():
-                active_stash.unlink()
+            with closing(sqlite3.connect(source)) as src, closing(sqlite3.connect(temp)) as dst:
+                src.backup(dst)
+                integrity = dst.execute("PRAGMA integrity_check").fetchone()
+                if not integrity or integrity[0] != "ok":
+                    raise ValueError("Backup gagal disalin dengan benar")
+            os.replace(temp, destination)
 
         for suffix in ("-wal", "-shm"):
             sidecar = Path(str(destination) + suffix)
@@ -127,7 +106,5 @@ def restore_database(path):
     finally:
         if temp.exists():
             temp.unlink()
-        if active_stash.exists() and not destination.exists():
-            _replace_database(active_stash, destination)
 
     return safety_backup
