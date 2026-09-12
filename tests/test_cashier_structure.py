@@ -43,12 +43,12 @@ def test_cashier_runtime_reapplies_compact_payment_labels():
     assert 'removeprefix("Kembalian: ")' in source
 
 
-def test_version_is_293():
+def test_version_is_2100():
     config = Path("app/config.py").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.9.3"' in config
-    assert '#define MyAppVersion "2.9.3"' in installer
-    assert "Versi aplikasi: **2.9.3**" in readme
-    assert "## 2.9.3 — Thermal Receipt Item Formatting Fix" in changelog
+    assert 'APP_VERSION = "2.10.0"' in config
+    assert '#define MyAppVersion "2.10.0"' in installer
+    assert "Versi aplikasi: **2.10.0**" in readme
+    assert "## 2.10.0 — Role-Based Access Control" in changelog
