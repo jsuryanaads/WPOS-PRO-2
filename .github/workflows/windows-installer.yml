@@ -1,6 +1,6 @@
 name: WPOS PRO 2 Windows Installer
 
-# Stage 4: starts only after Windows Build completes successfully on main.
+# Stage 4: starts after Windows Build completes. The gate fails unless Windows Build succeeded.
 on:
   workflow_run:
     workflows: ["WPOS PRO 2 Windows Build"]
@@ -15,8 +15,23 @@ permissions:
   contents: read
 
 jobs:
+  gate:
+    name: Gate - Windows Build must succeed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Windows Build result
+        env:
+          UPSTREAM_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          echo "Windows Build conclusion: $UPSTREAM_CONCLUSION"
+          if [ "$UPSTREAM_CONCLUSION" != "success" ]; then
+            echo "Windows Build did not succeed. Installer is stopped."
+            exit 1
+          fi
+
   installer:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Build Windows Installer
+    needs: gate
     runs-on: windows-2022
     steps:
       - name: Checkout
