@@ -4,10 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.9.2**
+- Versi aplikasi: **2.9.3**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.9.3
+- Memperbaiki formatter item pada receipt thermal 58mm agar Qty integral seperti `1.0` dicetak sebagai `1`.
+- Memperbaiki perhitungan lebar baris item agar dua separator tidak ikut memakan ruang nominal terakhir.
+- Mencegah nominal item seperti `30,000` terpotong menjadi `30,00` pada printer 32-CPL.
+- Memperbarui renderer Qt/HTML agar Qty juga menggunakan formatter receipt yang sama.
+- Menambahkan regression test untuk Qty, panjang baris 32 karakter, dan nominal item yang tidak terpotong.
+- Tidak mengubah business logic transaksi, perhitungan Decimal, database, pembayaran, stok, atau workflow multi-item purchase.
+- Release **2.9.3** dikategorikan sebagai PATCH karena merupakan bug fix receipt backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.9.2
 - Memperbaiki **Ringkasan Pembayaran** pada halaman Kasir agar label nilai tidak kembali menjadi `TOTAL Rp ...` dan `Kembalian: Rp ...` setelah cart/payment di-refresh.
