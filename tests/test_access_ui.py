@@ -35,9 +35,15 @@ def test_main_applies_role_access_layer():
     assert "apply_role_access(window)" in source
 
 
+def test_role_access_uses_valid_qlistwidgetitem_visibility_api():
+    source = Path("app/ui/access_control.py").read_text(encoding="utf-8")
+    assert "item.setHidden(not allowed)" in source
+    assert "item.setHidden(not section_visible.get(current_section, False))" in source
+    assert "setItemHidden" not in source
+
+
 def test_role_access_has_runtime_navigation_guard():
     source = Path("app/ui/access_control.py").read_text(encoding="utf-8")
     assert "window._select_navigation = guarded_select" in source
     assert "page_allowed(window.user, page_index)" in source
-    assert "setItemHidden" in source
     assert "button.setVisible(page_allowed(window.user, target_page))" in source
