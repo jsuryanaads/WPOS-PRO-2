@@ -4,12 +4,17 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.12**
+- Versi aplikasi: **2.7.13**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
 
-## Perubahan terbaru 2.7.12
+## Perubahan terbaru 2.7.13
+- Memperbaiki regression test Kasir yang masih mengunci versi lama `2.7.10` setelah aplikasi sudah berada di `2.7.12`.
+- Menyinkronkan test, config, dan installer ke versi **2.7.13**.
+- Tidak mengubah UI, authentication flow, database, schema, atau business logic.
+
+## Perubahan 2.7.12
 - Menghapus tampilan versi aplikasi dari kartu Login agar tidak duplikat.
 - Versi aplikasi tetap ditampilkan pada Footer global.
 - Identitas Login tetap menampilkan **WPOS PRO 2** dan **Point of Sale**.
@@ -183,6 +188,13 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.13
+- Memperbaiki test `test_version_and_docs_are_synchronized` yang masih mengharapkan versi **2.7.10**.
+- Menyinkronkan test dengan versi aplikasi baru.
+- Menyinkronkan `app/config.py` dan `installer.iss` ke **2.7.13**.
+- Perubahan ini dibuat untuk memperbaiki kegagalan CI run #294.
+- Tidak mengubah schema/database/business logic.
+
 ### 2.7.12
 - Menghapus versi dari kartu Login agar tidak duplikat dengan Footer.
 - Mempertahankan **WPOS PRO 2** dan **Point of Sale** pada Login.
