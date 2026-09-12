@@ -23,6 +23,7 @@ from .ui.form_layouts import apply_hybrid_form_layouts
 from .ui.cashier_structure import apply_cashier_structure
 from .ui.headerbar import apply_headerbar
 from .ui.product_display import apply_product_table_display
+from .ui.access_control import apply_role_access
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 from .services import printer as printer_service
 from .services.receipt_display import format_receipt_html_qty
@@ -75,6 +76,7 @@ def main():
         apply_cashier_structure(window)
         apply_headerbar(window)
         apply_product_table_display(window)
+        apply_role_access(window)
         add_application_footer(window)
         apply_global_ui(app, window)
 
