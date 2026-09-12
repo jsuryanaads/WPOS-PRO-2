@@ -33,9 +33,12 @@ def test_headerbar_contract_uses_store_identity_and_user_name_date_zones():
     from pathlib import Path
 
     source = Path("app/ui/headerbar.py").read_text(encoding="utf-8")
+    # The current Headerbar implementation deliberately reuses the existing
+    # topbar labels rather than introducing separate user/date widgets.
     assert "store_name" in source
     assert "store_address" in source
-    assert "_wpos_header_user_name_label" in source
-    assert "_wpos_date_label" in source
+    assert "_wpos_store_label" in source
+    assert "_wpos_user_date_label" in source
     assert "_MONTHS" in source
     assert "logged-in user name" in source
+    assert "setObjectName(\"modernHeaderUserName\")" in source
