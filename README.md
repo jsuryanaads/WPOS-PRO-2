@@ -4,10 +4,22 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.17**
+- Versi aplikasi: **2.8.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.8.0
+- Menambahkan **Nama lengkap user** pada Manajemen User.
+- Menambahkan **Simpan Perubahan** untuk nama, role dan status user.
+- Menambahkan **Hapus User** dengan konfirmasi dan perlindungan akun penting.
+- Username dikunci saat edit untuk menjaga identitas login.
+- Role resmi aplikasi distandarkan menjadi `ADMIN` dan `KASIR`; role legacy `TEKNISI` dinormalisasi menjadi `KASIR`.
+- Menambahkan perlindungan agar Administrator aktif terakhir tidak dapat dihapus atau dinonaktifkan.
+- Menambahkan perlindungan agar user tidak dapat menghapus akun yang sedang digunakan.
+- Tabel Manajemen User sekarang menampilkan ID, Nama, Username, Role dan Status.
+- Release **2.8.0** dikategorikan sebagai MINOR karena menambahkan functionality backward-compatible dan field Nama pada schema user.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.7.17
 - Menerapkan aturan UI global pada seluruh 14 halaman: background dekoratif di belakang label dibuat transparan secara default.
@@ -15,7 +27,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Background fungsional tetap dipertahankan pada input, tombol, tabel, card, badge/status dan panel.
 - Label sekarang mengikuti surface parent secara konsisten sehingga UI lebih bersih dan ringan.
 - Tidak mengubah business logic, database schema, authentication flow atau perilaku transaksi.
-- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.7.16
 - Memperkuat validasi Backup / Restore database SQLite sebelum database aktif diganti.
@@ -90,6 +101,16 @@ Menggunakan **Semantic Versioning (MAJOR.MINOR.PATCH)**.
 - Spacing, typography, border dan hierarchy digunakan untuk membedakan informasi.
 - Seluruh 14 halaman mengikuti kontrak visual yang sama.
 
+## Struktur Manajemen User PRO
+- Form user: Nama, Username, Password, Role, Status.
+- Role resmi: `ADMIN` dan `KASIR`.
+- Tambah User, Simpan Perubahan, Reset Password, Aktif/Nonaktif, Hapus User, Reset Form.
+- Tabel: ID, Nama, Username, Role, Status.
+- Username dikunci saat edit.
+- Hapus user memerlukan konfirmasi.
+- Akun yang sedang digunakan tidak dapat dihapus.
+- Administrator aktif terakhir tidak dapat dihapus atau dinonaktifkan.
+
 ## Struktur Kasir PRO
 - **Input Produk:** Barcode / Cari Produk, Qty, Tambah dan Cari Produk.
 - **Keranjang Transaksi:** Barcode, Produk, Qty, Harga, Subtotal.
@@ -144,6 +165,7 @@ Menggunakan **Semantic Versioning (MAJOR.MINOR.PATCH)**.
 - Password PBKDF2-SHA256 dengan salt acak.
 - User inactive tidak dapat login.
 - Minimal satu Administrator aktif.
+- Administrator aktif terakhir tidak dapat dihapus atau dinonaktifkan.
 
 ## Default login
 - Username: `admin`
@@ -210,6 +232,13 @@ Output installer menggunakan nama `WPOS_PRO_2_Setup_<APP_VERSION>.exe`.
 - Update tidak mengubah stok berjalan.
 
 ## Changelog
+### 2.8.0
+- Menambahkan field Nama user.
+- Menambahkan edit user, hapus user dan perlindungan akun kritis.
+- Menstandarkan role menjadi ADMIN/KASIR dan normalisasi role legacy TEKNISI.
+- Menambahkan tabel Manajemen User lima kolom.
+- Menetapkan 2.8.0 sebagai MINOR release.
+
 ### 2.7.17
 - Menerapkan global UI rule untuk membuat background label dekoratif transparan.
 - Menghilangkan visual box inside box yang tidak diperlukan.
