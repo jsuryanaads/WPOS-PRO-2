@@ -1,6 +1,6 @@
 ; WPOS PRO 2 Inno Setup
 #define MyAppName "WPOS PRO 2"
-#define MyAppVersion "2.9.1"
+#define MyAppVersion "2.9.2"
 #define MyAppPublisher "WPOS PRO"
 #define MyAppExeName "WPOS PRO 2.exe"
 
@@ -23,11 +23,13 @@ UninstallDisplayName=WPOS PRO 2
 
 [Files]
 Source: "dist\WPOS PRO 2\WPOS PRO 2.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\WPOS PRO 2\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\WPOS PRO 2"; Filename: "{app}\WPOS PRO 2.exe"
-Name: "{autodesktop}\WPOS PRO 2"; Filename: "{app}\WPOS PRO 2.exe"
+Name: "{autodesktop}\WPOS PRO 2"; Filename: "{app}\WPOS PRO 2.exe"; Tasks: desktopicon
+
+[Tasks]
+Name: "desktopicon"; Description: "Buat shortcut di Desktop"; GroupDescription: "Shortcut tambahan:"
 
 [Run]
 Filename: "{app}\WPOS PRO 2.exe"; Description: "Jalankan WPOS PRO 2"; Flags: nowait postinstall skipifsilent
