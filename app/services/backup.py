@@ -8,7 +8,11 @@ from ..config import DATA_DIR, BACKUP_DIR
 
 REQUIRED_TABLES = {
     "users",
+    "categories",
+    "units",
     "products",
+    "suppliers",
+    "customers",
     "sales",
     "sale_items",
     "purchases",
