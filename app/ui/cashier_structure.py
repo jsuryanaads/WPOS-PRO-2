@@ -24,6 +24,15 @@ def apply_cashier_structure(window):
 
     pay_card.setMinimumWidth(290)
     pay_card.setMaximumWidth(330)
+    pay_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+
+    pay_layout = pay_card.layout()
+    if pay_layout is not None:
+        pay_layout.setSpacing(8)
+        for index in range(pay_layout.count() - 1, -1, -1):
+            item = pay_layout.itemAt(index)
+            if item is not None and item.spacerItem() is not None:
+                pay_layout.takeAt(index)
 
     for label in cart_card.findChildren(QLabel):
         if label.objectName() == "premiumSectionTitle":
@@ -43,8 +52,6 @@ def apply_cashier_structure(window):
         if button is not None and button.parentWidget() is pay_card:
             buttons.append((button, display))
 
-    # CLEAR duplicates BATAL in the current cashier workflow; keep it available
-    # but place it after the main transaction controls.
     checkout = _find_button(window, "BAYAR & CETAK")
     if checkout is not None and checkout.parentWidget() is pay_card:
         buttons.append((checkout, "BAYAR & CETAK"))
@@ -53,7 +60,6 @@ def apply_cashier_structure(window):
         window._wpos_cashier_structure_v277 = True
         return
 
-    pay_layout = pay_card.layout()
     for button, display in buttons:
         if pay_layout is not None:
             pay_layout.removeWidget(button)
