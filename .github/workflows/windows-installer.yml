@@ -10,10 +10,18 @@ permissions:
 
 jobs:
   installer:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Diagnose Windows runner
+        shell: pwsh
+        run: |
+          Write-Host "Runner: $env:RUNNER_NAME"
+          Write-Host "OS: $env:RUNNER_OS"
+          Write-Host "Architecture: $env:RUNNER_ARCH"
+          Write-Host "Image: $env:ImageVersion"
 
       - name: Setup Python
         uses: actions/setup-python@v5
