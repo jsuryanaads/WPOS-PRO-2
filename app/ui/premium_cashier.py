@@ -280,8 +280,7 @@ def _history(window):
 
 
 def _install_shortcuts(window):
-    """Install cashier shortcuts once and retain them for the window lifetime."""
-    if getattr(window, "_cashier_shortcuts", None):
+    if getattr(window, "_wpos_cashier_shortcuts_installed", False):
         return
     shortcuts = []
     for key, callback in [("F4", window.checkout), ("Escape", lambda: _cancel(window)), ("F8", lambda: _history(window)), ("F9", lambda: _show_held(window)), ("F10", lambda: _hold_current(window))]:
@@ -289,16 +288,19 @@ def _install_shortcuts(window):
         shortcut.activated.connect(callback)
         shortcuts.append(shortcut)
     window._cashier_shortcuts = shortcuts
+    window._wpos_cashier_shortcuts_installed = True
 
 
 def apply_premium_cashier(window):
-    """Build the premium cashier page once; subsequent calls are no-ops."""
+    """Build the premium cashier page exactly once per main window."""
     if getattr(window, "_wpos_premium_cashier_applied", False):
         return
     if not hasattr(window, "modern_stack") or window.modern_stack.count() <= 1:
         return
 
     old_page = window.modern_stack.widget(1)
+    if old_page is None:
+        return
     current_index = window.modern_stack.currentIndex()
     window._held_sales = getattr(window, "_held_sales", [])
 
