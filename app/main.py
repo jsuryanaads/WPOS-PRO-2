@@ -1,5 +1,5 @@
 import sys
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtGui import QIcon
 from .config import APP_NAME, APP_VERSION
 from .database import init_db
@@ -59,6 +59,17 @@ def main():
         apply_product_table_display(window)
         add_application_footer(window)
         apply_global_ui(app, window)
+
+        # The active user's display name/date already live in the global
+        # Headerbar. Keep the sidebar navigation-only and retain only Keluar.
+        for object_name in ("modernUser", "modernRole"):
+            label = window.findChild(QWidget, object_name)
+            if label is not None:
+                label.hide()
+
+        account = window.findChild(QWidget, "modernAccount")
+        if account is not None:
+            account.adjustSize()
 
         paid = getattr(window, "paid", None)
         if paid is not None and hasattr(window, "update_change") and not getattr(window, "_wpos_paid_change_live", False):
