@@ -4,10 +4,22 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.9.3**
+- Versi aplikasi: **2.10.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.10.0
+- Menerapkan pemisahan akses role **ADMIN** dan **KASIR** pada navigasi aplikasi.
+- ADMIN tetap memiliki akses penuh ke seluruh 14 halaman dan Manajemen User.
+- KASIR dibatasi pada **Dashboard, Kasir, dan Pelanggan** sesuai policy permission yang sudah ada.
+- Menyembunyikan halaman yang tidak berhak diakses KASIR dari sidebar.
+- Menambahkan runtime guard pada jalur navigasi compatibility/legacy agar halaman terlarang tidak dapat dibuka melalui `setCurrentIndex()`.
+- Menjadikan mapping page → permission terpusat pada layer access control UI.
+- Menambahkan regression test untuk mapping 14 halaman dan perbedaan akses ADMIN/KASIR.
+- Tidak mengubah login UI, business logic transaksi, database transaksi, receipt thermal, atau workflow multi-item purchase.
+- Release **2.10.0** dikategorikan sebagai MINOR karena menambahkan kontrol akses role-based yang backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.9.3
 - Memperbaiki formatter item pada receipt thermal 58mm agar Qty integral seperti `1.0` dicetak sebagai `1`.
