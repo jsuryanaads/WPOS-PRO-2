@@ -36,7 +36,10 @@ def test_master_crud_create_edit_delete(monkeypatch):
     assert session.query(Category).filter_by(name="Minuman Dingin").count() == 1
     assert session.query(Category).filter_by(name="Minuman").count() == 0
 
-    monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.Yes)
+    # Patch the page-level confirmation hook rather than the Qt static method.
+    # PySide6's QMessageBox.question can remain modal under offscreen pytest,
+    # which makes the test hang even though the delete path itself is correct.
+    monkeypatch.setattr(page, "_confirm_delete", lambda _name: True)
     page.delete_selected()
     assert session.query(Category).count() == 0
 
