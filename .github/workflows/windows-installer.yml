@@ -1,11 +1,14 @@
 name: WPOS PRO 2 Windows Installer
 
-# Installer creation is intentionally manual; it is a release operation, not a push CI check.
+# Stage 4: starts only after Windows Build completes successfully on main.
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["WPOS PRO 2 Windows Build"]
+    types: [completed]
+    branches: [main]
 
 concurrency:
-  group: wpos-windows-installer-${{ github.workflow }}-${{ github.ref }}
+  group: wpos-windows-installer-main
   cancel-in-progress: true
 
 permissions:
@@ -13,10 +16,13 @@ permissions:
 
 jobs:
   installer:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: windows-2022
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Diagnose Windows runner
         shell: pwsh
