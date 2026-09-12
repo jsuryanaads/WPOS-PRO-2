@@ -26,16 +26,25 @@ from .ui.product_display import apply_product_table_display
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 from .services import printer as printer_service
 from .services.receipt_display import format_receipt_html_qty
+from .services.receipt_polish import add_html_top_safe_area, add_raw_top_safe_area
 
 _original_receipt_html = printer_service.receipt_html
+_original_escpos_receipt_bytes = printer_service._escpos_receipt_bytes
 
 
 def _receipt_html_with_integer_qty(sale, items, settings):
     html = _original_receipt_html(sale, items, settings)
-    return format_receipt_html_qty(html)
+    html = format_receipt_html_qty(html)
+    return add_html_top_safe_area(html, padding_mm=2)
+
+
+def _escpos_receipt_bytes_with_safe_area(*args, **kwargs):
+    data = _original_escpos_receipt_bytes(*args, **kwargs)
+    return add_raw_top_safe_area(data, printer_service.CMD_INIT, blank_lines=2)
 
 
 printer_service.receipt_html = _receipt_html_with_integer_qty
+printer_service._escpos_receipt_bytes = _escpos_receipt_bytes_with_safe_area
 
 # The legacy MainWindow owns the business pages, while the modern shell only
 # wraps them. Replace only the purchase presentation methods so the same
