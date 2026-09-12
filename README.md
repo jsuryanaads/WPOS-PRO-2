@@ -4,10 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.8.5**
+- Versi aplikasi: **2.8.6**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.8.6
+- Merapikan **Ringkasan Pembayaran** pada halaman Kasir agar lebih compact dan proporsional.
+- Menghilangkan ruang kosong vertikal berlebihan pada panel pembayaran.
+- Panel pembayaran mengikuti tinggi konten dan tetap sejajar di bagian atas dengan area keranjang.
+- Menjaga hierarchy visual: TOTAL paling dominan, field pembayaran tetap mudah digunakan, dan Kembalian tetap menjadi hasil utama kedua.
+- Kontrol transaksi tetap berada di area khusus **Kontrol Transaksi**.
+- Tidak mengubah business logic checkout, perhitungan total, metode pembayaran, stok, database, atau fungsi cetak.
+- Release **2.8.6** dikategorikan sebagai PATCH karena merupakan penyempurnaan UI backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.5
 - Menambahkan **Kasir: <Nama User>** pada receipt/struk.
@@ -17,7 +27,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Posisi Kasir ditempatkan setelah tanggal transaksi dan sebelum separator/item.
 - Tidak mengubah perhitungan transaksi, database transaksi, atau payment logic.
 - Release **2.8.5** dikategorikan sebagai PATCH karena merupakan penyempurnaan receipt backward-compatible.
-- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.4
 - Memposisikan **nama toko + alamat toko** tepat di tengah geometris Headerbar.
