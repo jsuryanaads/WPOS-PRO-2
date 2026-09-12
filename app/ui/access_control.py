@@ -65,7 +65,9 @@ def apply_role_access(window):
 
         index = item.data(Qt.UserRole)
         allowed = isinstance(index, int) and can_access(role, PAGE_FEATURES.get(index, ""))
-        window.nav_list.setItemHidden(item, not allowed)
+        # QListWidget exposes setItemWidget(); visibility belongs to the
+        # QListWidgetItem itself via setHidden().
+        item.setHidden(not allowed)
         if allowed and current_section is not None:
             section_visible[current_section] = True
 
@@ -75,7 +77,7 @@ def apply_role_access(window):
         if item.data(Qt.UserRole + 1) != "section":
             continue
         current_section = item.data(Qt.UserRole + 2)
-        window.nav_list.setItemHidden(item, not section_visible.get(current_section, False))
+        item.setHidden(not section_visible.get(current_section, False))
 
     # Remove quick actions for pages unavailable to the current role.
     if hasattr(window, "modern_stack") and window.modern_stack.count() > 0:
