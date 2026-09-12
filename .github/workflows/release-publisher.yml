@@ -1,9 +1,6 @@
 name: WPOS PRO 2 Release Publisher
 
 on:
-  push:
-    paths:
-      - .github/workflows/release-publisher.yml
   workflow_dispatch:
 
 permissions:
@@ -32,17 +29,48 @@ jobs:
           cp "release-assets/dist/WPOS_PRO_2_2.10.0.exe" release-assets/WPOS_PRO_2_2.10.0.exe
           cp "release-assets/installer/WPOS_PRO_2_Setup_2.10.0.exe" release-assets/WPOS_PRO_2_Setup_2.10.0.exe
           cp "release-assets/installer/SHA256SUMS.txt" release-assets/SHA256SUMS.txt
+          sha256sum release-assets/*.exe release-assets/SHA256SUMS.txt
 
-      - name: Remove empty release and tag if present
+      - name: Inspect existing release and tag
+        id: inspect
+        shell: bash
         run: |
-          if gh release view "$RELEASE_TAG" --repo "$REPO" >/dev/null 2>&1; then
-            gh release delete "$RELEASE_TAG" --repo "$REPO" --yes
-          fi
-          if gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" >/dev/null 2>&1; then
-            gh api --method DELETE "repos/$REPO/git/refs/tags/$RELEASE_TAG"
-          fi
+          set +e
+          gh release view "$RELEASE_TAG" --repo "$REPO" >/tmp/release-view.txt 2>&1
+          RELEASE_RC=$?
+          gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" >/tmp/tag-view.txt 2>&1
+          TAG_RC=$?
+          set -e
+          if [ "$RELEASE_RC" -eq 0 ]; then echo "release_exists=true" >> "$GITHUB_OUTPUT"; else echo "release_exists=false" >> "$GITHUB_OUTPUT"; fi
+          if [ "$TAG_RC" -eq 0 ]; then echo "tag_exists=true" >> "$GITHUB_OUTPUT"; else echo "tag_exists=false" >> "$GITHUB_OUTPUT"; fi
+          cat /tmp/release-view.txt || true
+          cat /tmp/tag-view.txt || true
 
-      - name: Create production release with assets
+      - name: Upload assets to existing release
+        if: steps.inspect.outputs.release_exists == 'true'
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            --repo "$REPO" \
+            --clobber \
+            release-assets/WPOS_PRO_2_2.10.0.exe \
+            release-assets/WPOS_PRO_2_Setup_2.10.0.exe \
+            release-assets/SHA256SUMS.txt
+
+      - name: Create release on existing tag
+        if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists == 'true'
+        run: |
+          gh release create "$RELEASE_TAG" \
+            --repo "$REPO" \
+            --verify-tag \
+            --title "WPOS PRO 2 v2.10.0" \
+            --latest \
+            --notes "WPOS PRO 2 v2.10.0 production release. Pytest 132 passed; Windows EXE and installer verified." \
+            release-assets/WPOS_PRO_2_2.10.0.exe \
+            release-assets/WPOS_PRO_2_Setup_2.10.0.exe \
+            release-assets/SHA256SUMS.txt
+
+      - name: Create release with GitHub-managed tag
+        if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists != 'true'
         run: |
           gh release create "$RELEASE_TAG" \
             --repo "$REPO" \
@@ -57,3 +85,6 @@ jobs:
       - name: Verify release and assets
         run: |
           gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,isLatest,targetCommitish,assets
+          gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_2.10.0.exe'
+          gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'WPOS_PRO_2_Setup_2.10.0.exe'
+          gh release view "$RELEASE_TAG" --repo "$REPO" --json assets --jq '.assets[].name' | sort | grep -Fx 'SHA256SUMS.txt'
