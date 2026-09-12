@@ -4,10 +4,19 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.8.3**
+- Versi aplikasi: **2.8.4**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.8.4
+- Memposisikan **nama toko + alamat toko** tepat di tengah geometris Headerbar.
+- Headerbar menggunakan tiga zona dengan stretch seimbang: kiri untuk judul/hint, tengah untuk identitas toko, kanan untuk user/tanggal.
+- Perubahan posisi dilakukan tanpa `setParent(None)`, `layout.removeItem`, atau reparenting widget Qt.
+- Menambahkan regression test untuk memastikan zona Headerbar tetap true-centered.
+- Tidak mengubah business logic, database, authentication, transaksi, atau struktur 14 halaman.
+- Release **2.8.4** dikategorikan sebagai PATCH karena merupakan penyempurnaan UI backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.3
 - Menghilangkan label **Admin** dan **ADMIN · Lokal** dari area sidebar di atas tombol **Keluar**.
@@ -15,7 +24,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Sidebar sekarang fokus pada navigasi dan tombol Keluar tanpa duplikasi identitas pengguna.
 - Perubahan hanya UI; business logic, database, authentication, transaksi, dan 14 halaman tetap dipertahankan.
 - Release **2.8.3** dikategorikan sebagai PATCH karena merupakan bug fix UI backward-compatible.
-- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.8.2
 - Memperbaiki Headerbar agar update dilakukan pada widget yang sudah ada tanpa `setParent(None)` atau `layout.removeItem`.
