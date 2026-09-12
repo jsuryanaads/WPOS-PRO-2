@@ -4,14 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.11**
+- Versi aplikasi: **2.7.12**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
 
-## Perubahan terbaru 2.7.11
+## Perubahan terbaru 2.7.12
+- Menghapus tampilan versi aplikasi dari kartu Login agar tidak duplikat.
+- Versi aplikasi tetap ditampilkan pada Footer global.
+- Identitas Login tetap menampilkan **WPOS PRO 2** dan **Point of Sale**.
+- Authentication flow, database, dan business logic login tetap dipertahankan.
+
+## Perubahan 2.7.11
 - Mendesain ulang struktur layar Login agar lebih rapi dan fokus sebagai gerbang utama aplikasi.
-- Menampilkan logo, nama aplikasi, versi, tipe Point of Sale, dan mode Offline / Database Lokal secara terstruktur.
+- Menampilkan logo, nama aplikasi, tipe Point of Sale, dan mode Offline / Database Lokal secara terstruktur.
 - Input Username dan Password dibuat lebih jelas dengan placeholder dan tombol Lihat/Sembunyikan password.
 - Tombol **MASUK** menjadi default action sehingga Enter dapat digunakan untuk login.
 - Authentication flow, database, dan business logic login tetap dipertahankan.
@@ -23,27 +29,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Kolom Status tetap `AKTIF` / `NONAKTIF`.
 - Menambahkan refresh deferred setelah perpindahan menu Produk untuk mencegah formatter tertimpa oleh reload tabel.
 - Tidak mengubah nilai stok di database atau business logic transaksi.
-
-## Perubahan 2.7.9
-- Memperbaiki tampilan **Stok** pada tabel Produk agar angka bulat seperti `20.000` ditampilkan sebagai `20`.
-- Menambahkan kolom **Status** pada tabel Produk: `AKTIF` / `NONAKTIF`.
-- Status dibaca dari nilai `Product.active`; tidak mengubah data database.
-- Perubahan hanya pada presentation layer tabel Produk.
-- Menambahkan `app/ui/product_display.py` untuk normalisasi tampilan stok dan status.
-- Tidak mengubah schema database atau business logic produk/transaksi.
-
-## Perubahan 2.7.8
-- Headerbar final: **Context | Nama Toko | Pengguna + Tanggal**.
-- Kiri: nama halaman aktif + subtitle/hint.
-- Tengah: nama toko dari `Pengaturan Toko` (`store_name`).
-- Kanan: `Selamat datang, [username]`, tanggal otomatis dan hari Indonesia.
-
-## Perubahan 2.7.7
-- Struktur Kasir PRO: Input Produk → Keranjang Transaksi + Pembayaran → Kontrol Transaksi.
-- Keranjang menjadi area kerja utama.
-- Pembayaran ringkas di kanan 290–330 px.
-- Parkir, Transaksi Parkir, Batal, Riwayat dan Bayar & Cetak dipisahkan sebagai Kontrol Transaksi.
-- Tidak ada perubahan schema database.
 
 ## 14 halaman
 1. Dashboard
@@ -70,35 +55,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Lebar sidebar 230 px.
 - Active menu dan hover mengikuti tema.
 
-## Struktur Login FINAL
-```text
-┌──────────────────────────────────────┐
-│               [LOGO]                │
-│                                      │
-│            WPOS PRO 2               │
-│        2.7.11 · Point of Sale       │
-│                                      │
-│      Silakan masuk untuk melanjutkan │
-│      Offline • Database Lokal        │
-│                                      │
-│ USERNAME                             │
-│ [ 👤  Masukkan username           ]  │
-│                                      │
-│ PASSWORD                             │
-│ [ 🔒  Masukkan password ] [ Lihat ] │
-│                                      │
-│ [              MASUK              ] │
-│                                      │
-│ WPOS PRO 2 | 2.7.11 | 2026 | ...   │
-└──────────────────────────────────────┘
-```
-- Login tetap modal dan 430×590 px.
-- Logo dan identitas aplikasi berada di bagian atas kartu.
-- Mode Offline / Database Lokal ditampilkan sebagai informasi lingkungan aplikasi.
-- Username dan password tetap menggunakan authentication service yang sama.
-- Enter pada username/password tetap menjalankan login.
-- Tombol MASUK menjadi default button.
-
 ## Struktur Headerbar FINAL
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -111,6 +67,15 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - **Tengah:** nama toko dari `store_name`.
 - **Kanan:** pengguna + tanggal + hari otomatis.
 - Status OFFLINE/DATABASE LOKAL tidak ditampilkan di Headerbar.
+
+## Struktur Kasir PRO
+- **Input Produk:** Barcode / Cari Produk, Qty, Tambah dan Cari Produk.
+- **Keranjang Transaksi:** Barcode, Produk, Qty, Harga, Subtotal.
+- **Kontrol Keranjang:** `− QTY`, `+ QTY`, `HAPUS ITEM`.
+- **Pembayaran:** Total, Diskon, Metode, Bayar, Kembalian.
+- **Kontrol Transaksi:** Parkir, Transaksi Parkir, Batal Transaksi, Riwayat dan Bayar & Cetak.
+- Nilai transaksi/database tetap Decimal.
+- Qty bulat pada struk ditampilkan tanpa `.0`.
 
 ## Produk
 - Tambah, Edit, Nonaktifkan, Hapus aman.
@@ -203,8 +168,8 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Kasir menggunakan struktur Input Produk → Keranjang + Pembayaran → Kontrol Transaksi.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
-- Login menggunakan kartu terstruktur dengan identitas aplikasi, status offline, kredensial, dan aksi MASUK.
 - Footer: **Nama aplikasi | Versi aplikasi | Tahun otomatis | by Jsuryana**.
+- Login tidak mengulang versi aplikasi karena versi sudah tersedia di Footer.
 
 ## Excel Produk
 - Export `.xlsx`.
@@ -218,14 +183,16 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.12
+- Menghapus versi dari kartu Login agar tidak duplikat dengan Footer.
+- Mempertahankan **WPOS PRO 2** dan **Point of Sale** pada Login.
+- Menyinkronkan config dan installer ke **2.7.12**.
+- Memperbarui regression test Login.
+- Tidak mengubah authentication flow, database, schema, atau business logic.
+
 ### 2.7.11
-- Redesain struktur Login WPOS PRO 2.
-- Menambahkan identitas Point of Sale dan mode Offline / Database Lokal.
-- Memperjelas field Username, Password, tombol Lihat/Sembunyikan, dan MASUK.
-- Menjadikan MASUK sebagai default action.
-- Menambahkan regression test Login.
-- Menyinkronkan config dan installer ke **2.7.11**.
-- Tidak mengubah authentication service atau database.
+- Mendesain ulang struktur Login.
+- Menambahkan mode Offline / Database Lokal, placeholder input, tombol password dan default action MASUK.
 
 ### 2.7.10
 - Memperbaiki refresh tampilan Stok Produk agar normalisasi `20.000 → 20` dilakukan setelah reload tabel.
@@ -280,7 +247,6 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ## Arsitektur
 - `app/ui/modern_main_window.py` — shell/sidebar/topbar/stack.
 - `app/ui/main_window.py` — halaman dan workflow bisnis.
-- `app/ui/login.py` — layar Login.
 - `app/ui/premium_cashier.py` — UI Kasir.
 - `app/ui/cashier_structure.py` — struktur presentasi Kasir.
 - `app/ui/headerbar.py` — struktur Headerbar.
