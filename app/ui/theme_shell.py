@@ -34,7 +34,10 @@ QFrame#modernContent {{ background:{p['content']}; color:{p['text']}; }}
 QFrame#modernTopbar {{ background:{p['surface']}; border:1px solid {p['border']}; border-radius:12px; min-height:58px; max-height:64px; }}
 QLabel#modernContext {{ color:{p['text']}; font-size:17px; font-weight:900; }}
 QLabel#modernHint {{ color:{p['muted']}; font-size:10px; }}
+QFrame#modernStoreHost, QFrame#modernHeaderAccount {{ background:transparent; border:0; }}
 QLabel#modernStoreName {{ color:{p['text']}; font-size:15px; font-weight:900; padding:0 12px; }}
+QLabel#modernStoreAddress {{ color:{p['muted']}; font-size:9px; padding:0 12px; }}
+QLabel#modernHeaderUsername {{ color:{p['text']}; font-size:10px; font-weight:800; }}
 QLabel#modernDate {{ color:{p['muted']}; font-size:10px; font-weight:700; padding-left:12px; min-width:108px; }}
 QStackedWidget#modernStack {{ background:transparent; border:0; }}
 QWidget#modernStack > QWidget {{ background:{p['content']}; color:{p['text']}; }}
