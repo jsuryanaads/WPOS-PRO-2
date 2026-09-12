@@ -1,6 +1,6 @@
 ; WPOS PRO 2 Inno Setup
 #define MyAppName "WPOS PRO 2"
-#define MyAppVersion "2.7.15"
+#define MyAppVersion "2.7.16"
 #define MyAppPublisher "WPOS PRO"
 #define MyAppExeName "WPOS PRO 2.exe"
 
@@ -12,7 +12,7 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\WPOS PRO 2
 DefaultGroupName=WPOS PRO 2
 OutputDir=installer
-OutputBaseFilename=WPOS_PRO_2_Setup
+OutputBaseFilename=WPOS_PRO_2_Setup_{#MyAppVersion}
 SetupIconFile=assets\branding\wpos_icon.ico
 Compression=lzma
 SolidCompression=yes
