@@ -1,5 +1,13 @@
 # WPOS PRO 2 Changelog
 
+## 2.8.3 — Sidebar Account Cleanup
+
+- Menghilangkan label **Admin** dan **ADMIN · Lokal** dari area sidebar yang berada tepat di atas tombol **Keluar**.
+- Identitas pengguna tetap ditampilkan pada Headerbar kanan sesuai desain global: nama display user + tanggal Indonesia.
+- Sidebar kini berfokus pada navigasi dan tombol Keluar tanpa duplikasi identitas pengguna.
+- Perubahan hanya bersifat UI dan tidak mengubah business logic, database, authentication, transaksi, atau struktur halaman.
+- Menetapkan **2.8.3** sebagai PATCH release untuk perbaikan UI backward-compatible.
+
 ## 2.8.2 — Headerbar Stabilization
 
 - Memperbaiki Headerbar agar tidak melakukan `setParent(None)`, `layout.removeItem`, atau reparenting widget Qt saat refresh.
