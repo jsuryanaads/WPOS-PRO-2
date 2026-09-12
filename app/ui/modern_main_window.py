@@ -14,9 +14,13 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QSizePolicy,
+    QTableWidgetItem,
 )
 
 from ..config import APP_NAME, APP_VERSION
+from ..database import SessionLocal
+from ..models import Product
+from ..services.reports import sales_summary, low_stock_count, cash_summary, stock_summary, recent_sales
 from .branding import LOGO_PATH
 from .main_window import MainWindow
 from .premium_cashier import apply_premium_cashier
@@ -25,8 +29,8 @@ from .premium_cashier import apply_premium_cashier
 class ModernMainWindow(MainWindow):
     """Modern POS shell around the existing WPOS PRO 2 business pages.
 
-    This class owns structure and navigation only. Colors, surfaces and
-    component styling are provided by the centralized theme shell.
+    This class owns structure and navigation only. Business operations remain
+    in MainWindow/services; this shell only coordinates presentation state.
     """
 
     NAVIGATION = [
@@ -56,7 +60,8 @@ class ModernMainWindow(MainWindow):
         old_tabs = self.tabs
         pages = [old_tabs.widget(i) for i in range(old_tabs.count())]
         titles = [old_tabs.tabText(i) for i in range(old_tabs.count())]
-        old_tabs.currentChanged.connect(self._legacy_navigation)
+        # Do not keep a signal connection to the detached legacy QTabWidget.
+        # Navigation is owned exclusively by the modern QListWidget/stack.
         old_tabs.setParent(None)
         for toolbar in self.findChildren(QWidget):
             if toolbar.__class__.__name__ == "QToolBar":
@@ -100,10 +105,6 @@ class ModernMainWindow(MainWindow):
         side.addWidget(brand)
         side.addSpacing(4)
 
-        # Text-first navigation. Section headers are plain disabled items so
-        # their text is rendered reliably by Qt and never collapses into an
-        # empty custom-widget bar. Compact row heights keep all 14 pages in
-        # view on normal Windows desktop resolutions.
         self.nav_list = QListWidget()
         self.nav_list.setObjectName("modernNav")
         self.nav_list.setSpacing(1)
@@ -156,10 +157,6 @@ class ModernMainWindow(MainWindow):
         content_l.setContentsMargins(22, 18, 22, 12)
         content_l.setSpacing(10)
 
-        # Headerbar: three deliberate zones — active page context on the
-        # left, current-user welcome in the center, automatic date on the
-        # right. Status badges are intentionally omitted to keep the header
-        # clean and aligned with the requested structure.
         topbar = QFrame()
         topbar.setObjectName("modernTopbar")
         top_l = QHBoxLayout(topbar)
@@ -229,15 +226,13 @@ class ModernMainWindow(MainWindow):
                 if hasattr(self.owner, "modern_stack"):
                     return self.owner.modern_stack.widget(index)
                 return None
-
         return CompatTabs(self, titles)
 
     def _legacy_navigation(self, index):
-        if index >= 0 and hasattr(self, "modern_stack"):
-            self._select_navigation(index)
+        # Kept only as a compatibility entry point for external legacy callers.
+        self._select_navigation(index)
 
     def _select_navigation(self, page_index):
-        """Safely switch to a business page without allowing invalid indices."""
         if not hasattr(self, "modern_stack"):
             return
         count = self.modern_stack.count()
@@ -271,6 +266,59 @@ class ModernMainWindow(MainWindow):
         self.modern_hint.setText(self._hint_for(index))
         self.on_tab_changed(index)
 
+    def refresh_dashboard_data(self):
+        """Refresh dashboard KPIs and tables after transactional changes."""
+        if not hasattr(self, "modern_stack") or self.modern_stack.count() == 0:
+            return
+        dashboard = self.modern_stack.widget(0)
+        if dashboard is None:
+            return
+        with SessionLocal() as session:
+            summary = sales_summary(session)
+            low_count = low_stock_count(session)
+            product_count = session.query(Product).filter_by(active=True).count()
+            cash = cash_summary(session)
+            recent = recent_sales(session, 8)
+            low_rows = [row for row in stock_summary(session) if row["status"] != "AMAN"][:8]
+
+        cards = dashboard.findChildren(QFrame, "card")
+        values = {
+            "TRANSAKSI": str(summary["transactions"]),
+            "PRODUK AKTIF": str(product_count),
+            "STOK MENIPIS / HABIS": str(low_count),
+            "OMZET": self._money(summary["omzet"]),
+            "SALDO KAS": self._money(cash["balance"]),
+        }
+        for card in cards:
+            title = card.findChild(QLabel, "cardTitle")
+            value = card.findChild(QLabel, "cardValue")
+            if title is not None and value is not None and title.text() in values:
+                value.setText(values[title.text()])
+
+        table = getattr(self, "dashboard_sales", None)
+        if table is not None:
+            table.setRowCount(0)
+            for sale in recent:
+                row = table.rowCount()
+                table.insertRow(row)
+                data = [sale.invoice_no, sale.created_at.strftime("%d/%m/%Y %H:%M"), sale.payment_method, self._money(sale.total)]
+                for column, value in enumerate(data):
+                    table.setItem(row, column, QTableWidgetItem(str(value)))
+
+        low_table = getattr(self, "dashboard_low", None)
+        if low_table is not None:
+            low_table.setRowCount(0)
+            for item in low_rows:
+                row = low_table.rowCount()
+                low_table.insertRow(row)
+                for column, value in enumerate([item["name"], item["stock"], item["status"]]):
+                    low_table.setItem(row, column, QTableWidgetItem(str(value)))
+
+    @staticmethod
+    def _money(value):
+        from decimal import Decimal
+        return f"Rp {Decimal(str(value)):,.0f}".replace(",", ".")
+
     @classmethod
     def _title_for(cls, index):
         if 0 <= index < len(cls.PAGE_TITLES):
@@ -292,7 +340,6 @@ class ModernMainWindow(MainWindow):
         widget.setGraphicsEffect(effect)
 
     def _polish_dashboard(self):
-        """Apply the clean dashboard hierarchy without changing business logic."""
         if not hasattr(self, "modern_stack") or self.modern_stack.count() == 0:
             return
         dashboard = self.modern_stack.widget(0)
@@ -310,7 +357,6 @@ class ModernMainWindow(MainWindow):
             if not title or not value:
                 continue
             self._shadow(card, blur=16, y=3)
-
         for button in dashboard.findChildren(QPushButton):
             text = button.text().strip()
             if text in {"+ Transaksi Baru", "Transaksi Baru"}:
@@ -321,7 +367,6 @@ class ModernMainWindow(MainWindow):
                 button.setObjectName("dashboardGhost")
 
     def _remove_cosmetic_prefixes(self):
-        """Remove decorative leading symbols while preserving widget actions."""
         if not hasattr(self, "modern_stack"):
             return
         prefixes = ("+ ", "＋ ", "↻ ", "↥ ", "▣ ", "□ ", "▤ ", "◫ ", "◇ ", "⚙ ", "● ")
