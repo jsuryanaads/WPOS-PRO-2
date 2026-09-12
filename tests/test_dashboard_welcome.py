@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QApplication, QLabel, QStackedWidget, QVBoxLayout, QWidget
 
-from app.ui.dashboard_welcome import apply_dashboard_welcome
+from app.ui import dashboard_welcome
 
 
-def test_dashboard_welcome_uses_modern_shell_and_hides_legacy_header():
+def test_dashboard_welcome_uses_modern_shell_and_hides_legacy_header(monkeypatch):
     app = QApplication.instance() or QApplication([])
     window = QWidget()
     stack = QStackedWidget(window)
@@ -26,6 +26,21 @@ def test_dashboard_welcome_uses_modern_shell_and_hides_legacy_header():
     original_context = window.modern_context.text()
     original_hint = window.modern_hint.text()
 
+    class FakeSession:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setattr(dashboard_welcome, "SessionLocal", lambda: FakeSession())
+    monkeypatch.setattr(
+        dashboard_welcome,
+        "sales_summary",
+        lambda session, start, end: {"transactions": 0, "omzet": 0},
+    )
+
+    apply_dashboard_welcome = dashboard_welcome.apply_dashboard_welcome
     apply_dashboard_welcome(window)
     app.processEvents()
 
