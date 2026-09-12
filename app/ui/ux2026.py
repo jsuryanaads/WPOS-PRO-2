@@ -14,9 +14,6 @@ from PySide6.QtWidgets import (
 def _normalize_numeric_inputs(window):
     """Make application numeric inputs integer-safe and prevent locale ambiguity."""
     for spin in window.findChildren(QDoubleSpinBox):
-        # WPOS PRO uses whole units and whole-rupiah amounts in its desktop
-        # input workflow. Fractional display such as 1.000 is intentionally
-        # removed because Indonesian users can read it as one thousand.
         spin.setDecimals(0)
         spin.setSingleStep(1)
         if spin.minimum() > 0:
@@ -24,16 +21,12 @@ def _normalize_numeric_inputs(window):
 
 
 def apply_ux2026(window):
-    """Apply theme-neutral interaction and accessibility refinements.
+    """Apply theme-neutral interaction and accessibility refinements once."""
+    # This function creates QShortcuts, so it must be idempotent. Theme
+    # changes and UI refreshes can legitimately call it more than once.
+    if getattr(window, "_wpos_ux2026_applied", False):
+        return
 
-    Geometry and colors belong to global_ui.py and theme_shell.py. This layer
-    intentionally contains no palette or color rules so it cannot override
-    the active WPOS PRO 2 theme.
-
-    Global control policy also belongs to global_ui.py. In particular this
-    layer must never re-enable native QLineEdit clear buttons, because that
-    would override the application-wide text-first input contract.
-    """
     window.setAttribute(Qt.WA_StyledBackground, True)
 
     for table in window.findChildren(QTableWidget):
@@ -50,11 +43,10 @@ def apply_ux2026(window):
     for widget_type in (QLineEdit, QComboBox, QDoubleSpinBox, QSpinBox, QTextEdit):
         for widget in window.findChildren(widget_type):
             widget.setFocusPolicy(Qt.StrongFocus)
-            # Clear buttons are controlled exclusively by global_ui.py.
-            # Never enable them here.
 
     _normalize_numeric_inputs(window)
 
+    shortcuts = []
     shortcut = QShortcut(QKeySequence("Ctrl+K"), window)
     shortcut.setContext(Qt.WindowShortcut)
 
@@ -66,8 +58,13 @@ def apply_ux2026(window):
                 break
 
     shortcut.activated.connect(focus_search)
+    shortcuts.append(shortcut)
 
     for key, index in enumerate(range(10), start=1):
         nav = QShortcut(QKeySequence(f"Alt+{key}"), window)
         nav.setContext(Qt.WindowShortcut)
         nav.activated.connect(lambda i=index: window.tabs.setCurrentIndex(i))
+        shortcuts.append(nav)
+
+    window._wpos_ux2026_shortcuts = shortcuts
+    window._wpos_ux2026_applied = True
