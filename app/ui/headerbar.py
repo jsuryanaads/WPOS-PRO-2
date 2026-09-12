@@ -3,7 +3,7 @@
 Header contract:
     KIRI   = active page title + dynamic hint
     TENGAH = store name + store address from Pengaturan Toko
-    KANAN  = logged-in username + Indonesian date
+    KANAN  = logged-in user name + Indonesian date
 """
 
 from datetime import datetime
@@ -37,6 +37,13 @@ def _format_date(value):
     return f"{value.day} {_MONTHS[value.month - 1]} {value.year}"
 
 
+def _user_display_name(window):
+    """Return the logged-in user's display name, never the login username."""
+    user = getattr(window, "user", None)
+    name = str(getattr(user, "name", "") or "").strip()
+    return name or "Pengguna"
+
+
 def _update_headerbar(window):
     if not hasattr(window, "_wpos_store_name_label"):
         return
@@ -45,6 +52,7 @@ def _update_headerbar(window):
     window._wpos_store_name_label.setText(store_name)
     window._wpos_store_address_label.setText(store_address or "Alamat toko belum diatur")
     window._wpos_store_address_label.setVisible(bool(store_address))
+    window._wpos_header_user_name_label.setText(_user_display_name(window))
     window._wpos_date_label.setText(_format_date(datetime.now()))
 
 
@@ -99,7 +107,7 @@ def apply_headerbar(window):
     window._wpos_store_name_label = store_name
     window._wpos_store_address_label = address
 
-    # RIGHT: username + automatic Indonesian date.
+    # RIGHT: user display name + automatic Indonesian date.
     date_label.setParent(None)
     right_host = QFrame()
     right_host.setObjectName("modernHeaderAccount")
@@ -110,17 +118,18 @@ def apply_headerbar(window):
     right_layout.setContentsMargins(0, 0, 0, 0)
     right_layout.setSpacing(0)
 
-    username = QLabel(str(getattr(window.user, "username", "")))
-    username.setObjectName("modernHeaderUsername")
-    username.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-    username.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-    right_layout.addWidget(username)
+    user_name = QLabel(_user_display_name(window))
+    user_name.setObjectName("modernHeaderUserName")
+    user_name.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+    user_name.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+    user_name.setToolTip("Nama pengguna yang sedang login")
+    right_layout.addWidget(user_name)
     right_layout.addWidget(date_label)
 
     layout.removeItem(date_item)
     layout.addWidget(right_host, 0)
 
-    window._wpos_header_username_label = username
+    window._wpos_header_user_name_label = user_name
     window._wpos_date_label = date_label
     date_label.setObjectName("modernDate")
     date_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
