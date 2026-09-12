@@ -43,6 +43,12 @@ def main():
     holder = {}
 
     def refresh_ui(window):
+        """Apply window-level presentation once per layer.
+
+        Individual UI layers are responsible for their own idempotence. This
+        coordinator deliberately keeps a single initialization path so theme
+        changes cannot accidentally duplicate widgets, shortcuts, or signals.
+        """
         apply_ui_polish(window)
         apply_ux2026(window)
         apply_global_ui(app, window)
@@ -51,6 +57,9 @@ def main():
         apply_cashier_structure(window)
         apply_headerbar(window)
         apply_product_table_display(window)
+        add_application_footer(window)
+        apply_global_ui(app, window)
+
         paid = getattr(window, "paid", None)
         if paid is not None and hasattr(window, "update_change") and not getattr(window, "_wpos_paid_change_live", False):
             paid.valueChanged.connect(lambda _value: window.update_change())
@@ -79,13 +88,6 @@ def main():
         window._wpos_active_theme = current_theme()
         apply_theme(app, current_theme())
         refresh_ui(window)
-        add_application_footer(window)
-        apply_global_ui(app, window)
-        apply_dashboard_welcome(window)
-        apply_hybrid_form_layouts(window)
-        apply_cashier_structure(window)
-        apply_headerbar(window)
-        apply_product_table_display(window)
         holder["main"] = window
 
         theme_menu = window.menuBar().addMenu("Tema")
