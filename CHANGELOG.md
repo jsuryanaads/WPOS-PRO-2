@@ -1,5 +1,15 @@
 # WPOS PRO 2 Changelog
 
+## 2.9.1 — Receipt Print-Safe Refinement
+
+- Menambahkan **print-safe top area** pada struk thermal 58mm agar nama toko tidak terlalu dekat dengan tepi fisik kertas.
+- Menambahkan dua blank feed line pada jalur RAW ESC/POS setelah inisialisasi printer.
+- Menambahkan top padding 2mm pada renderer Qt/HTML tanpa mengubah lebar cetak 48mm.
+- Mempertahankan format Qty bulat tanpa `.0` pada tampilan struk; nilai transaksi tetap menggunakan Decimal.
+- Menambahkan helper terpisah untuk formatting output receipt tanpa mencampur business logic transaksi.
+- Tidak mengubah database, stok, pembayaran, checkout, atau workflow multi-item purchase.
+- Menetapkan **2.9.1** sebagai PATCH release untuk penyempurnaan output receipt backward-compatible.
+
 ## 2.9.0 — Multi-Item Purchase
 
 - Menambahkan workflow **multi-item** pada menu **Pembelian**.
