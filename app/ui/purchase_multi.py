@@ -7,8 +7,8 @@ owns the purchase-entry UI state and delegates persistence to that service.
 from datetime import datetime
 from decimal import Decimal
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QComboBox,
     QDoubleSpinBox,
     QFormLayout,
@@ -16,12 +16,14 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
     QWidget,
+    QHeaderView,
 )
 
 from ..database import SessionLocal
@@ -83,12 +85,13 @@ def purchase_page(window):
     window.purchase_table.setHorizontalHeaderLabels(
         ["Produk", "Barcode", "Qty", "Harga Beli", "Subtotal", "Aksi"]
     )
-    window.purchase_table.setSelectionBehavior(QTableWidget.SelectRows)
-    window.purchase_table.setEditTriggers(QTableWidget.NoEditTriggers)
-    window.purchase_table.horizontalHeader().setStretchLastSection(False)
-    window.purchase_table.horizontalHeader().setSectionResizeMode(0, window.purchase_table.horizontalHeader().Stretch)
+    window.purchase_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+    window.purchase_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+    header_view = window.purchase_table.horizontalHeader()
+    header_view.setStretchLastSection(False)
+    header_view.setSectionResizeMode(0, QHeaderView.Stretch)
     for col in (1, 2, 3, 4, 5):
-        window.purchase_table.horizontalHeader().setSectionResizeMode(col, window.purchase_table.horizontalHeader().ResizeToContents)
+        header_view.setSectionResizeMode(col, QHeaderView.ResizeToContents)
     layout.addWidget(window.purchase_table, 1)
 
     summary = QFrame()
@@ -119,13 +122,8 @@ def purchase_page(window):
     return w
 
 
-def install_purchase_methods(window):
-    """Install purchase-page methods on a MainWindow-compatible instance."""
-    # Kept as a small compatibility hook for future UI shells.
-    return window
-
-
 def load_purchase_options(window):
+    """Reload active products and suppliers into the purchase form."""
     with SessionLocal() as session:
         products = session.query(Product).filter_by(active=True).order_by(Product.name).all()
         suppliers = session.query(Supplier).order_by(Supplier.name).all()
@@ -139,6 +137,7 @@ def load_purchase_options(window):
 
 
 def add_purchase_item(window):
+    """Add or merge one product line in the in-memory purchase basket."""
     product_id = window.buy_product.currentData()
     if product_id is None:
         QMessageBox.warning(window, "Pembelian", "Belum ada produk aktif.")
@@ -160,13 +159,22 @@ def add_purchase_item(window):
         name = product.name
         barcode = product.barcode
 
-    existing = next((row for row in window.purchase_items if row["product_id"] == int(product_id)), None)
+    existing = next(
+        (row for row in window.purchase_items if row["product_id"] == int(product_id)),
+        None,
+    )
     if existing:
         existing["quantity"] += qty
         existing["unit_cost"] = cost
     else:
         window.purchase_items.append(
-            {"product_id": int(product_id), "name": name, "barcode": barcode, "quantity": qty, "unit_cost": cost}
+            {
+                "product_id": int(product_id),
+                "name": name,
+                "barcode": barcode,
+                "quantity": qty,
+                "unit_cost": cost,
+            }
         )
     window.buy_qty.setValue(1)
     window.buy_cost.setValue(0)
@@ -181,6 +189,7 @@ def remove_purchase_item(window, row_index):
 
 
 def refresh_purchase_table(window):
+    """Render the current basket and return its calculated total."""
     rows = window.purchase_items
     window.purchase_table.setRowCount(len(rows))
     total = Decimal("0")
@@ -197,7 +206,9 @@ def refresh_purchase_table(window):
         for col, value in enumerate(values):
             window.purchase_table.setItem(row_index, col, QTableWidgetItem(str(value)))
         remove = QPushButton("Hapus")
-        remove.clicked.connect(lambda _checked=False, idx=row_index: remove_purchase_item(window, idx))
+        remove.clicked.connect(
+            lambda _checked=False, idx=row_index: remove_purchase_item(window, idx)
+        )
         window.purchase_table.setCellWidget(row_index, 5, remove)
     window.purchase_count_label.setText(f"{len(rows)} item")
     window.purchase_total_label.setText(f"TOTAL PEMBELIAN {_money(total)}")
@@ -210,10 +221,14 @@ def clear_purchase_items(window):
 
 
 def save_purchase(window):
+    """Persist all basket lines as one purchase/invoice and refresh stock views."""
     try:
         if not window.purchase_items:
             raise ValueError("Item pembelian kosong")
-        invoice = window.buy_invoice.text().strip() or "PB-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+        invoice = (
+            window.buy_invoice.text().strip()
+            or "PB-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+        )
         items = [
             {
                 "product_id": row["product_id"],
