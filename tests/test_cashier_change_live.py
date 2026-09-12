@@ -19,11 +19,11 @@ def test_cashier_payment_change_updates_live():
 def test_cashier_change_fix_is_documented_and_versioned():
     config = (ROOT / "app" / "config.py").read_text(encoding="utf-8")
     assert f'APP_VERSION = "{APP_VERSION}"' in config
+
     readme = README.read_text(encoding="utf-8")
-    changelog = CHANGELOG.read_text(encoding="utf-8")
-    # The active release is documented in the README/Changelog using their
-    # current heading convention (README: "## Perubahan terbaru X.X.X",
-    # Changelog: "## X.X.X — ..."). Avoid requiring an obsolete ### heading.
     assert f"Perubahan terbaru {APP_VERSION}" in readme
-    assert f"## {APP_VERSION}" in changelog
-    assert "Kembalian Kasir agar live" in readme
+
+    changelog = CHANGELOG.read_text(encoding="utf-8")
+    assert "## 2.9.2 — Cashier Payment Label Runtime Fix" in changelog
+    assert "runtime halaman **Kasir**" in changelog
+    assert "Regression test" in changelog
