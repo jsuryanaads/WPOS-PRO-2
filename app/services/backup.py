@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+from contextlib import closing
 import os
 import sqlite3
 from ..config import DATA_DIR, BACKUP_DIR
@@ -26,7 +27,7 @@ def backup_database():
     if not source.exists():
         raise FileNotFoundError("Database belum ada")
     destination = BACKUP_DIR / f"wpos_{datetime.now():%Y%m%d_%H%M%S_%f}.db"
-    with sqlite3.connect(source) as src, sqlite3.connect(destination) as dst:
+    with closing(sqlite3.connect(source)) as src, closing(sqlite3.connect(destination)) as dst:
         src.backup(dst)
     return destination
 
@@ -34,7 +35,7 @@ def backup_database():
 def _validate_backup(source):
     """Validate SQLite integrity and the minimum WPOS schema before restore."""
     try:
-        with sqlite3.connect(source) as connection:
+        with closing(sqlite3.connect(source)) as connection:
             integrity = connection.execute("PRAGMA integrity_check").fetchone()
             if not integrity or integrity[0] != "ok":
                 raise ValueError("Backup database rusak: integrity_check gagal")
@@ -65,11 +66,16 @@ def restore_database(path):
     safety_backup = backup_database() if destination.exists() else None
     temp = destination.with_suffix(".restore.tmp")
     try:
-        with sqlite3.connect(source) as src, sqlite3.connect(temp) as dst:
+        # sqlite3.Connection is a transaction context manager, not a close
+        # context manager. Use closing() so Windows releases the temp file
+        # handle before os.replace().
+        with closing(sqlite3.connect(source)) as src, closing(sqlite3.connect(temp)) as dst:
             src.backup(dst)
             integrity = dst.execute("PRAGMA integrity_check").fetchone()
             if not integrity or integrity[0] != "ok":
                 raise ValueError("Backup gagal disalin dengan benar")
+
+        # Both SQLite handles above are explicitly closed before replacement.
         os.replace(temp, destination)
         for suffix in ("-wal", "-shm"):
             sidecar = Path(str(destination) + suffix)
