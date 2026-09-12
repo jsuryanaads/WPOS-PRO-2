@@ -13,6 +13,7 @@ from .ui.ux2026 import apply_ux2026
 from .ui.dashboard_welcome import apply_dashboard_welcome
 from .ui.form_layouts import apply_hybrid_form_layouts
 from .ui.cashier_structure import apply_cashier_structure
+from .ui.headerbar import apply_headerbar
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 from .services import printer as printer_service
 from .services.receipt_display import format_receipt_html_qty
@@ -47,6 +48,7 @@ def main():
         apply_dashboard_welcome(window)
         apply_hybrid_form_layouts(window)
         apply_cashier_structure(window)
+        apply_headerbar(window)
         paid = getattr(window, "paid", None)
         if paid is not None and hasattr(window, "update_change") and not getattr(window, "_wpos_paid_change_live", False):
             paid.valueChanged.connect(lambda _value: window.update_change())
@@ -80,6 +82,7 @@ def main():
         apply_dashboard_welcome(window)
         apply_hybrid_form_layouts(window)
         apply_cashier_structure(window)
+        apply_headerbar(window)
         holder["main"] = window
 
         theme_menu = window.menuBar().addMenu("Tema")
