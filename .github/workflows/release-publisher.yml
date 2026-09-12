@@ -1,6 +1,9 @@
 name: WPOS PRO 2 Release Publisher
 
 on:
+  push:
+    paths:
+      - .github/workflows/release-publisher.yml
   workflow_dispatch:
 
 permissions:
@@ -49,9 +52,7 @@ jobs:
       - name: Upload assets to existing release
         if: steps.inspect.outputs.release_exists == 'true'
         run: |
-          gh release upload "$RELEASE_TAG" \
-            --repo "$REPO" \
-            --clobber \
+          gh release upload "$RELEASE_TAG" --repo "$REPO" --clobber \
             release-assets/WPOS_PRO_2_2.10.0.exe \
             release-assets/WPOS_PRO_2_Setup_2.10.0.exe \
             release-assets/SHA256SUMS.txt
@@ -59,11 +60,8 @@ jobs:
       - name: Create release on existing tag
         if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists == 'true'
         run: |
-          gh release create "$RELEASE_TAG" \
-            --repo "$REPO" \
-            --verify-tag \
-            --title "WPOS PRO 2 v2.10.0" \
-            --latest \
+          gh release create "$RELEASE_TAG" --repo "$REPO" --verify-tag \
+            --title "WPOS PRO 2 v2.10.0" --latest \
             --notes "WPOS PRO 2 v2.10.0 production release. Pytest 132 passed; Windows EXE and installer verified." \
             release-assets/WPOS_PRO_2_2.10.0.exe \
             release-assets/WPOS_PRO_2_Setup_2.10.0.exe \
@@ -72,11 +70,8 @@ jobs:
       - name: Create release with GitHub-managed tag
         if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists != 'true'
         run: |
-          gh release create "$RELEASE_TAG" \
-            --repo "$REPO" \
-            --target "$TARGET_SHA" \
-            --title "WPOS PRO 2 v2.10.0" \
-            --latest \
+          gh release create "$RELEASE_TAG" --repo "$REPO" --target "$TARGET_SHA" \
+            --title "WPOS PRO 2 v2.10.0" --latest \
             --notes "WPOS PRO 2 v2.10.0 production release. Pytest 132 passed; Windows EXE and installer verified." \
             release-assets/WPOS_PRO_2_2.10.0.exe \
             release-assets/WPOS_PRO_2_Setup_2.10.0.exe \
