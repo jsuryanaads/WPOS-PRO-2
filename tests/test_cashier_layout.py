@@ -1,14 +1,14 @@
 from pathlib import Path
 
 
-def test_cashier_payment_panel_has_production_safe_geometry():
-    source = Path("app/ui/premium_cashier.py").read_text(encoding="utf-8")
+def test_cashier_payment_panel_has_compact_geometry_contract():
+    source = Path("app/ui/cashier_structure.py").read_text(encoding="utf-8")
 
-    assert 'pay_card.setMinimumWidth(330)' in source
-    assert 'checkout = QPushButton("BAYAR & CETAK")' in source
-    assert 'checkout.setMinimumWidth(165)' in source
-    assert 'clear.setMinimumWidth(76)' in source
-    assert 'body.addWidget(pay_card, 0)' in source
+    assert 'pay_card.setMinimumWidth(290)' in source
+    assert 'pay_card.setMaximumWidth(330)' in source
+    assert 'pay_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)' in source
+    assert 'pay_layout.setSpacing(8)' in source
+    assert 'item.spacerItem() is not None' in source
 
 
 def test_cashier_keeps_existing_payment_methods():
