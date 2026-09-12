@@ -4,12 +4,19 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.9**
+- Versi aplikasi: **2.7.10**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
 
-## Perubahan terbaru 2.7.9
+## Perubahan terbaru 2.7.10
+- Memperbaiki normalisasi tampilan Stok tabel Produk setelah tabel dimuat ulang oleh navigasi/UI.
+- Stok bulat seperti `20.000` sekarang dipaksa tampil sebagai `20` setelah refresh halaman Produk.
+- Kolom Status tetap `AKTIF` / `NONAKTIF`.
+- Menambahkan refresh deferred setelah perpindahan menu Produk untuk mencegah formatter tertimpa oleh reload tabel.
+- Tidak mengubah nilai stok di database atau business logic transaksi.
+
+## Perubahan 2.7.9
 - Memperbaiki tampilan **Stok** pada tabel Produk agar angka bulat seperti `20.000` ditampilkan sebagai `20`.
 - Menambahkan kolom **Status** pada tabel Produk: `AKTIF` / `NONAKTIF`.
 - Status dibaca dari nilai `Product.active`; tidak mengubah data database.
@@ -182,13 +189,18 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.10
+- Memperbaiki refresh tampilan Stok Produk agar normalisasi `20.000 → 20` dilakukan setelah reload tabel.
+- Menambahkan deferred refresh saat menu Produk dibuka kembali.
+- Menyinkronkan version config dan installer ke **2.7.10**.
+- Tidak mengubah schema/database/business logic.
+
 ### 2.7.9
 - Memperbaiki presentasi Stok tabel Produk agar angka bulat tidak tampil sebagai `20.000`.
 - Menambahkan kolom Status `AKTIF` / `NONAKTIF`.
 - Menambahkan `app/ui/product_display.py`.
 - Memanggil normalisasi tabel Produk dari UI refresh.
 - Tidak mengubah schema/database/business logic.
-- Menyinkronkan config dan installer ke **2.7.9**.
 
 ### 2.7.8
 - Menambahkan struktur Headerbar final dan sumber nama toko dari pengaturan.

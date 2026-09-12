@@ -23,7 +23,7 @@ def test_version_and_docs_are_synchronized():
     config = Path("app/config.py").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.7.5"' in config
-    assert 'Versi aplikasi: **2.7.5**' in readme
-    assert '### 2.7.5' in readme
-    assert '#define MyAppVersion "2.7.5"' in installer
+    assert 'APP_VERSION = "2.7.10"' in config
+    assert 'Versi aplikasi: **2.7.10**' in readme
+    assert '### 2.7.10' in readme
+    assert '#define MyAppVersion "2.7.10"' in installer

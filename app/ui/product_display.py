@@ -6,6 +6,7 @@ Database values and product business rules remain untouched.
 
 from decimal import Decimal
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QTableWidgetItem
 
 from ..database import SessionLocal
@@ -22,8 +23,7 @@ def _whole_number(value):
     return format(number.normalize(), "f")
 
 
-def apply_product_table_display(window):
-    """Normalize Product stock display and add an explicit Active status column."""
+def _refresh_product_table(window):
     table = getattr(window, "product_table", None)
     if table is None:
         return
@@ -65,3 +65,22 @@ def apply_product_table_display(window):
         table.setItem(row, status_col, QTableWidgetItem(status))
 
     table.resizeColumnsToContents()
+
+
+def apply_product_table_display(window):
+    """Apply product display immediately and again after deferred page reloads."""
+    _refresh_product_table(window)
+    if getattr(window, "_wpos_product_display_hook", False):
+        return
+    stack = getattr(window, "modern_stack", None)
+    if stack is None:
+        return
+    window._wpos_product_display_hook = True
+
+    def refresh_after_navigation(index):
+        if index == 2:
+            QTimer.singleShot(0, lambda: _refresh_product_table(window))
+
+    stack.currentChanged.connect(refresh_after_navigation)
+    # MainWindow may repopulate the table after the presentation layer runs.
+    QTimer.singleShot(0, lambda: _refresh_product_table(window))

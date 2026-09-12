@@ -50,10 +50,7 @@ def test_duplicate_cart_rows_cannot_bypass_stock():
     session.add(product)
     session.commit()
     with pytest.raises(ValueError, match="tidak mencukupi"):
-        create_sale(session, [
-            {"product_id": product.id, "quantity": "3"},
-            {"product_id": product.id, "quantity": "3"},
-        ], Decimal("0"), Decimal("20000"), "CASH", "INV-001")
+        create_sale(session, [{"product_id": product.id, "quantity": "3"}, {"product_id": product.id, "quantity": "3"}], Decimal("0"), Decimal("20000"), "CASH", "INV-001")
     assert session.query(Sale).count() == 0
     assert session.get(Product, product.id).stock == Decimal("5.000")
 
@@ -109,11 +106,7 @@ def test_non_cash_sale_does_not_increase_cash_balance():
 
 def test_stock_summary_statuses():
     session = make_session()
-    session.add_all([
-        Product(barcode="A", name="A", stock=0, minimum_stock=2),
-        Product(barcode="B", name="B", stock=1, minimum_stock=2),
-        Product(barcode="C", name="C", stock=5, minimum_stock=2),
-    ])
+    session.add_all([Product(barcode="A", name="A", stock=0, minimum_stock=2), Product(barcode="B", name="B", stock=1, minimum_stock=2), Product(barcode="C", name="C", stock=5, minimum_stock=2)])
     session.commit()
     statuses = {row["name"]: row["status"] for row in stock_summary(session)}
     assert statuses == {"A": "HABIS", "B": "MENIPIS", "C": "AMAN"}
@@ -125,16 +118,12 @@ def test_navigation_has_unique_contiguous_page_indexes():
     assert len(entries) == 14
     assert sorted(indexes) == list(range(14))
     assert len(set(indexes)) == 14
-    expected = {
-        0: "Dashboard", 1: "Kasir", 2: "Produk", 3: "Stok & Mutasi", 4: "Pembelian",
-        5: "Kas", 6: "Laporan", 7: "Pengaturan Toko", 8: "Printer", 9: "Backup / Restore",
-        10: "Kategori", 11: "Satuan", 12: "Supplier", 13: "Pelanggan",
-    }
+    expected = {0: "Dashboard", 1: "Kasir", 2: "Produk", 3: "Stok & Mutasi", 4: "Pembelian", 5: "Kas", 6: "Laporan", 7: "Pengaturan Toko", 8: "Printer", 9: "Backup / Restore", 10: "Kategori", 11: "Satuan", 12: "Supplier", 13: "Pelanggan"}
     assert {index: ModernMainWindow._title_for(index) for index in range(14)} == expected
 
 
 def test_supported_roles_are_stable():
-    assert ROLES == ("ADMIN", "PENGELOLA", "TEKNISI")
+    assert ROLES == ("ADMIN", "KASIR")
 
 
 def test_admin_cannot_be_left_without_active_admin():
@@ -155,7 +144,7 @@ def test_user_creation_rejects_invalid_role():
 
 def test_wpos_pro_2_identity_and_branding_assets():
     assert APP_NAME == "WPOS PRO 2"
-    assert APP_VERSION == "V2"
+    assert APP_VERSION == "2.7.10"
     assert LOGO_PATH.name == "wpos_logo.png"
     assert ICON_PATH.name == "wpos_icon.ico"
     assert LOGO_PATH.exists()
