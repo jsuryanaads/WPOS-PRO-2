@@ -10,6 +10,7 @@ from PySide6.QtGui import QPageLayout, QPageSize, QTextDocument
 from PySide6.QtPrintSupport import QPrinter, QPrinterInfo, QPrintDialog
 
 from .settings import get_settings
+from .receipt_polish import format_quantity
 
 RECEIPT_PROFILE = {"paper_width_mm": 58.0, "printable_width_mm": 48.0, "margin_mm": 5.0, "font_size_pt": 9, "cpl_hint": 32, "bottom_feed_lines": 30}
 _CURRENT_CASHIER_NAME = "Pengguna"
@@ -68,7 +69,8 @@ def receipt_html(sale, items, settings):
         qty = item["quantity"]
         price = Decimal(str(item["unit_price"]))
         line = Decimal(str(item["line_total"]))
-        rows.append(f"<tr><td colspan='2'>{name}</td></tr><tr><td>{qty} x {price:,.0f}</td><td align='right'>{line:,.0f}</td></tr>")
+        qty_s = format_quantity(qty)
+        rows.append(f"<tr><td colspan='2'>{name}</td></tr><tr><td>{qty_s} x {price:,.0f}</td><td align='right'>{line:,.0f}</td></tr>")
     address = escape(str(settings.get("store_address", "")))
     phone = escape(str(settings.get("store_phone", "")))
     store_name = escape(str(settings.get("store_name", "TOKO SEMBAKO")))
@@ -106,7 +108,8 @@ def printer_test_html(settings, invoice_no="INV-00001"):
     rows = []
     for name, qty, price in items:
         subtotal = qty * price
-        rows.append(f"<tr><td class='name'>{escape(name)}</td><td class='qty'>{qty}</td><td class='price'>x {price:,.0f}</td><td class='amount'>{subtotal:,.0f}</td></tr>")
+        qty_s = format_quantity(qty)
+        rows.append(f"<tr><td class='name'>{escape(name)}</td><td class='qty'>{qty_s}</td><td class='price'>x {price:,.0f}</td><td class='amount'>{subtotal:,.0f}</td></tr>")
     return f"""
     <html><head><style>
     body {{ width:48mm; font-family:'Courier New',monospace; font-size:9pt; margin:0; padding:0; color:#000; }}
@@ -139,10 +142,13 @@ def _fit_line(text, width=32):
 
 def _item_lines(name, qty, price, amount, width=32):
     amount_s = f"{Decimal(str(amount)):,.0f}"
-    qty_s = f"{Decimal(str(qty)):g}"
+    qty_s = format_quantity(qty)  # integer-safe receipt quantity
     price_s = f"{Decimal(str(price)):,.0f}"
     prefix = f"{qty_s} x {price_s}"
-    available = max(1, width - len(prefix) - 1 - len(amount_s))
+    # Two literal separators are required: one before the prefix and one before the amount.
+    # The old formula reserved only one, producing a 33-character line for 32-CPL printers
+    # and clipping the final digit (e.g. 30,000 -> 30,00).
+    available = max(1, width - len(prefix) - 2 - len(amount_s))
     name_parts = _fit_line(name, available)
     lines = []
     for index, part in enumerate(name_parts):
@@ -246,7 +252,7 @@ def _raw_print_test(printer_name, settings):
         return False
     now = datetime.now()
     items = [{"name": "Indomie", "quantity": Decimal("2"), "unit_price": Decimal("3500"), "line_total": Decimal("7000")}, {"name": "Teh", "quantity": Decimal("1"), "unit_price": Decimal("5000"), "line_total": Decimal("5000")}]
-    data = _escpos_receipt_bytes(settings.get("store_name", "TOKO SEMBAKO"), settings.get("store_address", "Alamat toko") or "Alamat toko", settings.get("store_phone", ""), "INV-00001", now, items, Decimal("12000"), Decimal("0"), Decimal("12000"), "CASH", Decimal("20000"), Decimal("8000"), settings.get("receipt_footer", "Terima kasih") or "Terima kasih")
+    data = _escpos_receipt_bytes(settings.get("store_name", "TOKO SEMBAKO"), settings.get("store_address", "Alamat toko") or "Alamat toko", settings.get("store_phone", ""), "INV-00001", now, items, Decimal("12000"), Decimal("0"), Decimal("12000"), "CASH", Decimal("20000"), Decimal("8000"), settings.get("receipt_footer", "Terima kasih"))
     return _windows_raw_print(printer_name, data, "WPOS PRO TEST PRINT")
 
 
