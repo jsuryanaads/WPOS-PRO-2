@@ -4,12 +4,17 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.13**
+- Versi aplikasi: **2.7.14**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
 
-## Perubahan terbaru 2.7.13
+## Perubahan terbaru 2.7.14
+- Memperbaiki jalur CI Windows dengan mengganti runner `windows-latest` menjadi `windows-2022` pada workflow Build dan Installer.
+- Menambahkan diagnostic runner pada workflow Windows agar identitas runner/image dapat terlihat jika terjadi kegagalan sebelum proses build.
+- Tidak mengubah UI, authentication flow, database, schema, atau business logic.
+
+## Perubahan 2.7.13
 - Memperbaiki regression test Kasir yang masih mengunci versi lama `2.7.10` setelah aplikasi sudah berada di `2.7.12`.
 - Menyinkronkan test, config, dan installer ke versi **2.7.13**.
 - Tidak mengubah UI, authentication flow, database, schema, atau business logic.
@@ -27,13 +32,6 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Tombol **MASUK** menjadi default action sehingga Enter dapat digunakan untuk login.
 - Authentication flow, database, dan business logic login tetap dipertahankan.
 - Menambahkan regression test untuk struktur Login.
-
-## Perubahan 2.7.10
-- Memperbaiki normalisasi tampilan Stok tabel Produk setelah tabel dimuat ulang oleh navigasi/UI.
-- Stok bulat seperti `20.000` sekarang dipaksa tampil sebagai `20` setelah refresh halaman Produk.
-- Kolom Status tetap `AKTIF` / `NONAKTIF`.
-- Menambahkan refresh deferred setelah perpindahan menu Produk untuk mencegah formatter tertimpa oleh reload tabel.
-- Tidak mengubah nilai stok di database atau business logic transaksi.
 
 ## 14 halaman
 1. Dashboard
@@ -155,6 +153,11 @@ Hasil: `dist\\WPOS PRO 2\\WPOS PRO 2.exe`
 Compile `installer.iss` menggunakan Inno Setup.
 Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 
+## CI Windows
+- Workflow Windows Build dan Windows Installer menggunakan runner `windows-2022`.
+- Kedua workflow memiliki diagnostic runner setelah checkout.
+- Build tetap menjalankan compile, pytest, PyInstaller, verifikasi branding/icon, dan artifact upload.
+
 ## Tema
 - **Dark Mode** — default.
 - **Light Mode**.
@@ -188,6 +191,12 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.14
+- Mengubah runner Windows dari `windows-latest` menjadi `windows-2022` pada Build dan Installer.
+- Menambahkan diagnostic runner untuk memperjelas image/runner bila job gagal sebelum build.
+- Menyinkronkan `app/config.py`, `installer.iss`, dan regression test ke **2.7.14**.
+- Tidak mengubah schema/database/business logic.
+
 ### 2.7.13
 - Memperbaiki test `test_version_and_docs_are_synchronized` yang masih mengharapkan versi **2.7.10**.
 - Menyinkronkan test dengan versi aplikasi baru.
