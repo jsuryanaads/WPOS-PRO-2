@@ -11,7 +11,11 @@ WEEKDAYS_ID = ("Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu")
 
 
 def apply_dashboard_welcome(window):
-    """Use the modern shell topbar for Dashboard welcome information."""
+    """Refresh Dashboard metrics without overwriting the global Headerbar.
+
+    Headerbar owns page title, store identity, logged-in display name and date.
+    This layer only handles Dashboard-specific legacy cleanup and daily KPIs.
+    """
     stack = getattr(window, "modern_stack", None)
     if stack is None or stack.count() == 0:
         return
@@ -20,18 +24,6 @@ def apply_dashboard_welcome(window):
         return
 
     now = datetime.now()
-    username = str(getattr(getattr(window, "user", None), "username", "Admin")) or "Admin"
-    welcome = f"Selamat datang, {username}"
-    date_text = f"{WEEKDAYS_ID[now.weekday()]}, {now:%d %B %Y}"
-
-    # The modern shell already owns the Dashboard header. Reusing it avoids
-    # the duplicate/blank legacy header that previously consumed dashboard space.
-    context = getattr(window, "modern_context", None)
-    hint = getattr(window, "modern_hint", None)
-    if context is not None:
-        context.setText(welcome)
-    if hint is not None:
-        hint.setText(date_text)
 
     # Hide the legacy page header/branding widget inside the Dashboard.
     first_item = dashboard.layout().itemAt(0)
@@ -60,5 +52,3 @@ def apply_dashboard_welcome(window):
                 value.setText(f"Rp {Decimal(str(summary['omzet'])):,.0f}".replace(",", "."))
 
     dashboard.setProperty("wposDashboardMetricsDate", start.isoformat())
-    dashboard.setProperty("wposDashboardWelcome", welcome)
-    dashboard.setProperty("wposDashboardDate", date_text)
