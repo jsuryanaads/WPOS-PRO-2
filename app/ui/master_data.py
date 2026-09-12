@@ -183,6 +183,16 @@ class SimpleMaster(QWidget):
                 return f"Supplier masih dipakai oleh {count} transaksi pembelian. Hapus ditolak agar histori transaksi tidak rusak."
         return None
 
+    def _confirm_delete(self, name):
+        answer = QMessageBox.question(
+            self,
+            "Konfirmasi Hapus",
+            f"Hapus {self.windowTitle()} '{name}'?\n\nTindakan ini tidak dapat dibatalkan.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        return answer == QMessageBox.Yes
+
     def delete_selected(self):
         if not self.selected_id:
             QMessageBox.information(self, "Hapus", "Pilih data yang ingin dihapus dari tabel terlebih dahulu.")
@@ -199,14 +209,7 @@ class SimpleMaster(QWidget):
                     QMessageBox.warning(self, "Tidak dapat dihapus", dependency)
                     return
                 name = getattr(obj, "name", str(self.selected_id))
-                answer = QMessageBox.question(
-                    self,
-                    "Konfirmasi Hapus",
-                    f"Hapus {self.windowTitle()} '{name}'?\n\nTindakan ini tidak dapat dibatalkan.",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No,
-                )
-                if answer != QMessageBox.Yes:
+                if not self._confirm_delete(name):
                     return
                 session.delete(obj)
                 session.commit()
