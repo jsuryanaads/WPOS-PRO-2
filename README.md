@@ -4,10 +4,19 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.7**
+- Versi aplikasi: **2.7.8**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.7.8
+- Headerbar final menggunakan tiga zona: **Context | Nama Toko | Pengguna + Tanggal**.
+- Kiri: nama halaman aktif dan subtitle/hint.
+- Tengah: **Nama Toko** yang dibaca dari `Pengaturan Toko` (`store_name`).
+- Kanan: `Selamat datang, [username]` dan tanggal otomatis dua baris dengan hari dalam bahasa Indonesia.
+- Contoh tanggal: `12 September 2026` / `Sabtu`.
+- Nama toko menggunakan fallback `TOKO SEMBAKO` jika pengaturan belum tersedia.
+- Perubahan hanya pada presentation layer; database dan business logic transaksi tidak diubah.
 
 ## Perubahan terbaru 2.7.7
 - Menata ulang **struktur Kasir PRO** agar alur kerja kasir lebih jelas.
@@ -20,24 +29,12 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Tidak ada perubahan schema database.
 
 ## Perubahan terbaru 2.7.6
-- Merapikan **struktur Headerbar** menjadi tiga zona yang jelas.
+- Merapikan struktur Headerbar menjadi tiga zona yang jelas.
 - Kiri: nama halaman aktif + subtitle/hint.
-- Tengah: informasi pengguna `Selamat datang, [username]`.
-- Kanan: tanggal otomatis dengan format Indonesia, contoh `12 September 2026`.
-- Status `OFFLINE` dan `DATABASE LOKAL` dihapus dari Headerbar agar tampilan lebih bersih.
+- Tengah: informasi pengguna.
+- Kanan: tanggal otomatis.
+- Status `OFFLINE` dan `DATABASE LOKAL` dihapus dari Headerbar.
 - Tinggi Headerbar dijaga ringkas pada kisaran 58–64 px.
-- Tidak ada perubahan database atau business logic.
-
-## Perubahan terbaru 2.7.5
-- Memperbaiki **sidebar** agar seluruh kelompok menu tampil normal dan tidak berubah menjadi bar kosong.
-- Header sidebar **OPERASIONAL, KEUANGAN, DATA MASTER dan SYSTEM** sekarang dirender sebagai item teks yang stabil.
-- Sidebar dibuat compact dengan lebar tetap **230 px** dan tinggi baris yang konsisten agar 14 halaman lebih mudah terlihat pada resolusi Windows umum.
-- Scroll horizontal sidebar dinonaktifkan; scroll vertikal hanya muncul jika memang diperlukan.
-- Active menu tetap jelas tanpa ikon dekoratif dan index navigasi tidak berubah.
-- Memperlebar area **Keranjang Belanja** pada Kasir agar lebih dominan dibanding panel pembayaran.
-- Panel pembayaran dibatasi agar tidak mengambil ruang berlebihan pada layar lebar.
-- Tampilan Qty pada struk Qt/HTML dinormalisasi: `1.0`, `2.0`, `3.0` menjadi `1`, `2`, `3`.
-- Perubahan Qty hanya presentasi struk; nilai Decimal dan perhitungan transaksi tetap tidak diubah.
 
 ## Role
 Role resmi aplikasi:
@@ -74,12 +71,21 @@ Role PENGELOLA dan TEKNISI telah dihapus dari permission policy. Schema users te
 - Active menu, hover, section header dan spacing mengikuti tema aktif.
 - Index navigasi halaman tidak berubah.
 
-## Struktur Headerbar
-- **Kiri:** nama halaman aktif dan subtitle/hint.
-- **Tengah:** informasi pengguna, format `Selamat datang, [username]`.
-- **Kanan:** tanggal otomatis dalam bahasa Indonesia.
-- Status `OFFLINE` dan `DATABASE LOKAL` tidak lagi ditampilkan di Headerbar.
-- Headerbar ringkas, konsisten pada Dark Mode dan Light Mode.
+## Struktur Headerbar FINAL
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ KASIR                    TOKO SEMBAKO SAPNI        Selamat datang, Admin    │
+│ Transaksi cepat · barcode first                    12 September 2026        │
+│                                                     Sabtu                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+- **Kiri — Context:** nama halaman aktif + subtitle/hint.
+- **Tengah — Nama Toko:** membaca `store_name` dari Pengaturan Toko.
+- **Kanan — Pengguna + Tanggal:** `Selamat datang, [username]`, tanggal otomatis, dan nama hari.
+- Format tanggal Indonesia: `12 September 2026`.
+- Hari Indonesia: `Senin` sampai `Minggu`.
+- Status `OFFLINE` dan `DATABASE LOKAL` tidak ditampilkan di Headerbar.
+- Headerbar ringkas dan konsisten pada Dark Mode dan Light Mode.
 
 ## Struktur Kasir PRO
 - **Input Produk:** Barcode / Cari Produk, Qty, Tambah dan Cari Produk.
@@ -176,8 +182,8 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Sidebar navigasi text-only tanpa ikon menu.
 - Section sidebar: OPERASIONAL, KEUANGAN, DATA MASTER, SYSTEM.
 - Sidebar compact 230 px dengan header teks stabil.
-- Headerbar tiga zona: context kiri, welcome pengguna di tengah, tanggal otomatis di kanan.
-- Kasir menggunakan struktur Input Produk → Keranjang Transaksi + Pembayaran → Kontrol Transaksi.
+- Headerbar tiga zona: Context kiri, Nama Toko di tengah, Pengguna + Tanggal di kanan.
+- Nama Toko Headerbar mengambil `store_name` dari Pengaturan Toko.
 - Active menu dan hover dibuat konsisten pada Dark/Light Mode.
 - Form Produk, Pembelian, Supplier dan Pelanggan menggunakan popup hybrid.
 - Kategori dan Satuan menggunakan form inline/horizontal.
@@ -196,6 +202,15 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.8
+- Menambahkan `app/ui/headerbar.py` sebagai presentation layer Headerbar.
+- Mengubah zona tengah Headerbar dari welcome text menjadi **Nama Toko**.
+- Nama Toko dibaca dari `Pengaturan Toko` melalui key `store_name`.
+- Zona kanan menampilkan `Selamat datang, [username]` dan tanggal dua baris dengan nama hari otomatis.
+- Menambahkan fallback `TOKO SEMBAKO` jika pengaturan toko belum tersedia.
+- Menambahkan styling `modernStoreName` dan memperjelas area tanggal.
+- Menyinkronkan config dan installer ke **2.7.8**.
+
 ### 2.7.7
 - Menambahkan modul `app/ui/cashier_structure.py` untuk merapikan hierarki visual Kasir.
 - Menjadikan Keranjang Transaksi sebagai area kerja utama.
@@ -208,11 +223,10 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 ### 2.7.6
 - Menata ulang Headerbar menjadi tiga zona: Context, Informasi Pengguna, dan Tanggal.
 - Menampilkan nama halaman aktif dan subtitle/hint di kiri.
-- Menampilkan `Selamat datang, [username]` di tengah.
+- Menampilkan informasi pengguna di tengah.
 - Menampilkan tanggal otomatis bahasa Indonesia di kanan.
 - Menghapus badge status `OFFLINE` dan `DATABASE LOKAL` dari Headerbar.
 - Menetapkan tinggi Headerbar 58–64 px.
-- Menyinkronkan config dan installer ke **2.7.6**.
 
 ### 2.7.5
 - Memperbaiki header section sidebar yang sebelumnya tampil sebagai bar kosong.
@@ -223,7 +237,6 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Membatasi panel pembayaran agar keranjang menjadi area utama transaksi.
 - Menambahkan helper presentasi receipt untuk menghilangkan `.0` pada Qty bilangan bulat.
 - Menjaga nilai transaksi/database tetap Decimal.
-- Menyinkronkan config dan installer ke **2.7.5**.
 
 ### 2.7.4
 - Penyempurnaan visual sidebar.
@@ -231,19 +244,15 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Padding/margin item navigasi dirapikan.
 - Active-state menu dibuat lebih tegas dan konsisten.
 - Section header dan spacing antar kelompok diperbaiki.
-- Menyinkronkan config dan installer ke **2.7.4**.
 
 ### 2.7.3
 - Memperbaiki Kembalian Kasir agar live saat nominal Bayar berubah.
-- Menambahkan koneksi `valueChanged` pada field Bayar setelah Premium Cashier dibangun.
+- Menambahkan koneksi `valueChanged` pada field Bayar.
 - Menjaga aturan pembayaran CASH/non-CASH yang sudah ada.
-- Menyinkronkan config dan installer ke **2.7.3**.
 
 ### 2.7.2
 - Memperbaiki crash login/UI akibat `form_layouts.py` mengakses `load_products` pada widget halaman yang tidak memiliki method tersebut.
 - Menjadikan akses helper Produk menggunakan owner `MainWindow` secara aman.
-- Mempertahankan Hapus Produk dan normalisasi tampilan stok.
-- Menyinkronkan config dan installer ke **2.7.2**.
 
 ### 2.7.1
 - Menambahkan Hapus Produk permanen dengan konfirmasi.
@@ -267,6 +276,7 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - `app/ui/main_window.py` — halaman dan workflow.
 - `app/ui/premium_cashier.py` — UI Kasir dasar dan workflow.
 - `app/ui/cashier_structure.py` — struktur presentasi Kasir dan kontrol transaksi.
+- `app/ui/headerbar.py` — struktur presentasi Headerbar dan nama toko/tanggal.
 - `app/ui/master_data.py` — CRUD master data.
 - `app/ui/form_layouts.py` — hybrid form, Excel UI, reset dan kontrol Produk.
 - `app/ui/global_ui.py` — aturan global kontrol/geometry.
