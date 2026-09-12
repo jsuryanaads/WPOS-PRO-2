@@ -1,5 +1,15 @@
 # WPOS PRO 2 Changelog
 
+## 2.8.6 — Compact Payment Summary
+
+- Merapikan **Ringkasan Pembayaran** pada halaman Kasir agar lebih compact dan proporsional.
+- Menghilangkan ruang kosong vertikal berlebihan pada panel pembayaran.
+- Panel pembayaran mengikuti tinggi konten dan menggunakan size policy maksimum secara vertikal.
+- Memperketat spacing internal agar TOTAL, Diskon, Metode, Bayar, dan Kembalian memiliki hierarchy yang jelas.
+- Area **Kontrol Transaksi** tetap dipisahkan dari ringkasan pembayaran.
+- Tidak mengubah business logic checkout, perhitungan total, metode pembayaran, stok, database, atau fungsi cetak.
+- Menetapkan **2.8.6** sebagai PATCH release untuk penyempurnaan UI backward-compatible.
+
 ## 2.8.5 — Cashier Name on Receipt
 
 - Menambahkan **Kasir: <Nama User>** pada receipt/struk.
