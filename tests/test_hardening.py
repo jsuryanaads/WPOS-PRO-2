@@ -59,7 +59,7 @@ def test_create_user_rolls_back_failed_commit():
     session = make_session()
     with patch.object(session, "commit", side_effect=RuntimeError("forced commit failure")):
         with pytest.raises(RuntimeError, match="forced commit failure"):
-            create_user(session, "rollback-user", "secret", "TEKNISI")
+            create_user(session, "rollback-user", "secret", "KASIR", name="Rollback User")
     assert session.query(User).filter_by(username="rollback-user").count() == 0
     assert not session.new
 
