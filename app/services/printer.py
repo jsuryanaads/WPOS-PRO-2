@@ -21,6 +21,20 @@ RECEIPT_PROFILE = {
     "bottom_feed_lines": 30,
 }
 
+_CURRENT_CASHIER_NAME = "Pengguna"
+
+
+def set_current_cashier(user):
+    """Set the display name used by receipt renderers for the active session."""
+    global _CURRENT_CASHIER_NAME
+    name = getattr(user, "name", None) if user is not None else None
+    _CURRENT_CASHIER_NAME = str(name or "Pengguna").strip() or "Pengguna"
+
+
+def current_cashier_name():
+    return _CURRENT_CASHIER_NAME
+
+
 ESC = b"\x1b"
 GS = b"\x1d"
 CMD_INIT = ESC + b"@"
@@ -28,8 +42,6 @@ CMD_ALIGN_LEFT = ESC + b"a\x00"
 CMD_ALIGN_CENTER = ESC + b"a\x01"
 CMD_BOLD_ON = ESC + b"E\x01"
 CMD_BOLD_OFF = ESC + b"E\x00"
-# GS V 65 n: feed to the cutter position plus n motion units, then full cut.
-# This lets the printer perform the feed and cutter movement as one operation.
 CMD_CUT_WITH_FEED = GS + b"V" + bytes([65, 30])
 
 
@@ -72,6 +84,7 @@ def receipt_html(sale, items, settings):
     phone = escape(str(settings.get("store_phone", "")))
     store_name = escape(str(settings.get("store_name", "TOKO SEMBAKO")))
     footer = escape(str(settings.get("receipt_footer", "Terima kasih")))
+    cashier = escape(current_cashier_name())
     return f"""
     <html><head><style>
     body {{ width:48mm; font-family:'Courier New',monospace; font-size:9pt; margin:0; padding:0; }}
@@ -80,7 +93,7 @@ def receipt_html(sale, items, settings):
     .line {{ border-top:1px dashed #000; margin:5px 0; }}
     </style></head><body>
     <h3>{store_name}</h3><p align='center'>{address}</p><p align='center'>{phone}</p>
-    <div class='line'></div><p>No: {escape(str(sale.invoice_no))}</p><p>{sale.created_at:%Y-%m-%d %H:%M:%S}</p>
+    <div class='line'></div><p>No: {escape(str(sale.invoice_no))}</p><p>{sale.created_at:%Y-%m-%d %H:%M:%S}</p><p>Kasir: {cashier}</p>
     <div class='line'></div><table>{''.join(rows)}</table><div class='line'></div>
     <table><tr><td>Subtotal</td><td align='right'>{Decimal(str(sale.subtotal)):,.0f}</td></tr>
     <tr><td>Diskon</td><td align='right'>{Decimal(str(sale.discount)):,.0f}</td></tr>
@@ -95,6 +108,7 @@ def printer_test_html(settings, invoice_no="INV-00001"):
     store_name = escape(str(settings.get("store_name", "TOKO SEMBAKO")))
     address = escape(str(settings.get("store_address", "Alamat toko"))) or "Alamat toko"
     footer = escape(str(settings.get("receipt_footer", "Terima kasih"))) or "Terima kasih"
+    cashier = escape(current_cashier_name())
     now = datetime.now().strftime("%d/%m/%Y %H:%M")
     items = [("Indomie", 2, Decimal("3500")), ("Teh", 1, Decimal("5000"))]
     total = sum((qty * price for _, qty, price in items), Decimal("0"))
@@ -112,7 +126,7 @@ def printer_test_html(settings, invoice_no="INV-00001"):
     .name {{ width:30%; text-align:left; }} .qty {{ width:8%; text-align:right; }} .price {{ width:32%; text-align:right; }} .amount {{ width:30%; text-align:right; }}
     .label {{ width:60%; text-align:left; }} .value {{ width:40%; text-align:right; }} p {{ margin:2px 0; }} h3 {{ margin:0 0 3px 0; }}
     </style></head><body><div class='center'><h3>{store_name}</h3><p>{address}</p></div>
-    <div class='line'></div><p>No: {escape(invoice_no)}</p><p>{now}</p><div class='line'></div><table>{''.join(rows)}</table><div class='line'></div>
+    <div class='line'></div><p>No: {escape(invoice_no)}</p><p>{now}</p><p>Kasir: {cashier}</p><div class='line'></div><table>{''.join(rows)}</table><div class='line'></div>
     <table><tr><td class='label'><b>TOTAL</b></td><td class='value'><b>{total:,.0f}</b></td></tr><tr><td class='label'>Bayar</td><td class='value'>{paid:,.0f}</td></tr><tr><td class='label'>Kembalian</td><td class='value'>{change:,.0f}</td></tr></table>
     <div class='line'></div><p class='center'>{footer}</p></body></html>
     """
@@ -144,7 +158,7 @@ def _item_lines(name, qty, price, amount, width=32):
     lines = []
     for index, part in enumerate(name_parts):
         if index == 0:
-            left = f"{part:<{available}}"
+            left = f"{part:<{available}"
             lines.append(f"{left} {prefix} {amount_s}"[:width])
         else:
             lines.append(part[:width])
@@ -161,6 +175,7 @@ def _label_value(label, value, width=32):
 
 def _escpos_receipt_bytes(store_name, address, phone, invoice_no, created_at, items, subtotal, discount, total, payment_method, paid, change, footer):
     width = RECEIPT_PROFILE["cpl_hint"]
+    cashier = current_cashier_name()
     out = bytearray(CMD_INIT + CMD_ALIGN_CENTER)
     out += CMD_BOLD_ON + _escpos_line(store_name) + CMD_BOLD_OFF
     for line in _fit_line(address, width):
@@ -170,6 +185,7 @@ def _escpos_receipt_bytes(store_name, address, phone, invoice_no, created_at, it
     out += CMD_ALIGN_LEFT + _escpos_line("-" * width)
     out += _escpos_line(f"No: {invoice_no}")
     out += _escpos_line(created_at.strftime("%d/%m/%Y %H:%M:%S"))
+    out += _escpos_line(f"Kasir: {cashier}")
     out += _escpos_line("-" * width)
     for item in items:
         for line in _item_lines(item["name"], item["quantity"], item["unit_price"], item["line_total"], width):
@@ -184,8 +200,6 @@ def _escpos_receipt_bytes(store_name, address, phone, invoice_no, created_at, it
     out += CMD_ALIGN_CENTER
     for line in _fit_line(footer, width):
         out += _escpos_line(line)
-    # Use the ESC/POS feed-and-cut command so the printer controls the
-    # movement to the cutter position and the cut as one operation.
     out += CMD_CUT_WITH_FEED
     return bytes(out)
 
