@@ -9,7 +9,7 @@ Header contract:
 from datetime import datetime
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout
+from PySide6.QtWidgets import QFrame, QLabel, QSizePolicy, QVBoxLayout
 
 from ..database import SessionLocal
 from ..services.settings import get_settings
