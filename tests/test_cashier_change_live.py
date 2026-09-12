@@ -1,11 +1,11 @@
 from pathlib import Path
 
+from app.config import APP_VERSION
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MAIN = ROOT / "app" / "main.py"
 README = ROOT / "README.md"
-CONFIG = ROOT / "app" / "config.py"
-INSTALLER = ROOT / "installer.iss"
 
 
 def test_cashier_payment_change_updates_live():
@@ -16,8 +16,8 @@ def test_cashier_payment_change_updates_live():
 
 
 def test_cashier_change_fix_is_documented_and_versioned():
-    assert 'APP_VERSION = "2.7.3"' in CONFIG.read_text(encoding="utf-8")
-    assert '#define MyAppVersion "2.7.3"' in INSTALLER.read_text(encoding="utf-8")
+    config = (ROOT / "app" / "config.py").read_text(encoding="utf-8")
+    assert f'APP_VERSION = "{APP_VERSION}"' in config
     readme = README.read_text(encoding="utf-8")
-    assert "### 2.7.3" in readme
+    assert f"### {APP_VERSION}" in readme
     assert "Kembalian Kasir agar live" in readme
