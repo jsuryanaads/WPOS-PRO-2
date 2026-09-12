@@ -5,12 +5,14 @@ from ..models import User
 
 ITERATIONS = 210_000
 
+
 def hash_password(password: str) -> str:
     if not password:
         raise ValueError("Password tidak boleh kosong")
     salt = os.urandom(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, ITERATIONS)
     return f"pbkdf2_sha256${ITERATIONS}${salt.hex()}${digest.hex()}"
+
 
 def verify_password(password: str, stored: str) -> bool:
     try:
@@ -22,10 +24,16 @@ def verify_password(password: str, stored: str) -> bool:
     except (ValueError, TypeError):
         return False
 
+
 def ensure_default_admin(session):
-    if not session.query(User).filter_by(username="admin").first():
-        session.add(User(username="admin", password_hash=hash_password("admin123"), role="ADMIN", active=True))
+    admin = session.query(User).filter_by(username="admin").first()
+    if not admin:
+        session.add(User(username="admin", name="Administrator", password_hash=hash_password("admin123"), role="ADMIN", active=True))
         session.commit()
+    elif not admin.name:
+        admin.name = "Administrator"
+        session.commit()
+
 
 def login(session, username: str, password: str):
     user = session.query(User).filter_by(username=username, active=True).first()
