@@ -89,3 +89,177 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Membuat safety backup database aktif sebelum proses restore.
 - Menambahkan regression test untuk backup invalid, integrity check, safety backup dan restore valid.
 - Menetapkan **2.7.16** sebagai patch release stabilisasi.
+
+## Build Windows aktif
+- `windows-build.yml`: build EXE Windows otomatis pada push ke `main` dan tetap tersedia melalui `workflow_dispatch`.
+- `windows-installer.yml`: build installer Windows otomatis pada push ke `main` dan tetap tersedia melalui `workflow_dispatch`.
+- Kedua workflow menggunakan `windows-2022`, Python 3.12, compileall, pytest, PyInstaller, pemeriksaan branding, dan validasi output.
+- Artifact build: `WPOS-PRO-2-Windows`.
+- Artifact installer: `WPOS-PRO-2-Installer`.
+
+## 14 halaman
+1. Dashboard
+2. Kasir
+3. Produk
+4. Stok & Mutasi
+5. Pembelian
+6. Kas
+7. Laporan
+8. Pengaturan Toko
+9. Printer
+10. Backup / Restore
+11. Kategori
+12. Satuan
+13. Supplier
+14. Pelanggan
+
+## Versioning
+Menggunakan **Semantic Versioning (MAJOR.MINOR.PATCH)**.
+- **PATCH**: bug fix, hardening, stabilisasi, test, dokumentasi atau perubahan internal tanpa breaking change.
+- **MINOR**: fitur baru yang backward-compatible.
+- **MAJOR**: breaking change atau perubahan kontrak yang memerlukan migrasi/penyesuaian pengguna.
+- Nomor versi adalah milestone release, bukan nomor setiap commit.
+- Setiap perubahan versi wajib memperbarui **README.md**, **CHANGELOG.md**, `app/config.py`, metadata installer/build yang relevan, dan regression test versi bila diperlukan.
+- Release final harus konsisten antara source, EXE, installer, Git tag dan release notes.
+- Urutan release gate: **Audit → Fix → Test → Version Gate → Build → EXE Validation → Installer → Checksum → Release Candidate**.
+
+## Struktur sidebar
+- **OPERASIONAL:** Dashboard, Kasir, Produk, Stok & Mutasi, Pembelian.
+- **KEUANGAN:** Kas, Laporan.
+- **DATA MASTER:** Pelanggan, Supplier, Kategori, Satuan.
+- **SYSTEM:** Pengaturan Toko, Printer, Backup / Restore.
+- Text-only tanpa ikon dekoratif.
+- Lebar sidebar 230 px.
+- Active menu dan hover mengikuti tema.
+
+## Struktur Headerbar FINAL
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ KASIR                    TOKO SEMBAKO SAPNI                 Admin           │
+│ Transaksi cepat · barcode first                         12 September 2026   │
+│                              Alamat Toko                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+- **Kiri:** judul halaman aktif + subtitle/hint dinamis; berubah mengikuti halaman yang dipilih.
+- **Tengah:** nama toko + alamat toko dari `Pengaturan Toko`, selalu diposisikan center.
+- **Kanan:** username pengguna yang sedang login + tanggal otomatis dalam format Indonesia.
+- Username tidak ditampilkan di zona tengah.
+- Status OFFLINE/DATABASE LOKAL tidak ditampilkan di Headerbar.
+
+## Aturan UI Global
+- **One purpose, one container.**
+- Label tidak menggunakan background dekoratif sendiri.
+- `QLabel` menggunakan background transparan secara default.
+- Teks ditempatkan langsung di atas surface parent jika tidak membutuhkan container khusus.
+- Background tetap boleh digunakan untuk komponen yang memang memiliki fungsi visual/interaktif: input, tombol, tabel, card, badge/status dan panel.
+- Hindari **box inside box** yang tidak diperlukan.
+- Spacing, typography, border dan hierarchy digunakan untuk membedakan informasi.
+- Seluruh 14 halaman mengikuti kontrak visual yang sama.
+
+## Struktur Manajemen User PRO
+- Form user: Nama, Username, Password, Role, Status.
+- Role resmi: `ADMIN` dan `KASIR`.
+- Tambah User, Simpan Perubahan, Reset Password, Aktif/Nonaktif, Hapus User, Reset Form.
+- Tabel: ID, Nama, Username, Role, Status.
+- Username dikunci saat edit.
+- Hapus user memerlukan konfirmasi.
+- Akun yang sedang digunakan tidak dapat dihapus.
+- Administrator aktif terakhir tidak dapat dihapus atau dinonaktifkan.
+
+## Struktur Kasir PRO
+- **Input Produk:** Barcode / Cari Produk, Qty, Tambah dan Cari Produk.
+- **Keranjang Transaksi:** Barcode, Produk, Qty, Harga, Subtotal.
+- **Kontrol Keranjang:** `− QTY`, `+ QTY`, `HAPUS ITEM`.
+- **Pembayaran:** Total, Diskon, Metode, Bayar, Kembalian.
+- **Kontrol Transaksi:** Parkir, Transaksi Parkir, Batal Transaksi, Riwayat dan Bayar & Cetak.
+- Nilai transaksi/database tetap Decimal.
+- Qty bulat pada struk ditampilkan tanpa `.0`.
+
+## Pembelian PRO
+- **Informasi Pembelian:** Supplier dan No. Invoice.
+- **Tambah Item:** Produk, Qty, Harga Beli, Tambah Item.
+- **Keranjang Pembelian:** Produk, Barcode, Qty, Harga Beli, Subtotal, Hapus.
+- Satu invoice dapat berisi banyak produk.
+- Produk yang sama dalam keranjang digabung dengan penambahan Qty dan harga beli terakhir.
+- **TOTAL PEMBELIAN** dihitung realtime.
+- Penyimpanan satu invoice tetap atomic melalui service `create_purchase()`.
+- Setiap item menghasilkan `PurchaseItem` dan `StockMovement` sesuai service layer.
+
+## Produk
+- Tambah, Edit, Nonaktifkan, Hapus aman.
+- Produk dengan histori transaksi/mutasi tidak dapat dihapus permanen.
+- Tabel Produk menampilkan: ID, Barcode, Nama, Kategori, Satuan, Beli, Jual, Stok, Status.
+- Stok bulat ditampilkan tanpa pemisah desimal palsu, misalnya `20` bukan `20.000`.
+- Status menunjukkan `AKTIF` atau `NONAKTIF`.
+
+## CRUD Master
+- Kategori: Tambah, Edit, Simpan, Hapus.
+- Satuan: Tambah, Edit, Simpan, Hapus.
+- Supplier: Tambah, Edit, Simpan, Hapus.
+- Pelanggan: Tambah, Edit, Simpan, Hapus.
+
+## Kasir
+- Cari Produk berdasarkan nama/barcode.
+- Scanner barcode + Enter.
+- Qty − / +.
+- Hapus item dan batal transaksi dengan konfirmasi.
+- Diskon transaksi.
+- Bayar dan Kembalian live.
+- Pembayaran non-CASH mengikuti total.
+- Riwayat dan cetak ulang struk.
+- Parkir transaksi selama sesi aplikasi.
+- Shortcut F4, F8, F9, F10 dan Escape.
+
+## Reset Data
+- **RESET TRANSAKSI & STOK** mempertahankan master bisnis.
+- **RESET SEMUA DATA BISNIS** membersihkan master bisnis dan transaksi.
+- User dan pengaturan toko dipertahankan.
+- Konfirmasi wajib mengetik `RESET`.
+
+## Integritas transaksi
+- Invoice unik.
+- Barcode unik.
+- Stok tidak boleh negatif.
+- Penjualan atomic.
+- CASH menambah kas; QRIS/TRANSFER/DEBIT tidak menambah kas.
+- Pembayaran non-tunai harus sama dengan total.
+- Kembalian hanya CASH.
+- Mutasi stok dicatat.
+
+## Keamanan
+- Password PBKDF2-SHA256 dengan salt acak.
+- User inactive tidak dapat login.
+- Minimal satu Administrator aktif.
+- Administrator aktif terakhir tidak dapat dihapus atau dinonaktifkan.
+
+## Default login
+- Username: `admin`
+- Password: `admin123`
+
+## Data Windows
+Saat EXE dijalankan, database dan backup berada di `%LOCALAPPDATA%\\WPOS PRO 2`.
+
+## Menjalankan source
+```bat
+python -m app.main
+```
+
+## Testing
+```bat
+pytest -q
+```
+
+## Build EXE
+```bat
+build.bat
+```
+Hasil utama: `dist\\WPOS PRO 2\\WPOS PRO 2.exe`.
+EXE versioned: `dist\\WPOS_PRO_2_<APP_VERSION>.exe`.
+SHA-256: file `.sha256.txt` di sebelah EXE versioned.
+
+## Installer
+Compile `installer.iss` menggunakan Inno Setup.
+Output installer menggunakan nama `WPOS_PRO_2_Setup_<APP_VERSION>.exe`.
+
+## CI
+- `ci-health.yml`: health check otomatis di Ubuntu untuk compile dan pytest.
