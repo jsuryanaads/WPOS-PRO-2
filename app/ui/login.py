@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
-from ..config import APP_NAME, APP_VERSION
+from ..config import APP_NAME
 from ..database import SessionLocal
 from ..services.auth import login
 from .branding import LOGO_PATH
@@ -55,10 +55,10 @@ class LoginWindow(QDialog):
         title.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(title)
 
-        version = QLabel(f"{APP_VERSION}  ·  Point of Sale")
-        version.setObjectName("loginVersion")
-        version.setAlignment(Qt.AlignCenter)
-        card_layout.addWidget(version)
+        subtitle = QLabel("Point of Sale")
+        subtitle.setObjectName("loginSubtitle")
+        subtitle.setAlignment(Qt.AlignCenter)
+        card_layout.addWidget(subtitle)
 
         welcome = QLabel("Silakan masuk untuk melanjutkan")
         welcome.setObjectName("loginWelcome")
