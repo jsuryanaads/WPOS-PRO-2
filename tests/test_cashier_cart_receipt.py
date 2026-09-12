@@ -1,5 +1,6 @@
 from decimal import Decimal
 from pathlib import Path
+import re
 
 
 def test_receipt_qty_formatter_removes_zero_suffix_only_for_whole_qty():
@@ -23,7 +24,11 @@ def test_version_and_docs_are_synchronized():
     config = Path("app/config.py").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.7.15"' in config
-    assert 'Versi aplikasi: **2.7.15**' in readme
-    assert '### 2.7.15' in readme
-    assert '#define MyAppVersion "2.7.15"' in installer
+
+    match = re.search(r'^APP_VERSION = [\"\']([^\"\']+)[\"\']$', config, re.MULTILINE)
+    assert match, "APP_VERSION tidak ditemukan di app/config.py"
+    version = match.group(1)
+
+    assert f"Versi aplikasi: **{version}**" in readme
+    assert f"## Perubahan terbaru {version}" in readme
+    assert f'#define MyAppVersion "{version}"' in installer
