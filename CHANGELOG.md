@@ -1,5 +1,15 @@
 # WPOS PRO 2 Changelog
 
+## 2.8.5 — Cashier Name on Receipt
+
+- Menambahkan **Kasir: <Nama User>** pada receipt/struk.
+- Nama kasir bersumber dari `User.name` user yang sedang login, bukan username.
+- Jika `User.name` kosong, digunakan fallback **Pengguna**.
+- Diterapkan pada renderer Qt/HTML dan RAW ESC/POS, termasuk test print.
+- Posisi Kasir berada setelah tanggal transaksi dan sebelum separator/item.
+- Tidak mengubah perhitungan transaksi, database transaksi, atau payment logic.
+- Menetapkan **2.8.5** sebagai PATCH release untuk penyempurnaan receipt backward-compatible.
+
 ## 2.8.4 — True-Centered Headerbar
 
 - Memposisikan **nama toko + alamat toko** tepat di tengah geometris Headerbar.
