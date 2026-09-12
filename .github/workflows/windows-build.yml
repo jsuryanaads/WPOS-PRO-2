@@ -1,9 +1,12 @@
 name: WPOS PRO 2 Windows Build
 
+# Windows builds are intentionally manual while the production build is being stabilized.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: wpos-windows-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-windows:
