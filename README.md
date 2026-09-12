@@ -4,12 +4,18 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.7.14**
+- Versi aplikasi: **2.7.15**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
 
-## Perubahan terbaru 2.7.14
+## Perubahan terbaru 2.7.15
+- Menstabilkan CI dengan menjadikan workflow Windows Build dan Windows Installer sebagai **manual dispatch** sementara runner Windows GitHub mengalami kegagalan sebelum step pertama.
+- Menambahkan workflow independen `ci-health.yml` pada Ubuntu untuk memvalidasi checkout, Python, dependency, compile dan pytest tanpa bergantung pada Windows runner.
+- Menyinkronkan config, installer dan regression test ke versi **2.7.15**.
+- Tidak mengubah UI, authentication flow, database, schema, atau business logic.
+
+## Perubahan 2.7.14
 - Memperbaiki jalur CI Windows dengan mengganti runner `windows-latest` menjadi `windows-2022` pada workflow Build dan Installer.
 - Menambahkan diagnostic runner pada workflow Windows agar identitas runner/image dapat terlihat jika terjadi kegagalan sebelum proses build.
 - Tidak mengubah UI, authentication flow, database, schema, atau business logic.
@@ -153,10 +159,12 @@ Hasil: `dist\\WPOS PRO 2\\WPOS PRO 2.exe`
 Compile `installer.iss` menggunakan Inno Setup.
 Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 
-## CI Windows
-- Workflow Windows Build dan Windows Installer menggunakan runner `windows-2022`.
-- Kedua workflow memiliki diagnostic runner setelah checkout.
-- Build tetap menjalankan compile, pytest, PyInstaller, verifikasi branding/icon, dan artifact upload.
+## CI
+- `ci-health.yml`: health check otomatis di Ubuntu untuk compile dan pytest.
+- `windows-build.yml`: build EXE Windows melalui **workflow_dispatch**.
+- `windows-installer.yml`: build installer Windows melalui **workflow_dispatch**.
+- Workflow Windows menggunakan `windows-2022` dan diagnostic runner.
+- Windows workflow sengaja tidak berjalan otomatis pada setiap push agar kegagalan runner tidak menghasilkan run berulang sebelum environment GitHub Actions sehat.
 
 ## Tema
 - **Dark Mode** — default.
@@ -191,6 +199,12 @@ Hasil: `installer\\WPOS_PRO_2_Setup.exe`
 - Setiap perubahan source, config, installer, test atau dokumentasi dicatat di README.
 
 ## Changelog
+### 2.7.15
+- Menjadikan Windows Build dan Windows Installer sebagai manual dispatch sementara.
+- Menambahkan `ci-health.yml` untuk health check otomatis di Ubuntu.
+- Menyinkronkan config, installer dan regression test ke **2.7.15**.
+- Tidak mengubah schema/database/business logic.
+
 ### 2.7.14
 - Mengubah runner Windows dari `windows-latest` menjadi `windows-2022` pada Build dan Installer.
 - Menambahkan diagnostic runner untuk memperjelas image/runner bila job gagal sebelum build.
