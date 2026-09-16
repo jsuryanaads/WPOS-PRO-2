@@ -115,7 +115,17 @@ def _toggle_product_status(page):
             new_active = not bool(product.active)
             product_name = product.name
             update_product(session, product_id, active=new_active)
-        owner.load_products(); owner.clear_product_form(); _update_product_status_button(page)
+
+        # Refresh the table but keep the same product selected.
+        owner.load_products()
+        owner.selected_product_id = product_id
+        for row in range(owner.product_table.rowCount()):
+            item = owner.product_table.item(row, 0)
+            if item is not None and item.text() == str(product_id):
+                owner.product_table.selectRow(row)
+                break
+
+        _update_product_status_button(page)
         status = "diaktifkan" if new_active else "dinonaktifkan"
         QMessageBox.information(page, "Produk", f"Produk {product_name} berhasil {status}.")
     except Exception as exc: QMessageBox.warning(page, "Produk", str(exc))
@@ -159,8 +169,7 @@ def _popup_complex_page(page, title, dialog_title, description):
     _remove_widget_from_layout(page.layout(), form_box)
     if title == "Data Produk":
         status_button = next((button for button in buttons if button.text() == "Nonaktifkan"), None)
-        if status_button is None:
-            status_button = QPushButton("Nonaktifkan")
+        if status_button is None: status_button = QPushButton("Nonaktifkan")
         else:
             try: status_button.clicked.disconnect()
             except (TypeError, RuntimeError): pass
