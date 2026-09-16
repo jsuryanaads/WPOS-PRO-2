@@ -18,6 +18,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Responsive behavior memakai breakpoint nyata untuk sidebar, topbar, content margin, dan panel pembayaran sehingga layout tetap usable pada ukuran jendela yang berbeda.
 - Realtime dashboard tetap berjalan setiap 3 detik dengan fail-safe agar refresh presentation tidak mengganggu transaksi.
 - Business logic, database, authentication, stok, transaksi, dan printer tidak diubah oleh visual layer ini.
+- Release automation sekarang memiliki **wait/poll gate** untuk menunggu Windows Installer selesai sebelum artifact dicari, sehingga publish tidak race-condition dengan build pipeline.
 - Release **2.13.0** dikategorikan sebagai MINOR karena merupakan redesign presentation layer yang backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
 
