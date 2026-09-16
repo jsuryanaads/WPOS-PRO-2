@@ -4,10 +4,22 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.12.0**
+- Versi aplikasi: **2.13.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.13.0
+- Mengganti pendekatan responsive yang sebelumnya terlalu subtle dengan **Visible Premium UI Refresh** yang benar-benar mengubah hierarchy visual pada shell dan halaman bisnis.
+- Modern Shell kini menggunakan sidebar yang lebih tegas, topbar lebih lapang, navigation state lebih jelas, card KPI lebih besar, surface lebih berlapis, border/radius lebih modern, dan tombol dengan state interaksi yang lebih nyata.
+- Dashboard KPI memakai card hierarchy baru dengan shadow, typography lebih kuat, spacing lebih lega, dan table density yang lebih nyaman untuk penggunaan POS harian.
+- Kasir mendapatkan visual scan/search area yang lebih menonjol, payment panel lebih kuat secara hierarchy, total/kembalian lebih mudah dipindai, serta tombol checkout yang memiliki emphasis khusus.
+- Seluruh tabel, form input, group box, scrollbar, navigation, dan action button mengikuti visual contract baru agar perubahan terasa lintas aplikasi, bukan hanya pada satu halaman.
+- Responsive behavior memakai breakpoint nyata untuk sidebar, topbar, content margin, dan panel pembayaran sehingga layout tetap usable pada ukuran jendela yang berbeda.
+- Realtime dashboard tetap berjalan setiap 3 detik dengan fail-safe agar refresh presentation tidak mengganggu transaksi.
+- Business logic, database, authentication, stok, transaksi, dan printer tidak diubah oleh visual layer ini.
+- Release **2.13.0** dikategorikan sebagai MINOR karena merupakan redesign presentation layer yang backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.12.0
 - Memperkenalkan **Responsive + Realtime Premium UI** sebagai presentation layer tanpa mengubah business logic, database, authentication, transaksi, stok, atau printer.
