@@ -36,6 +36,12 @@
 - Mencegah **ADMIN aktif melakukan self-demotion** dari ADMIN menjadi KASIR pada sesi yang sedang berjalan.
 - Menetapkan **2.10.1** sebagai PATCH release untuk bug fix dan security hardening backward-compatible.
 
+## 2.9.2 — Cashier Payment Label Runtime Fix
+
+- Memperbaiki **runtime halaman Kasir** agar label pembayaran tetap konsisten setelah halaman dibuat ulang atau diperbarui.
+- Menjaga label dan state pembayaran tetap sinkron dengan alur transaksi Kasir.
+- Menetapkan dokumentasi fix runtime sebagai bagian dari release history agar regression test tetap terlacak.
+
 ## 2.10.0 — Role-Based Access Control
 
 - Menerapkan pemisahan akses role **ADMIN** dan **KASIR** pada navigasi aplikasi.
@@ -48,11 +54,6 @@
 - Menambahkan regression test untuk coverage 14 halaman serta perbedaan akses ADMIN/KASIR.
 - Tidak mengubah login UI, business logic transaksi, database transaksi, receipt thermal, atau workflow multi-item purchase.
 - Menetapkan **2.10.0** sebagai MINOR release karena menambahkan functionality role-based access yang backward-compatible.
-
-## 2.9.2 — Cashier Payment Label Runtime Fix
-
-- Memperbaiki label metode pembayaran pada runtime Kasir agar perubahan label tersaji konsisten pada UI pembayaran.
-- Menambahkan regression coverage untuk memastikan kontrak label tetap terdokumentasi dan terversi.
 
 ## Release rule
 
