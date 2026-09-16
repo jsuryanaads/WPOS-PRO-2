@@ -1,5 +1,17 @@
 # WPOS PRO 2 Changelog
 
+## 2.13.0 — Visible Premium UI Refresh
+
+- Mengganti responsive layer yang sebelumnya terlalu subtle dengan **Visible Premium UI Refresh** agar perubahan visual benar-benar terasa saat aplikasi dijalankan.
+- Memperkuat Modern Shell melalui sidebar, topbar, navigation state, content surface, card KPI, typography, border, radius, spacing, dan interaction states yang lebih modern.
+- Menambahkan hierarchy visual baru pada Dashboard, termasuk KPI cards dengan shadow dan table density yang lebih nyaman.
+- Memperkuat visual halaman Kasir pada scan/search area, cart surface, payment panel, total/kembalian, dan tombol checkout.
+- Menstandarkan visual table, form input, group box, scrollbar, dan action button lintas halaman.
+- Menambahkan breakpoint responsive yang lebih nyata untuk sidebar, topbar, content margin, dan payment panel.
+- Mempertahankan realtime dashboard refresh setiap 3 detik dengan fail-safe presentation behavior.
+- Tidak mengubah business logic, database, authentication, stok, transaksi, atau printer.
+- Menetapkan **2.13.0** sebagai MINOR release karena merupakan redesign presentation layer yang backward-compatible.
+
 ## 2.12.0 — Responsive + Realtime Premium UI
 
 - Memperkenalkan **Responsive + Realtime Premium UI** sebagai presentation layer tanpa mengubah business logic, database, authentication, transaksi, stok, atau printer.
@@ -8,7 +20,8 @@
 - Refresh realtime bersifat fail-safe: kegagalan refresh presentation tidak mengganggu sesi POS atau transaksi aktif.
 - Mempertahankan Premium UI System, Dark/Light Mode, keyboard workflow, dan struktur halaman existing.
 - Mengarahkan visual ke modern retail yang lebih fluid dan mengurangi kesan UI administratif yang kaku.
-- Menetapkan **2.12.0** sebagai MINOR release karena merupakan penyempurnaan UI lintas aplikasi yang backward-compatible.
+- Memperkuat release publisher agar mencari Windows Installer yang sukses berdasarkan `TARGET_SHA` secara dinamis, bukan mengunci `BUILD_RUN_ID` yang mudah stale.
+- Menambahkan validation gate bahwa run installer yang dipilih benar-benar sukses dan memiliki artifact release yang belum expired.
 
 ## 2.11.1 — Bootstrap Admin Security Hardening
 
