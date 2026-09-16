@@ -4,10 +4,17 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.11.0**
+- Versi aplikasi: **2.11.1**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.11.1
+- Memperkuat keamanan bootstrap Administrator dengan **wajib ganti password** ketika akun `admin` masih menggunakan password awal `admin123`.
+- Password baru Administrator minimal 8 karakter dan tetap disimpan menggunakan PBKDF2-SHA256 dengan salt acak.
+- Perubahan ini mempertahankan kompatibilitas database existing dan hanya memaksa perubahan saat credential bootstrap lama masih aktif.
+- Release **2.11.1** dikategorikan sebagai PATCH karena merupakan security hardening backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.11.0
 - Menerapkan **Premium UI System** secara global pada seluruh halaman aplikasi, bukan hanya Dashboard/Kasir.
@@ -37,22 +44,4 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Menambahkan regression test untuk mapping 14 halaman dan perbedaan akses ADMIN/KASIR.
 - Tidak mengubah login UI, business logic transaksi, database transaksi, receipt thermal, atau workflow multi-item purchase.
 - Release **2.10.0** dikategorikan sebagai MINOR karena menambahkan kontrol akses role-based yang backward-compatible.
-- Setiap perubahan versi dicatat di README dan Changelog.
-
-## Perubahan terbaru 2.9.3
-- Memperbaiki formatter item pada receipt thermal 58mm agar Qty integral seperti `1.0` dicetak sebagai `1`.
-- Memperbaiki perhitungan lebar baris item agar dua separator tidak ikut memakan ruang nominal terakhir.
-- Mencegah nominal item seperti `30,000` terpotong menjadi `30,00` pada printer 32-CPL.
-- Memperbarui renderer Qt/HTML agar Qty juga menggunakan formatter receipt yang sama.
-- Menambahkan regression test untuk Qty, panjang baris 32 karakter, dan nominal item yang tidak terpotong.
-- Tidak mengubah business logic transaksi, perhitungan Decimal, database, pembayaran, stok, atau workflow multi-item purchase.
-- Release **2.9.3** dikategorikan sebagai PATCH karena merupakan bug fix receipt backward-compatible.
-- Setiap perubahan versi dicatat di README dan Changelog.
-
-## Perubahan terbaru 2.9.2
-- Memperbaiki **Ringkasan Pembayaran** pada halaman Kasir agar label nilai tidak kembali menjadi `TOTAL Rp ...` dan `Kembalian: Rp ...` setelah cart/payment di-refresh.
-- Menambahkan runtime contract pada layer UI Kasir untuk mempertahankan format dua baris: caption dan value.
-- Regression test sekarang memverifikasi bahwa contract runtime tersebut tetap terpasang.
-- Tidak mengubah business logic checkout, perhitungan total, metode pembayaran, stok, database, atau workflow multi-item purchase.
-- Release **2.9.2** dikategorikan sebagai PATCH karena merupakan bug fix UI backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
