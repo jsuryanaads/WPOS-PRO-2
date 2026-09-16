@@ -21,6 +21,7 @@ def test_cashier_layout_css_keeps_payment_panel_bounded():
 
 
 def test_version_and_docs_are_synchronized():
+    from app.config import APP_VERSION
     config = Path("app/config.py").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
@@ -28,7 +29,7 @@ def test_version_and_docs_are_synchronized():
     match = re.search(r'^APP_VERSION = [\"\']([^\"\']+)[\"\']$', config, re.MULTILINE)
     assert match, "APP_VERSION tidak ditemukan di app/config.py"
     version = match.group(1)
-
+    assert version == APP_VERSION
     assert f"Versi aplikasi: **{version}**" in readme
     assert f"## Perubahan terbaru {version}" in readme
     assert f'#define MyAppVersion "{version}"' in installer
