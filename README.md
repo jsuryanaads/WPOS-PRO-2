@@ -16,6 +16,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Menambahkan state visual hover, pressed, selected, focus, dan disabled agar interaksi lebih jelas.
 - Memperkuat keterbacaan tabel dan form dengan header, row hover, focus ring, dan surface hierarchy yang konsisten.
 - Menyempurnakan Dark Mode dan Light Mode tanpa mengubah business logic, database, authentication, transaksi, stok, atau receipt.
+- Menyelaraskan label tombol **Simpan Pembelian & Tambah Stok** dengan UI contract/regression test tanpa mengubah alur transaksi pembelian.
 - Release **2.11.0** dikategorikan sebagai MINOR karena merupakan penyempurnaan UI lintas aplikasi yang backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
 
