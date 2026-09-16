@@ -4,10 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.11.1**
+- Versi aplikasi: **2.12.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.12.0
+- Memperkenalkan **Responsive + Realtime Premium UI** sebagai presentation layer tanpa mengubah business logic, database, authentication, transaksi, stok, atau printer.
+- Layout Modern Shell menyesuaikan lebar jendela secara dinamis, termasuk sidebar, panel pembayaran Kasir, margin halaman, dan ruang konten.
+- Menambahkan refresh dashboard ringan setiap 3 detik agar KPI dan tabel ringkasan mengikuti perubahan data lokal tanpa restart atau pindah halaman.
+- Refresh realtime bersifat fail-safe: kegagalan refresh presentation tidak boleh mengganggu sesi POS atau transaksi aktif.
+- Mempertahankan Premium UI System, Dark/Light Mode, keyboard workflow, dan struktur halaman existing.
+- Fokus desain: modern retail untuk pengguna Gen Z dan Milenial, dengan hierarchy visual yang lebih fluid dan mengurangi kesan UI administratif yang kaku.
+- Release **2.12.0** dikategorikan sebagai MINOR karena merupakan penyempurnaan UI lintas aplikasi yang backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.11.1
 - Memperkuat keamanan bootstrap Administrator dengan **wajib ganti password** ketika akun `admin` masih menggunakan password awal `admin123`.
