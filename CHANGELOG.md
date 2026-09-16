@@ -1,5 +1,23 @@
 # WPOS PRO 2 Changelog
 
+## 2.11.0 — Premium UI System
+
+- Menerapkan **Premium UI System** secara global pada seluruh halaman aplikasi.
+- Menstandarkan hierarchy visual, spacing, radius, tinggi kontrol, tabel, form field, tombol, dialog, tooltip, dan scrollbar.
+- Memperhalus **sidebar, brand panel, navigation state, account panel, topbar, dan content surface** pada Modern Shell.
+- Menambahkan state visual hover, pressed, selected, focus, dan disabled agar interaksi lebih jelas.
+- Memperkuat keterbacaan tabel dan form dengan header, row hover, focus ring, dan surface hierarchy yang konsisten.
+- Menyempurnakan Dark Mode dan Light Mode.
+- Tidak mengubah business logic, database, authentication, transaksi, stok, atau receipt.
+- Menetapkan **2.11.0** sebagai MINOR release karena merupakan penyempurnaan UI lintas aplikasi yang backward-compatible.
+
+## 2.10.1 — Production Bug Fix & Hardening
+
+- Memperbaiki bug **multi-item purchase**: produk yang sama dengan harga beli berbeda tidak lagi digabung menjadi satu baris dengan harga terakhir.
+- Memperbaiki workflow **Kasir** ketika transaksi berhasil tersimpan tetapi proses cetak struk mengalami exception: transaksi tetap dilaporkan berhasil dan kegagalan cetak tidak dianggap sebagai kegagalan transaksi.
+- Mencegah **ADMIN aktif melakukan self-demotion** dari ADMIN menjadi KASIR pada sesi yang sedang berjalan.
+- Menetapkan **2.10.1** sebagai PATCH release untuk bug fix dan security hardening backward-compatible.
+
 ## 2.10.0 — Role-Based Access Control
 
 - Menerapkan pemisahan akses role **ADMIN** dan **KASIR** pada navigasi aplikasi.
