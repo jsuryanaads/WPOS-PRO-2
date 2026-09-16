@@ -16,6 +16,8 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Refresh realtime bersifat fail-safe: kegagalan refresh presentation tidak boleh mengganggu sesi POS atau transaksi aktif.
 - Mempertahankan Premium UI System, Dark/Light Mode, keyboard workflow, dan struktur halaman existing.
 - Fokus desain: modern retail untuk pengguna Gen Z dan Milenial, dengan hierarchy visual yang lebih fluid dan mengurangi kesan UI administratif yang kaku.
+- Memperkuat **release publisher** agar mencari Windows Installer yang sukses berdasarkan `TARGET_SHA` secara dinamis, bukan mengunci `BUILD_RUN_ID` yang mudah stale pada release berikutnya.
+- Menambahkan validation gate bahwa run installer yang dipilih benar-benar sukses dan memiliki artifact release yang belum expired sebelum proses upload/publish dijalankan.
 - Release **2.12.0** dikategorikan sebagai MINOR karena merupakan penyempurnaan UI lintas aplikasi yang backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
 
