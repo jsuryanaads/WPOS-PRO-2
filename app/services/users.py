@@ -45,8 +45,11 @@ def update_user(session, user_id, name, role, active, actor_user_id=None):
         raise ValueError("Nama user wajib diisi")
     if role not in ROLES:
         raise ValueError("Role tidak valid")
-    if actor_user_id is not None and user.id == int(actor_user_id) and not active:
-        raise ValueError("Administrator tidak boleh menonaktifkan akun sendiri")
+    if actor_user_id is not None and user.id == int(actor_user_id):
+        if not active:
+            raise ValueError("Administrator tidak boleh menonaktifkan akun sendiri")
+        if user.role == "ADMIN" and role != "ADMIN":
+            raise ValueError("Role akun yang sedang digunakan tidak boleh diturunkan. Logout lalu gunakan akun Administrator lain untuk mengubah role ini.")
     if user.role == "ADMIN" and not active:
         active_admins = session.query(User).filter_by(role="ADMIN", active=True).count()
         if active_admins <= 1:
