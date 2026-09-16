@@ -93,6 +93,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          echo "Creating draft release for tag $RELEASE_TAG at target $TARGET_SHA"
           gh release create "$RELEASE_TAG" --repo "$REPO" --target "$TARGET_SHA" --draft \
             --title "WPOS PRO 2 v${RELEASE_VERSION}" \
             --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Security hardening, premium UI, purchase cost handling, receipt print safety, and RBAC hardening included. Windows EXE and installer verified."
