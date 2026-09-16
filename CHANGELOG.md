@@ -38,9 +38,9 @@
 
 ## 2.9.2 — Cashier Payment Label Runtime Fix
 
-- Memperbaiki **runtime halaman Kasir** agar label pembayaran tetap konsisten setelah halaman dibuat ulang atau diperbarui.
+- Memperbaiki runtime halaman **Kasir** agar label pembayaran tetap konsisten setelah halaman dibuat ulang atau diperbarui.
 - Menjaga label dan state pembayaran tetap sinkron dengan alur transaksi Kasir.
-- Menetapkan dokumentasi fix runtime sebagai bagian dari release history agar regression test tetap terlacak.
+- Menambahkan regression test untuk memastikan fix runtime tetap terdokumentasi dan terlindungi dari regresi.
 
 ## 2.10.0 — Role-Based Access Control
 
