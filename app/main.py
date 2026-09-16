@@ -25,6 +25,7 @@ from .ui.cashier_structure import apply_cashier_structure
 from .ui.headerbar import apply_headerbar
 from .ui.product_display import apply_product_table_display
 from .ui.access_control import apply_role_access
+from .ui.responsive_realtime import apply_responsive_realtime
 from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 from .services import printer as printer_service
 from .services.receipt_display import format_receipt_html_qty
@@ -56,12 +57,8 @@ def _safe_print_receipt(parent, sale, items):
 
 printer_service.receipt_html = _receipt_html_with_integer_qty
 printer_service._escpos_receipt_bytes = _escpos_receipt_bytes_with_safe_area
-# MainWindow imports print_receipt directly, so patch that module-level symbol too.
 main_window_module.print_receipt = _safe_print_receipt
 
-# The legacy MainWindow owns the business pages, while the modern shell only
-# wraps them. Replace only the purchase presentation methods so the same
-# business service can accept a basket of multiple products per invoice.
 MainWindow.purchase_page = multi_item_purchase_page
 MainWindow.load_purchase_options = multi_item_load_purchase_options
 MainWindow.add_purchase_item = multi_item_add_purchase_item
@@ -91,6 +88,7 @@ def main():
         apply_role_access(window)
         add_application_footer(window)
         apply_global_ui(app, window)
+        apply_responsive_realtime(window)
 
         for object_name in ("modernUser", "modernRole"):
             label = window.findChild(QWidget, object_name)
