@@ -4,10 +4,20 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 
 ## Identitas
 - Nama aplikasi: **WPOS PRO 2**
-- Versi aplikasi: **2.10.1**
+- Versi aplikasi: **2.11.0**
 - Platform: Windows
 - Mode: Offline / database lokal
 - Database: SQLite
+
+## Perubahan terbaru 2.11.0
+- Menerapkan **Premium UI System** secara global pada seluruh halaman aplikasi, bukan hanya Dashboard/Kasir.
+- Menstandarkan hierarchy visual, spacing, radius, tinggi kontrol, tabel, form field, tombol, dialog, tooltip, dan scrollbar.
+- Memperhalus **sidebar, brand panel, navigation state, account panel, topbar, dan content surface** pada Modern Shell.
+- Menambahkan state visual hover, pressed, selected, focus, dan disabled agar interaksi lebih jelas.
+- Memperkuat keterbacaan tabel dan form dengan header, row hover, focus ring, dan surface hierarchy yang konsisten.
+- Menyempurnakan Dark Mode dan Light Mode tanpa mengubah business logic, database, authentication, transaksi, stok, atau receipt.
+- Release **2.11.0** dikategorikan sebagai MINOR karena merupakan penyempurnaan UI lintas aplikasi yang backward-compatible.
+- Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.10.1
 - Memperbaiki bug **multi-item purchase**: produk yang sama dengan harga beli berbeda tidak lagi digabung menjadi satu baris dengan harga terakhir.
