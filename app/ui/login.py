@@ -3,7 +3,8 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QFrame, QSizePolicy
 from ..config import APP_NAME
 from ..database import SessionLocal
-from ..services.auth import change_password, is_default_admin_password, login
+from ..services.auth import login
+from ..services.auth import change_password, is_default_admin_password
 from .branding import LOGO_PATH
 from .global_ui import add_application_footer
 
