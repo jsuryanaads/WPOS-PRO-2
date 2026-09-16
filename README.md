@@ -17,6 +17,7 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Mempertahankan contract import login pada `app/ui/login.py` agar regression test tetap dapat memverifikasi jalur autentikasi setelah penambahan forced password change.
 - Release publisher sekarang menggunakan repository secret **`WPOS_RELEASE_TOKEN`** untuk autentikasi GitHub CLI, menggantikan `github.token` yang sebelumnya ditolak GitHub dengan HTTP 403 saat membuat Release.
 - Menambahkan validasi awal bahwa release token tersedia dan dapat mengakses repository sebelum artifact/release diproses.
+- Menambahkan diagnostik eksplisit sebelum pembuatan draft Release agar target tag dan SHA release terlihat di log Actions saat troubleshooting.
 - Tidak ada perubahan versi karena perbaikan ini merupakan stabilisasi release automation di dalam release **2.11.1**.
 - Release **2.11.1** dikategorikan sebagai PATCH karena merupakan security hardening dan stabilisasi release automation yang backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
@@ -37,16 +38,4 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Memperbaiki workflow **Kasir** ketika transaksi berhasil tersimpan tetapi proses cetak struk mengalami exception: transaksi tetap dilaporkan berhasil dan kegagalan cetak ditampilkan sebagai status cetak, bukan sebagai kegagalan transaksi.
 - Mencegah **ADMIN aktif melakukan self-demotion** dari ADMIN menjadi KASIR pada sesi yang sedang berjalan, sehingga privilege sesi tidak tertinggal berbeda dari role yang dimaksudkan.
 - Release **2.10.1** dikategorikan sebagai PATCH karena berisi bug fix dan security hardening yang backward-compatible.
-- Setiap perubahan versi dicatat di README dan Changelog.
-
-## Perubahan terbaru 2.10.0
-- Menerapkan pemisahan akses role **ADMIN** dan **KASIR** pada navigasi aplikasi.
-- ADMIN tetap memiliki akses penuh ke seluruh 14 halaman dan Manajemen User.
-- KASIR dibatasi pada **Dashboard, Kasir, dan Pelanggan** sesuai policy permission yang sudah ada.
-- Menyembunyikan halaman yang tidak berhak diakses KASIR dari sidebar.
-- Menambahkan runtime guard pada jalur navigasi compatibility/legacy agar halaman terlarang tidak dapat dibuka melalui `setCurrentIndex()`.
-- Menjadikan mapping page → permission terpusat pada layer access control UI.
-- Menambahkan regression test untuk mapping 14 halaman dan perbedaan akses ADMIN/KASIR.
-- Tidak mengubah login UI, business logic transaksi, database transaksi, receipt thermal, atau workflow multi-item purchase.
-- Release **2.10.0** dikategorikan sebagai MINOR karena menambahkan kontrol akses role-based yang backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
