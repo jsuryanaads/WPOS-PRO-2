@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 from ..database import SessionLocal, engine
 from ..services.excel import export_products, import_products
 from ..services.product_delete import delete_product
+from ..services.products import update_product
 from ..services.reset import reset_all_business_data, reset_transactions_and_stock
 
 
@@ -113,6 +114,79 @@ def _delete_product(page):
         QMessageBox.warning(page, "Produk tidak dapat dihapus", str(exc))
 
 
+def _product_is_active(page):
+    owner = _owner(page)
+    if owner is None:
+        return False
+    product_id = getattr(owner, "selected_product_id", None)
+    if not product_id:
+        return False
+    with SessionLocal() as session:
+        product = session.get(__import__("app.models", fromlist=["Product"]).Product, product_id)
+        return bool(product and product.active)
+
+
+def _update_product_status_button(page):
+    button = getattr(page, "_wpos_product_status_button", None)
+    if button is None:
+        return
+    owner = _owner(page)
+    product_id = getattr(owner, "selected_product_id", None) if owner is not None else None
+    if not product_id:
+        button.setText("Nonaktifkan")
+        button.setObjectName("danger")
+        return
+    try:
+        with SessionLocal() as session:
+            from ..models import Product
+            product = session.get(Product, product_id)
+            active = bool(product and product.active)
+    except Exception:
+        active = True
+    button.setText("Nonaktifkan" if active else "Aktifkan")
+    button.setObjectName("danger" if active else "primary")
+    button.style().unpolish(button)
+    button.style().polish(button)
+
+
+def _install_product_status_sync(page):
+    if getattr(page, "_wpos_status_sync", False):
+        _update_product_status_button(page)
+        return
+    table = getattr(page, "product_table", None)
+    if table is not None:
+        table.cellClicked.connect(lambda _row, _column: _update_product_status_button(page))
+    page._wpos_status_sync = True
+    _update_product_status_button(page)
+
+
+def _toggle_product_status(page):
+    owner = _owner(page)
+    if owner is None:
+        QMessageBox.warning(page, "Produk", "Halaman Produk tidak terhubung ke MainWindow.")
+        return
+    product_id = getattr(owner, "selected_product_id", None)
+    if not product_id:
+        QMessageBox.information(page, "Produk", "Pilih produk terlebih dahulu.")
+        return
+    try:
+        with SessionLocal() as session:
+            from ..models import Product
+            product = session.get(Product, product_id)
+            if product is None:
+                raise ValueError("Produk tidak ditemukan")
+            new_active = not bool(product.active)
+            update_product(session, product_id, active=new_active)
+            product_name = product.name
+        owner.load_products()
+        owner.clear_product_form()
+        _update_product_status_button(page)
+        status = "diaktifkan" if new_active else "dinonaktifkan"
+        QMessageBox.information(page, "Produk", f"Produk {product_name} berhasil {status}.")
+    except Exception as exc:
+        QMessageBox.warning(page, "Produk", str(exc))
+
+
 def _attach_product_excel(page):
     if getattr(page, "_wpos_excel_actions", False):
         return
@@ -177,6 +251,7 @@ def _popup_complex_page(page, title, dialog_title, description):
     if getattr(page, "_wpos_form_layout_mode", None) == "popup":
         if title == "Data Produk":
             _install_product_reload_normalizer(page)
+            _install_product_status_sync(page)
             _attach_product_excel(page)
         return
     form_box = _find_groupbox(page, title)
@@ -193,6 +268,11 @@ def _popup_complex_page(page, title, dialog_title, description):
         delete_button.setObjectName("danger")
         delete_button.clicked.connect(lambda: _delete_product(page))
         buttons.append(delete_button)
+        status_button = QPushButton("Nonaktifkan")
+        status_button.setObjectName("danger")
+        status_button.clicked.connect(lambda: _toggle_product_status(page))
+        buttons.insert(2, status_button)
+        page._wpos_product_status_button = status_button
 
     controller = _PopupController(
         page, form_box, dialog_title, description, buttons=buttons,
@@ -208,6 +288,7 @@ def _popup_complex_page(page, title, dialog_title, description):
     page._wpos_form_layout_mode = "popup"
     if title == "Data Produk":
         _install_product_reload_normalizer(page)
+        _install_product_status_sync(page)
         _attach_product_excel(page)
 
 
