@@ -21,6 +21,10 @@ def test_headerbar_is_applied_by_startup():
 
 
 def test_version_and_docs_are_synchronized():
-    assert 'APP_VERSION = "2.10.0"' in Path("app/config.py").read_text(encoding="utf-8")
-    assert 'MyAppVersion "2.10.0"' in Path("installer.iss").read_text(encoding="utf-8")
-    assert "Versi aplikasi: **2.10.0**" in Path("README.md").read_text(encoding="utf-8")
+    from app.config import APP_VERSION
+    config = Path("app/config.py").read_text(encoding="utf-8")
+    installer = Path("installer.iss").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    assert f'APP_VERSION = "{APP_VERSION}"' in config
+    assert f'MyAppVersion "{APP_VERSION}"' in installer
+    assert f"Versi aplikasi: **{APP_VERSION}**" in readme
