@@ -19,7 +19,6 @@ jobs:
       RELEASE_TAG: V2.12.0
       RELEASE_VERSION: 2.12.0
       TARGET_SHA: f535c1ffec3dfaef1fa8c9b389542d1311218e6d
-      BUILD_RUN_ID: "35116774752"
       ARTIFACT_NAME: WPOS-PRO-2-2.12.0
     steps:
       - name: Validate release token
@@ -29,8 +28,35 @@ jobs:
           test -n "$GH_TOKEN"
           gh api "repos/$REPO" --jq '.full_name' | grep -Fx "$REPO"
 
-      - name: Download verified Windows artifact
+      - name: Resolve verified Windows Installer run
+        id: resolve_installer
         shell: bash
+        run: |
+          set -euo pipefail
+          echo "Resolving Windows Installer run for target SHA $TARGET_SHA"
+          RUN_ID=$(gh api "repos/$REPO/actions/workflows/windows-installer.yml/runs?head_sha=$TARGET_SHA&status=success&per_page=20" \
+            --jq '.workflow_runs[] | select(.head_sha == "'"$TARGET_SHA"'") | .id' | head -n 1)
+          test -n "$RUN_ID"
+          echo "BUILD_RUN_ID=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Resolved Windows Installer run: $RUN_ID"
+          gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '{id, name, status, conclusion, head_sha, head_branch}'
+
+      - name: Verify release artifact exists
+        shell: bash
+        env:
+          BUILD_RUN_ID: ${{ steps.resolve_installer.outputs.BUILD_RUN_ID }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_JSON=$(gh api "repos/$REPO/actions/runs/$BUILD_RUN_ID/artifacts?name=$ARTIFACT_NAME&per_page=20")
+          echo "$ARTIFACT_JSON"
+          COUNT=$(echo "$ARTIFACT_JSON" | jq '.artifacts | length')
+          test "$COUNT" -ge 1
+          echo "$ARTIFACT_JSON" | jq -e --arg name "$ARTIFACT_NAME" '.artifacts[] | select(.name == $name and .expired == false)' >/dev/null
+
+      - name: Download verified Windows Installer artifact
+        shell: bash
+        env:
+          BUILD_RUN_ID: ${{ steps.resolve_installer.outputs.BUILD_RUN_ID }}
         run: |
           set -euo pipefail
           rm -rf release-assets
