@@ -13,6 +13,9 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Memperkuat keamanan bootstrap Administrator dengan **wajib ganti password** ketika akun `admin` masih menggunakan password awal `admin123`.
 - Password baru Administrator minimal 8 karakter dan tetap disimpan menggunakan PBKDF2-SHA256 dengan salt acak.
 - Perubahan ini mempertahankan kompatibilitas database existing dan hanya memaksa perubahan saat credential bootstrap lama masih aktif.
+- Memperbaiki **CI regression contract** setelah security hardening: test identitas aplikasi kini memvalidasi format SemVer dari `APP_VERSION`, sehingga patch release `2.11.1` tidak mematahkan test yang mengunci versi lama.
+- Mempertahankan contract import login pada `app/ui/login.py` agar regression test tetap dapat memverifikasi jalur autentikasi setelah penambahan forced password change.
+- Tidak ada perubahan versi karena perbaikan ini merupakan stabilisasi test/CI di dalam release **2.11.1**.
 - Release **2.11.1** dikategorikan sebagai PATCH karena merupakan security hardening backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
 
