@@ -16,11 +16,11 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.WPOS_RELEASE_TOKEN }}
       REPO: ${{ github.repository }}
-      RELEASE_TAG: V2.11.1
-      RELEASE_VERSION: 2.11.1
-      TARGET_SHA: fc8f2a63ac0400b07ba8a17a47628d71457017dd
-      BUILD_RUN_ID: "35106125274"
-      ARTIFACT_NAME: WPOS-PRO-2-2.11.1
+      RELEASE_TAG: V2.12.0
+      RELEASE_VERSION: 2.12.0
+      TARGET_SHA: f535c1ffec3dfaef1fa8c9b389542d1311218e6d
+      BUILD_RUN_ID: "35116774752"
+      ARTIFACT_NAME: WPOS-PRO-2-2.12.0
     steps:
       - name: Validate release token
         shell: bash
@@ -36,11 +36,11 @@ jobs:
           rm -rf release-assets
           mkdir -p release-assets
           gh run download "$BUILD_RUN_ID" --repo "$REPO" --name "$ARTIFACT_NAME" --dir release-assets
-          test -f "release-assets/dist/WPOS_PRO_2_2.11.1.exe"
-          test -f "release-assets/installer/WPOS_PRO_2_Setup_2.11.1.exe"
+          test -f "release-assets/dist/WPOS_PRO_2_2.12.0.exe"
+          test -f "release-assets/installer/WPOS_PRO_2_Setup_2.12.0.exe"
           test -f "release-assets/installer/SHA256SUMS.txt"
-          cp "release-assets/dist/WPOS_PRO_2_2.11.1.exe" release-assets/WPOS_PRO_2_2.11.1.exe
-          cp "release-assets/installer/WPOS_PRO_2_Setup_2.11.1.exe" release-assets/WPOS_PRO_2_Setup_2.11.1.exe
+          cp "release-assets/dist/WPOS_PRO_2_2.12.0.exe" release-assets/WPOS_PRO_2_2.12.0.exe
+          cp "release-assets/installer/WPOS_PRO_2_Setup_2.12.0.exe" release-assets/WPOS_PRO_2_Setup_2.12.0.exe
           cp "release-assets/installer/SHA256SUMS.txt" release-assets/SHA256SUMS.txt
           sha256sum release-assets/*.exe release-assets/SHA256SUMS.txt
 
@@ -86,7 +86,7 @@ jobs:
           set -euo pipefail
           gh release create "$RELEASE_TAG" --repo "$REPO" --verify-tag --draft \
             --title "WPOS PRO 2 v${RELEASE_VERSION}" \
-            --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Security hardening, premium UI, purchase cost handling, receipt print safety, and RBAC hardening included. Windows EXE and installer verified."
+            --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Responsive + realtime premium UI, security hardening, premium UI system, purchase cost handling, receipt print safety, and RBAC hardening included. Windows EXE and installer verified."
 
       - name: Create draft release with GitHub-managed tag
         if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists != 'true'
@@ -96,7 +96,7 @@ jobs:
           echo "Creating draft release for tag $RELEASE_TAG at target $TARGET_SHA"
           gh release create "$RELEASE_TAG" --repo "$REPO" --target "$TARGET_SHA" --draft \
             --title "WPOS PRO 2 v${RELEASE_VERSION}" \
-            --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Security hardening, premium UI, purchase cost handling, receipt print safety, and RBAC hardening included. Windows EXE and installer verified."
+            --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Responsive + realtime premium UI, security hardening, premium UI system, purchase cost handling, receipt print safety, and RBAC hardening included. Windows EXE and installer verified."
 
       - name: Upload assets to draft release
         shell: bash
@@ -108,8 +108,8 @@ jobs:
             exit 1
           fi
           gh release upload "$RELEASE_TAG" \
-            "release-assets/WPOS_PRO_2_2.11.1.exe" \
-            "release-assets/WPOS_PRO_2_Setup_2.11.1.exe" \
+            "release-assets/WPOS_PRO_2_2.12.0.exe" \
+            "release-assets/WPOS_PRO_2_Setup_2.12.0.exe" \
             "release-assets/SHA256SUMS.txt" \
             --repo "$REPO" --clobber
 
@@ -121,7 +121,7 @@ jobs:
           echo "$RELEASE_JSON"
           test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
           test "$(echo "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$TARGET_SHA"
-          for asset in WPOS_PRO_2_2.11.1.exe WPOS_PRO_2_Setup_2.11.1.exe SHA256SUMS.txt; do
+          for asset in WPOS_PRO_2_2.12.0.exe WPOS_PRO_2_Setup_2.12.0.exe SHA256SUMS.txt; do
             echo "$RELEASE_JSON" | jq -r '.assets[].name' | grep -Fx "$asset"
           done
 
@@ -135,6 +135,6 @@ jobs:
           test "$(echo "$RELEASE_JSON" | jq -r '.isDraft')" = "false"
           test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
           test "$(echo "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$TARGET_SHA"
-          for asset in WPOS_PRO_2_2.11.1.exe WPOS_PRO_2_Setup_2.11.1.exe SHA256SUMS.txt; do
+          for asset in WPOS_PRO_2_2.12.0.exe WPOS_PRO_2_Setup_2.12.0.exe SHA256SUMS.txt; do
             echo "$RELEASE_JSON" | jq -r '.assets[].name' | grep -Fx "$asset"
           done
