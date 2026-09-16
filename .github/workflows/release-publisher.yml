@@ -2,9 +2,11 @@ name: WPOS PRO 2 Release Publisher
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/release-publisher.yml'
+  workflow_run:
+    workflows:
+      - WPOS PRO 2 Windows Installer
+    types:
+      - completed
 
 permissions:
   contents: write
@@ -12,84 +14,90 @@ permissions:
 
 jobs:
   publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.WPOS_RELEASE_TOKEN }}
       REPO: ${{ github.repository }}
       RELEASE_TAG: V2.13.0
       RELEASE_VERSION: 2.13.0
-      TARGET_SHA: 71d71d57bcc11ae710bad21667832e818d367265
-      ARTIFACT_NAME: WPOS-PRO-2-2.13.0
+
     steps:
       - name: Validate release token
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$GH_TOKEN"
+          test -n "${GH_TOKEN:-}" || { echo "WPOS_RELEASE_TOKEN is not configured"; exit 1; }
           gh api "repos/$REPO" --jq '.full_name' | grep -Fx "$REPO"
 
-      - name: Wait for verified Windows Installer run
-        id: resolve_installer
+      - name: Resolve installer run
+        id: resolve
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+          EVENT_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            RUN_ID="$EVENT_RUN_ID"
+            TARGET_SHA="$EVENT_SHA"
+          else
+            RUNS_JSON="$(gh api "repos/$REPO/actions/workflows/windows-installer.yml/runs?branch=main&status=success&per_page=20")"
+            RUN_ID="$(jq -r '.workflow_runs | .[0].id // empty' <<< "$RUNS_JSON")"
+            TARGET_SHA="$(jq -r '.workflow_runs | .[0].head_sha // empty' <<< "$RUNS_JSON")"
+          fi
+          test -n "$RUN_ID" || { echo "No successful Windows Installer run found"; exit 1; }
+          test -n "$TARGET_SHA" || { echo "Installer run has no head SHA"; exit 1; }
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "target_sha=$TARGET_SHA" >> "$GITHUB_OUTPUT"
+          echo "Installer run: $RUN_ID"
+          echo "Target commit: $TARGET_SHA"
+
+      - name: Verify installer run
+        env:
+          RUN_ID: ${{ steps.resolve.outputs.run_id }}
+          TARGET_SHA: ${{ steps.resolve.outputs.target_sha }}
         shell: bash
         run: |
           set -euo pipefail
-          echo "Waiting for Windows Installer for target SHA $TARGET_SHA"
-          RUN_ID=""
-          for attempt in $(seq 1 60); do
-            RUN_JSON=$(gh api "repos/$REPO/actions/workflows/windows-installer.yml/runs?head_sha=$TARGET_SHA&per_page=20")
-            RUN_ID=$(echo "$RUN_JSON" | jq -r '.workflow_runs[] | select(.head_sha == "'"$TARGET_SHA"'") | .id' | head -n 1)
-            if [ -n "$RUN_ID" ]; then
-              STATUS=$(gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '.status')
-              CONCLUSION=$(gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '.conclusion // ""')
-              echo "Installer run $RUN_ID: status=$STATUS conclusion=$CONCLUSION attempt=$attempt"
-              if [ "$STATUS" = "completed" ]; then
-                if [ "$CONCLUSION" != "success" ]; then
-                  echo "Windows Installer failed for target SHA $TARGET_SHA"
-                  exit 1
-                fi
-                break
-              fi
-            else
-              echo "Windows Installer run not created yet; attempt=$attempt"
-            fi
-            if [ "$attempt" -eq 60 ]; then
-              echo "Timed out waiting for Windows Installer run for $TARGET_SHA"
-              exit 1
-            fi
-            sleep 10
-          done
-          test -n "$RUN_ID"
-          echo "BUILD_RUN_ID=$RUN_ID" >> "$GITHUB_OUTPUT"
-          gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '{id, name, status, conclusion, head_sha, head_branch}'
+          RUN_JSON="$(gh api "repos/$REPO/actions/runs/$RUN_ID")"
+          STATUS="$(jq -r '.status' <<< "$RUN_JSON")"
+          CONCLUSION="$(jq -r '.conclusion' <<< "$RUN_JSON")"
+          HEAD_SHA="$(jq -r '.head_sha' <<< "$RUN_JSON")"
+          HEAD_BRANCH="$(jq -r '.head_branch' <<< "$RUN_JSON")"
+          test "$STATUS" = "completed" || { echo "Installer run is not completed: $STATUS"; exit 1; }
+          test "$CONCLUSION" = "success" || { echo "Installer run conclusion: $CONCLUSION"; exit 1; }
+          test "$HEAD_BRANCH" = "main" || { echo "Installer run is not from main: $HEAD_BRANCH"; exit 1; }
+          test "$HEAD_SHA" = "$TARGET_SHA" || { echo "Installer SHA mismatch"; exit 1; }
 
       - name: Verify release artifact exists
-        shell: bash
         env:
-          BUILD_RUN_ID: ${{ steps.resolve_installer.outputs.BUILD_RUN_ID }}
+          RUN_ID: ${{ steps.resolve.outputs.run_id }}
+        shell: bash
         run: |
           set -euo pipefail
-          ARTIFACT_JSON=$(gh api "repos/$REPO/actions/runs/$BUILD_RUN_ID/artifacts?name=$ARTIFACT_NAME&per_page=20")
+          ARTIFACT_JSON="$(gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts?name=WPOS-PRO-2-2.13.0&per_page=20")"
           echo "$ARTIFACT_JSON"
-          COUNT=$(echo "$ARTIFACT_JSON" | jq '.artifacts | length')
-          test "$COUNT" -ge 1
-          echo "$ARTIFACT_JSON" | jq -e --arg name "$ARTIFACT_NAME" '.artifacts[] | select(.name == $name and .expired == false)' >/dev/null
+          echo "$ARTIFACT_JSON" | jq -e '.artifacts[] | select(.name == "WPOS-PRO-2-2.13.0" and .expired == false)' >/dev/null
 
       - name: Download verified Windows Installer artifact
-        shell: bash
         env:
-          BUILD_RUN_ID: ${{ steps.resolve_installer.outputs.BUILD_RUN_ID }}
+          RUN_ID: ${{ steps.resolve.outputs.run_id }}
+        shell: bash
         run: |
           set -euo pipefail
           rm -rf release-assets
           mkdir -p release-assets
-          gh run download "$BUILD_RUN_ID" --repo "$REPO" --name "$ARTIFACT_NAME" --dir release-assets
+          gh run download "$RUN_ID" --repo "$REPO" --name WPOS-PRO-2-2.13.0 --dir release-assets
           test -f "release-assets/dist/WPOS_PRO_2_2.13.0.exe"
           test -f "release-assets/installer/WPOS_PRO_2_Setup_2.13.0.exe"
           test -f "release-assets/installer/SHA256SUMS.txt"
           cp "release-assets/dist/WPOS_PRO_2_2.13.0.exe" release-assets/WPOS_PRO_2_2.13.0.exe
           cp "release-assets/installer/WPOS_PRO_2_Setup_2.13.0.exe" release-assets/WPOS_PRO_2_Setup_2.13.0.exe
           cp "release-assets/installer/SHA256SUMS.txt" release-assets/SHA256SUMS.txt
-          sha256sum release-assets/*.exe release-assets/SHA256SUMS.txt
+          cd release-assets
+          sha256sum -c SHA256SUMS.txt
 
       - name: Inspect existing release and tag
         id: inspect
@@ -107,13 +115,7 @@ jobs:
           else
             echo "release_exists=false" >> "$GITHUB_OUTPUT"
           fi
-          if [ "$TAG_RC" -eq 0 ]; then
-            echo "tag_exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag_exists=false" >> "$GITHUB_OUTPUT"
-          fi
-          if [ "$RELEASE_RC" -ne 0 ]; then cat /tmp/release-error.txt || true; fi
-          if [ "$TAG_RC" -ne 0 ]; then cat /tmp/tag-error.txt || true; fi
+          if [ "$TAG_RC" -eq 0 ]; then echo "tag_exists=true" >> "$GITHUB_OUTPUT"; else echo "tag_exists=false" >> "$GITHUB_OUTPUT"; fi
 
       - name: Reject published release
         if: steps.inspect.outputs.release_exists == 'true'
@@ -121,39 +123,41 @@ jobs:
         run: |
           set -euo pipefail
           IS_DRAFT=$(jq -r '.isDraft' /tmp/release.json)
-          if [ "$IS_DRAFT" != "true" ]; then
-            echo "ERROR: $RELEASE_TAG already exists as a published release. Refusing to modify it."
-            exit 1
+          test "$IS_DRAFT" = "true" || { echo "ERROR: $RELEASE_TAG already exists as a published release. Refusing to modify it."; exit 1; }
+
+      - name: Create draft release with correct target
+        if: steps.inspect.outputs.release_exists != 'true'
+        env:
+          TARGET_SHA: ${{ steps.resolve.outputs.target_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.inspect.outputs.tag_exists }}" = "true" ]; then
+            EXISTING_TAG_SHA=$(gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" --jq '.object.sha')
+            test "$EXISTING_TAG_SHA" = "$TARGET_SHA" || { echo "Existing tag points to $EXISTING_TAG_SHA, expected $TARGET_SHA"; exit 1; }
+            gh release create "$RELEASE_TAG" --repo "$REPO" --verify-tag --draft \
+              --title "WPOS PRO 2 v${RELEASE_VERSION}" \
+              --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Windows EXE and installer verified."
+          else
+            gh release create "$RELEASE_TAG" --repo "$REPO" --target "$TARGET_SHA" --draft \
+              --title "WPOS PRO 2 v${RELEASE_VERSION}" \
+              --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Windows EXE and installer verified."
           fi
 
-      - name: Create draft release on existing tag
-        if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists == 'true'
+      - name: Align existing draft target
+        if: steps.inspect.outputs.release_exists == 'true'
+        env:
+          TARGET_SHA: ${{ steps.resolve.outputs.target_sha }}
         shell: bash
         run: |
           set -euo pipefail
-          gh release create "$RELEASE_TAG" --repo "$REPO" --verify-tag --draft \
-            --title "WPOS PRO 2 v${RELEASE_VERSION}" \
-            --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Visible premium UI refresh, responsive breakpoints, realtime dashboard, security hardening, purchase cost handling, receipt print safety, and RBAC hardening included. Windows EXE and installer verified."
-
-      - name: Create draft release with GitHub-managed tag
-        if: steps.inspect.outputs.release_exists != 'true' && steps.inspect.outputs.tag_exists != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Creating draft release for tag $RELEASE_TAG at target $TARGET_SHA"
-          gh release create "$RELEASE_TAG" --repo "$REPO" --target "$TARGET_SHA" --draft \
-            --title "WPOS PRO 2 v${RELEASE_VERSION}" \
-            --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Visible premium UI refresh, responsive breakpoints, realtime dashboard, security hardening, purchase cost handling, receipt print safety, and RBAC hardening included. Windows EXE and installer verified."
+          gh release edit "$RELEASE_TAG" --repo "$REPO" --target "$TARGET_SHA" --title "WPOS PRO 2 v${RELEASE_VERSION}" --notes "WPOS PRO 2 v${RELEASE_VERSION} production release. Windows EXE and installer verified." --draft=true
 
       - name: Upload assets to draft release
         shell: bash
         run: |
           set -euo pipefail
-          IS_DRAFT=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json isDraft --jq '.isDraft')
-          if [ "$IS_DRAFT" != "true" ]; then
-            echo "ERROR: $RELEASE_TAG is not a draft. Refusing to upload assets."
-            exit 1
-          fi
+          test "$(gh release view "$RELEASE_TAG" --repo "$REPO" --json isDraft --jq '.isDraft')" = "true"
           gh release upload "$RELEASE_TAG" \
             "release-assets/WPOS_PRO_2_2.13.0.exe" \
             "release-assets/WPOS_PRO_2_Setup_2.13.0.exe" \
@@ -161,27 +165,36 @@ jobs:
             --repo "$REPO" --clobber
 
       - name: Verify draft assets and target
+        env:
+          TARGET_SHA: ${{ steps.resolve.outputs.target_sha }}
         shell: bash
         run: |
           set -euo pipefail
-          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,targetCommitish,assets)
-          echo "$RELEASE_JSON"
-          test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
-          test "$(echo "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$TARGET_SHA"
-          for asset in WPOS_PRO_2_2.13.0.exe WPOS_PRO_2_Setup_2.13.0.exe SHA256SUMS.txt; do
-            echo "$RELEASE_JSON" | jq -r '.assets[].name' | grep -Fx "$asset"
-          done
+          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,isDraft,isPrerelease,targetCommitish,assets)
+          test "$(jq -r '.tagName' <<< "$RELEASE_JSON")" = "$RELEASE_TAG"
+          test "$(jq -r '.targetCommitish' <<< "$RELEASE_JSON")" = "$TARGET_SHA"
+          test "$(jq -r '.isDraft' <<< "$RELEASE_JSON")" = "true"
+          for asset in WPOS_PRO_2_2.13.0.exe WPOS_PRO_2_Setup_2.13.0.exe SHA256SUMS.txt; do jq -r '.assets[].name' <<< "$RELEASE_JSON" | grep -Fx "$asset"; done
 
       - name: Publish verified release
+        env:
+          TARGET_SHA: ${{ steps.resolve.outputs.target_sha }}
         shell: bash
         run: |
           set -euo pipefail
+          TAG_SHA=$(gh api "repos/$REPO/git/ref/tags/$RELEASE_TAG" --jq '.object.sha')
+          test "$TAG_SHA" = "$TARGET_SHA"
           gh release edit "$RELEASE_TAG" --repo "$REPO" --draft=false --latest
-          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,name,isDraft,isPrerelease,targetCommitish,assets)
-          echo "$RELEASE_JSON"
-          test "$(echo "$RELEASE_JSON" | jq -r '.isDraft')" = "false"
-          test "$(echo "$RELEASE_JSON" | jq -r '.tagName')" = "$RELEASE_TAG"
-          test "$(echo "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$TARGET_SHA"
-          for asset in WPOS_PRO_2_2.13.0.exe WPOS_PRO_2_Setup_2.13.0.exe SHA256SUMS.txt; do
-            echo "$RELEASE_JSON" | jq -r '.assets[].name' | grep -Fx "$asset"
-          done
+
+      - name: Final release verification
+        env:
+          TARGET_SHA: ${{ steps.resolve.outputs.target_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          RELEASE_JSON=$(gh release view "$RELEASE_TAG" --repo "$REPO" --json tagName,isDraft,isPrerelease,targetCommitish,assets)
+          test "$(jq -r '.isDraft' <<< "$RELEASE_JSON")" = "false"
+          test "$(jq -r '.isPrerelease' <<< "$RELEASE_JSON")" = "false"
+          test "$(jq -r '.targetCommitish' <<< "$RELEASE_JSON")" = "$TARGET_SHA"
+          test "$(jq '.assets | length' <<< "$RELEASE_JSON")" -ge 3
+          echo "Release $RELEASE_TAG published and verified."
