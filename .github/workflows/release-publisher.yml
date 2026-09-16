@@ -18,7 +18,7 @@ jobs:
       REPO: ${{ github.repository }}
       RELEASE_TAG: V2.13.0
       RELEASE_VERSION: 2.13.0
-      TARGET_SHA: ca9368782f12b0c4347ee6bae5929343b9d2bb29
+      TARGET_SHA: 71d71d57bcc11ae710bad21667832e818d367265
       ARTIFACT_NAME: WPOS-PRO-2-2.13.0
     steps:
       - name: Validate release token
@@ -28,17 +28,38 @@ jobs:
           test -n "$GH_TOKEN"
           gh api "repos/$REPO" --jq '.full_name' | grep -Fx "$REPO"
 
-      - name: Resolve verified Windows Installer run
+      - name: Wait for verified Windows Installer run
         id: resolve_installer
         shell: bash
         run: |
           set -euo pipefail
-          echo "Resolving Windows Installer run for target SHA $TARGET_SHA"
-          RUN_ID=$(gh api "repos/$REPO/actions/workflows/windows-installer.yml/runs?head_sha=$TARGET_SHA&status=success&per_page=20" \
-            --jq '.workflow_runs[] | select(.head_sha == "'"$TARGET_SHA"'") | .id' | head -n 1)
+          echo "Waiting for Windows Installer for target SHA $TARGET_SHA"
+          RUN_ID=""
+          for attempt in $(seq 1 60); do
+            RUN_JSON=$(gh api "repos/$REPO/actions/workflows/windows-installer.yml/runs?head_sha=$TARGET_SHA&per_page=20")
+            RUN_ID=$(echo "$RUN_JSON" | jq -r '.workflow_runs[] | select(.head_sha == "'"$TARGET_SHA"'") | .id' | head -n 1)
+            if [ -n "$RUN_ID" ]; then
+              STATUS=$(gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '.status')
+              CONCLUSION=$(gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '.conclusion // ""')
+              echo "Installer run $RUN_ID: status=$STATUS conclusion=$CONCLUSION attempt=$attempt"
+              if [ "$STATUS" = "completed" ]; then
+                if [ "$CONCLUSION" != "success" ]; then
+                  echo "Windows Installer failed for target SHA $TARGET_SHA"
+                  exit 1
+                fi
+                break
+              fi
+            else
+              echo "Windows Installer run not created yet; attempt=$attempt"
+            fi
+            if [ "$attempt" -eq 60 ]; then
+              echo "Timed out waiting for Windows Installer run for $TARGET_SHA"
+              exit 1
+            fi
+            sleep 10
+          done
           test -n "$RUN_ID"
           echo "BUILD_RUN_ID=$RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "Resolved Windows Installer run: $RUN_ID"
           gh api "repos/$REPO/actions/runs/$RUN_ID" --jq '{id, name, status, conclusion, head_sha, head_branch}'
 
       - name: Verify release artifact exists
