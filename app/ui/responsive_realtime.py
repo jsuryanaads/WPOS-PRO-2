@@ -6,7 +6,7 @@ refreshes dashboard presentation when local data changes.
 """
 
 from PySide6.QtCore import QObject, QTimer, QEvent
-from PySide6.QtWidgets import QFrame, QSplitter, QSizePolicy
+from PySide6.QtWidgets import QFrame, QSizePolicy
 
 
 class _ResponsiveRealtimeController(QObject):
@@ -53,8 +53,6 @@ class _ResponsiveRealtimeController(QObject):
                 pay.setMinimumWidth(290)
                 pay.setMaximumWidth(330)
 
-        # Let the main content breathe on smaller screens instead of forcing
-        # fixed widths. Scroll areas remain the fallback for dense legacy pages.
         stack = getattr(self.window, "modern_stack", None)
         if stack is not None:
             for index in range(stack.count()):
