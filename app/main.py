@@ -6,6 +6,7 @@ from .database import init_db
 from .ui.login import LoginWindow
 from .ui.modern_main_window import ModernMainWindow
 from .ui.main_window import MainWindow
+from .ui import main_window as main_window_module
 from .ui.purchase_multi import (
     purchase_page as multi_item_purchase_page,
     load_purchase_options as multi_item_load_purchase_options,
@@ -31,6 +32,7 @@ from .services.receipt_polish import add_html_top_safe_area, add_raw_top_safe_ar
 
 _original_receipt_html = printer_service.receipt_html
 _original_escpos_receipt_bytes = printer_service._escpos_receipt_bytes
+_original_print_receipt = printer_service.print_receipt
 
 
 def _receipt_html_with_integer_qty(sale, items, settings):
@@ -44,8 +46,18 @@ def _escpos_receipt_bytes_with_safe_area(*args, **kwargs):
     return add_raw_top_safe_area(data, printer_service.CMD_INIT, blank_lines=2)
 
 
+def _safe_print_receipt(parent, sale, items):
+    """Keep a committed sale successful when the printer layer raises."""
+    try:
+        return _original_print_receipt(parent, sale, items)
+    except Exception:
+        return False
+
+
 printer_service.receipt_html = _receipt_html_with_integer_qty
 printer_service._escpos_receipt_bytes = _escpos_receipt_bytes_with_safe_area
+# MainWindow imports print_receipt directly, so patch that module-level symbol too.
+main_window_module.print_receipt = _safe_print_receipt
 
 # The legacy MainWindow owns the business pages, while the modern shell only
 # wraps them. Replace only the purchase presentation methods so the same
