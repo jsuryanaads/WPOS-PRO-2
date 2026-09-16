@@ -15,8 +15,10 @@ Modern POS desktop untuk toko sembako Windows offline, satu komputer.
 - Perubahan ini mempertahankan kompatibilitas database existing dan hanya memaksa perubahan saat credential bootstrap lama masih aktif.
 - Memperbaiki **CI regression contract** setelah security hardening: test identitas aplikasi kini memvalidasi format SemVer dari `APP_VERSION`, sehingga patch release `2.11.1` tidak mematahkan test yang mengunci versi lama.
 - Mempertahankan contract import login pada `app/ui/login.py` agar regression test tetap dapat memverifikasi jalur autentikasi setelah penambahan forced password change.
-- Tidak ada perubahan versi karena perbaikan ini merupakan stabilisasi test/CI di dalam release **2.11.1**.
-- Release **2.11.1** dikategorikan sebagai PATCH karena merupakan security hardening backward-compatible.
+- Release publisher sekarang menggunakan repository secret **`WPOS_RELEASE_TOKEN`** untuk autentikasi GitHub CLI, menggantikan `github.token` yang sebelumnya ditolak GitHub dengan HTTP 403 saat membuat Release.
+- Menambahkan validasi awal bahwa release token tersedia dan dapat mengakses repository sebelum artifact/release diproses.
+- Tidak ada perubahan versi karena perbaikan ini merupakan stabilisasi release automation di dalam release **2.11.1**.
+- Release **2.11.1** dikategorikan sebagai PATCH karena merupakan security hardening dan stabilisasi release automation yang backward-compatible.
 - Setiap perubahan versi dicatat di README dan Changelog.
 
 ## Perubahan terbaru 2.11.0
