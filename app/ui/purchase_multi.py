@@ -129,15 +129,15 @@ def load_purchase_options(window):
         suppliers = session.query(Supplier).order_by(Supplier.name).all()
     window.buy_product.clear()
     window.buy_supplier.clear()
+    window.buy_supplier.addItem("Tanpa Supplier", None)
     for product in products:
         window.buy_product.addItem(f"{product.name} | {product.barcode}", product.id)
-    window.buy_supplier.addItem("Tanpa Supplier", None)
     for supplier in suppliers:
         window.buy_supplier.addItem(supplier.name, supplier.id)
 
 
 def add_purchase_item(window):
-    """Add or merge one product line in the in-memory purchase basket."""
+    """Add one purchase line, merging only when product and unit cost match."""
     product_id = window.buy_product.currentData()
     if product_id is None:
         QMessageBox.warning(window, "Pembelian", "Belum ada produk aktif.")
@@ -159,17 +159,21 @@ def add_purchase_item(window):
         name = product.name
         barcode = product.barcode
 
+    product_id = int(product_id)
     existing = next(
-        (row for row in window.purchase_items if row["product_id"] == int(product_id)),
+        (
+            row
+            for row in window.purchase_items
+            if row["product_id"] == product_id and row["unit_cost"] == cost
+        ),
         None,
     )
     if existing:
         existing["quantity"] += qty
-        existing["unit_cost"] = cost
     else:
         window.purchase_items.append(
             {
-                "product_id": int(product_id),
+                "product_id": product_id,
                 "name": name,
                 "barcode": barcode,
                 "quantity": qty,
