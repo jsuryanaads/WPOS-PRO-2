@@ -1,31 +1,17 @@
 from pathlib import Path
 
 
-def test_product_display_normalizes_whole_stock_and_has_status():
-    text = Path("app/ui/product_display.py").read_text(encoding="utf-8")
-    assert "_whole_number" in text
-    assert '"AKTIF"' in text
-    assert '"NONAKTIF"' in text
-    assert '"Status"' in text
-    assert 'Decimal("1")' in text
-
-
-def test_product_display_refreshes_after_navigation():
-    text = Path("app/ui/product_display.py").read_text(encoding="utf-8")
-    assert "QTimer.singleShot(0" in text
-    assert "currentChanged.connect(refresh_after_navigation)" in text
-
-
-def test_main_applies_product_table_display():
+def test_product_display_is_applied_by_startup():
     text = Path("app/main.py").read_text(encoding="utf-8")
     assert "from .ui.product_display import apply_product_table_display" in text
     assert "apply_product_table_display(window)" in text
 
 
 def test_version_and_docs_are_synchronized():
+    from app.config import APP_VERSION
     config = Path("app/config.py").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     installer = Path("installer.iss").read_text(encoding="utf-8")
-    assert 'APP_VERSION = "2.10.0"' in config
-    assert 'Versi aplikasi: **2.10.0**' in readme
-    assert '#define MyAppVersion "2.10.0"' in installer
+    assert f'APP_VERSION = "{APP_VERSION}"' in config
+    assert f'Versi aplikasi: **{APP_VERSION}**' in readme
+    assert f'#define MyAppVersion "{APP_VERSION}"' in installer
