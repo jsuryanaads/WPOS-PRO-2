@@ -3,9 +3,76 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QFrame, QSizePolicy
 from ..config import APP_NAME
 from ..database import SessionLocal
-from ..services.auth import login
+from ..services.auth import change_password, is_default_admin_password, login
 from .branding import LOGO_PATH
 from .global_ui import add_application_footer
+
+
+class ChangePasswordDialog(QDialog):
+    def __init__(self, user, parent=None):
+        super().__init__(parent)
+        self.user = user
+        self.setWindowTitle("Wajib Ganti Password")
+        self.setFixedSize(430, 300)
+        self.setModal(True)
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(28, 24, 28, 24)
+        root.setSpacing(10)
+
+        title = QLabel("Keamanan Akun Administrator")
+        title.setObjectName("loginTitle")
+        root.addWidget(title)
+        message = QLabel(
+            "Password administrator masih menggunakan password awal yang diketahui umum.\n"
+            "Buat password baru minimal 8 karakter untuk melanjutkan."
+        )
+        message.setWordWrap(True)
+        root.addWidget(message)
+
+        self.password = QLineEdit()
+        self.password.setEchoMode(QLineEdit.Password)
+        self.password.setPlaceholderText("Password baru (minimal 8 karakter)")
+        root.addWidget(self.password)
+
+        self.confirm = QLineEdit()
+        self.confirm.setEchoMode(QLineEdit.Password)
+        self.confirm.setPlaceholderText("Ulangi password baru")
+        root.addWidget(self.confirm)
+
+        buttons = QHBoxLayout()
+        cancel = QPushButton("Keluar")
+        cancel.clicked.connect(self.reject)
+        save = QPushButton("Simpan Password")
+        save.setDefault(True)
+        save.clicked.connect(self.handle_save)
+        buttons.addWidget(cancel)
+        buttons.addWidget(save)
+        root.addLayout(buttons)
+        self.password.setFocus()
+
+    def handle_save(self):
+        password = self.password.text()
+        confirmation = self.confirm.text()
+        if len(password) < 8:
+            QMessageBox.warning(self, "Password", "Password minimal 8 karakter.")
+            return
+        if password != confirmation:
+            QMessageBox.warning(self, "Password", "Konfirmasi password tidak sama.")
+            return
+        try:
+            with SessionLocal() as session:
+                user = session.get(type(self.user), self.user.id)
+                if user is None or not is_default_admin_password(user):
+                    QMessageBox.critical(self, "Password", "Status akun berubah. Silakan login kembali.")
+                    self.reject()
+                    return
+                change_password(session, user, password)
+        except Exception as exc:
+            QMessageBox.critical(self, "Password", f"Password gagal disimpan: {exc}")
+            return
+        QMessageBox.information(self, "Password", "Password administrator berhasil diperbarui.")
+        self.accept()
 
 
 class LoginWindow(QDialog):
@@ -107,6 +174,16 @@ class LoginWindow(QDialog):
         try:
             with SessionLocal() as session:
                 user = login(session, username, password)
+                if user and is_default_admin_password(user):
+                    change_dialog = ChangePasswordDialog(user, self)
+                    if change_dialog.exec() != QDialog.Accepted:
+                        return
+                    user = login(session, username, password)
+                    if user is None:
+                        QMessageBox.warning(self, "Login", "Password awal sudah tidak berlaku. Silakan login kembali.")
+                        self.password.clear()
+                        self.password.setFocus()
+                        return
             if user:
                 self.on_success(user)
                 self.close()
