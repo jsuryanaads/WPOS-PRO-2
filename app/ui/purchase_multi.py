@@ -109,7 +109,7 @@ def purchase_page(window):
     actions = QHBoxLayout()
     clear = QPushButton("CLEAR ITEM")
     clear.clicked.connect(window.clear_purchase_items)
-    save = QPushButton("SIMPAN PEMBELIAN & TAMBAH STOK")
+    save = QPushButton("Simpan Pembelian & Tambah Stok")
     save.setObjectName("primary")
     save.clicked.connect(window.save_purchase)
     actions.addWidget(clear)
