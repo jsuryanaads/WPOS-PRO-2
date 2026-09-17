@@ -95,6 +95,24 @@ class LoginWindow(QDialog):
         self.exit_button.setObjectName("loginExitButton")
         self.exit_button.setFixedSize(44, 44)
         self.exit_button.setToolTip("Keluar dari WPOS PRO 2")
+        self.exit_button.setStyleSheet("""
+            QPushButton#loginExitButton {
+                background: rgba(8, 24, 50, 180);
+                color: #e6f3ff;
+                border: 1px solid rgba(120, 190, 255, 150);
+                border-radius: 12px;
+                font-size: 28px;
+                font-weight: 300;
+                padding: 0;
+            }
+            QPushButton#loginExitButton:hover {
+                background: rgba(35, 112, 185, 220);
+                border: 1px solid rgba(170, 220, 255, 220);
+            }
+            QPushButton#loginExitButton:pressed {
+                background: rgba(15, 70, 125, 230);
+            }
+        """)
         self.exit_button.clicked.connect(self.close)
         topbar.addWidget(self.exit_button)
         root.addLayout(topbar)
