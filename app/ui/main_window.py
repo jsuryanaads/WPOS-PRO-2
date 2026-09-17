@@ -21,6 +21,7 @@ from ..services.reports import sales_summary, low_stock_count, cash_summary, sto
 from ..services.backup import backup_database, restore_database
 from ..services.settings import get_settings, save_settings
 from ..services.printer import available_printers, print_receipt, test_print
+from ..services.report_printer import print_report_a4
 from .master_data import category_page, unit_page, supplier_page, customer_page
 
 
@@ -285,13 +286,22 @@ class MainWindow(QMainWindow):
         self.cash_label.setText(f"Kas Masuk {money(x['cash_in'])}   ·   Kas Keluar {money(x['cash_out'])}   ·   Saldo {money(x['balance'])}")
 
     def report_page(self):
-        w=QWidget();l=QVBoxLayout(w);l.setContentsMargins(18,16,18,18);l.addWidget(self.page_header("Laporan","Ringkasan penjualan, kas, stok, dan transaksi terakhir."));bar=QHBoxLayout();refresh=QPushButton("Refresh");refresh.clicked.connect(self.refresh_report);bar.addWidget(refresh);reprint=QPushButton("Cetak Ulang Transaksi Terpilih");reprint.clicked.connect(self.reprint_selected);bar.addWidget(reprint);bar.addStretch();l.addLayout(bar);self.report_text=QTextEdit();self.report_text.setReadOnly(True);l.addWidget(self.report_text,1);self.report_table=QTableWidget(0,5);self.report_table.setHorizontalHeaderLabels(["ID","Invoice","Tanggal","Metode","Total"]);self._prepare_table(self.report_table);l.addWidget(self.report_table,2);self.refresh_report();return w
+        w=QWidget();l=QVBoxLayout(w);l.setContentsMargins(18,16,18,18);l.addWidget(self.page_header("Laporan","Ringkasan penjualan, kas, stok, dan transaksi terakhir."));bar=QHBoxLayout();refresh=QPushButton("Refresh");refresh.clicked.connect(self.refresh_report);bar.addWidget(refresh);print_report=QPushButton("Cetak Laporan A4");print_report.setObjectName("primary");print_report.clicked.connect(self.print_report_a4);bar.addWidget(print_report);reprint=QPushButton("Cetak Ulang Transaksi Terpilih");reprint.clicked.connect(self.reprint_selected);bar.addWidget(reprint);bar.addStretch();l.addLayout(bar);self.report_text=QTextEdit();self.report_text.setReadOnly(True);l.addWidget(self.report_text,1);self.report_table=QTableWidget(0,5);self.report_table.setHorizontalHeaderLabels(["ID","Invoice","Tanggal","Metode","Total"]);self._prepare_table(self.report_table);l.addWidget(self.report_table,2);self.refresh_report();return w
 
     def refresh_report(self):
         with SessionLocal() as s:sales=sales_summary(s);cash=cash_summary(s);stock=stock_summary(s);rows=recent_sales(s,100)
         low=sum(1 for x in stock if x["status"]!="AMAN");self.report_text.setHtml(f"<h2>Ringkasan WPOS PRO</h2><p><b>Transaksi:</b> {sales['transactions']} &nbsp;&nbsp; <b>Omzet:</b> {money(sales['omzet'])}</p><p><b>Kas masuk:</b> {money(cash['cash_in'])} &nbsp;&nbsp; <b>Kas keluar:</b> {money(cash['cash_out'])} &nbsp;&nbsp; <b>Saldo:</b> {money(cash['balance'])}</p><p><b>Produk stok perlu perhatian:</b> {low}</p>");self.report_table.setRowCount(len(rows))
         for i,sale in enumerate(rows):
             for c,v in enumerate([sale.id,sale.invoice_no,sale.created_at.strftime("%d/%m/%Y %H:%M:%S"),sale.payment_method,money(sale.total)]):self.report_table.setItem(i,c,QTableWidgetItem(str(v)))
+
+    def print_report_a4(self):
+        try:
+            with SessionLocal() as s:
+                printer_name=get_settings(s).get("report_printer_name","")
+            if print_report_a4(self,self.report_text.toHtml(),printer_name):
+                QMessageBox.information(self,"Laporan","Laporan berhasil dikirim ke printer A4.")
+        except Exception as e:
+            QMessageBox.warning(self,"Laporan",str(e))
 
     def reprint_selected(self):
         row=self.report_table.currentRow()
@@ -322,17 +332,23 @@ class MainWindow(QMainWindow):
         except Exception as e:QMessageBox.warning(self,"Pengaturan",str(e))
 
     def printer_page(self):
-        w=QWidget();l=QVBoxLayout(w);l.setContentsMargins(18,16,18,18);l.addWidget(self.page_header("Printer","Printer thermal WPOS PRO · standar 58mm."));box=QGroupBox("Printer Struk · 58mm");f=QFormLayout(box);self.printer_combo=QComboBox();self.printer_combo.addItem("Printer default / pilih saat cetak","")
+        w=QWidget();l=QVBoxLayout(w);l.setContentsMargins(18,16,18,18);l.addWidget(self.page_header("Printer","Struk thermal 58mm dan laporan A4 memiliki konfigurasi terpisah."));
+        receipt_box=QGroupBox("Printer Struk · 58mm");rf=QFormLayout(receipt_box);self.printer_combo=QComboBox();self.printer_combo.addItem("Printer default / pilih saat cetak","")
         for name in available_printers():self.printer_combo.addItem(name,name)
         settings=get_settings(self._session());current=settings.get("printer_name","");idx=self.printer_combo.findData(current)
         if idx>=0:self.printer_combo.setCurrentIndex(idx)
-        f.addRow("Printer",self.printer_combo);paper=QLabel("58mm (tetap)");paper.setObjectName("pageSubtitle");f.addRow("Kertas",paper);l.addWidget(box)
+        rf.addRow("Printer",self.printer_combo);paper=QLabel("58mm (tetap)");paper.setObjectName("pageSubtitle");rf.addRow("Kertas",paper);l.addWidget(receipt_box)
+        report_box=QGroupBox("Printer Laporan · A4");report_form=QFormLayout(report_box);self.report_printer_combo=QComboBox();self.report_printer_combo.addItem("Printer default / pilih saat cetak","")
+        for name in available_printers():self.report_printer_combo.addItem(name,name)
+        report_current=settings.get("report_printer_name","");report_idx=self.report_printer_combo.findData(report_current)
+        if report_idx>=0:self.report_printer_combo.setCurrentIndex(report_idx)
+        report_form.addRow("Printer",self.report_printer_combo);report_paper=QLabel("A4 · Portrait (tetap)");report_paper.setObjectName("pageSubtitle");report_form.addRow("Kertas",report_paper);l.addWidget(report_box)
         row=QHBoxLayout();save=QPushButton("Simpan Printer");save.setObjectName("primary");save.clicked.connect(self.save_printer_settings);test=QPushButton("Tes Cetak 58mm");test.clicked.connect(lambda:test_print(self,self.printer_combo.currentData() or "","58mm"));row.addWidget(save);row.addWidget(test);row.addStretch();l.addLayout(row);l.addStretch();return w
 
     def save_printer_settings(self):
         try:
-            with SessionLocal() as s:save_settings(s,{"printer_name":self.printer_combo.currentData() or "","receipt_paper":"58mm"})
-            QMessageBox.information(self,"Printer","Printer disimpan. Standar kertas WPOS PRO: 58mm.")
+            with SessionLocal() as s:save_settings(s,{"printer_name":self.printer_combo.currentData() or "","receipt_paper":"58mm","report_printer_name":self.report_printer_combo.currentData() or ""})
+            QMessageBox.information(self,"Printer","Pengaturan printer tersimpan. Struk = 58mm · Laporan = A4.")
         except Exception as e:QMessageBox.warning(self,"Printer",str(e))
 
     def backup_page(self):
