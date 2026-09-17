@@ -122,7 +122,7 @@ def main():
             login_window = LoginWindow(success)
             holder["login"] = login_window
             apply_global_ui(app, login_window)
-            login_window.show()
+            login_window.showFullScreen()
 
         window = ModernMainWindow(user, logout_callback=logout_callback)
         window.setStyleSheet("")
@@ -149,7 +149,7 @@ def main():
     login = LoginWindow(success)
     holder["login"] = login
     apply_global_ui(app, login)
-    login.show()
+    login.showFullScreen()
     sys.exit(app.exec())
 
 
