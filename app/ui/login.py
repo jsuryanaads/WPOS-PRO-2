@@ -24,23 +24,17 @@ class ChangePasswordDialog(QDialog):
         title = QLabel("Keamanan Akun Administrator")
         title.setObjectName("loginTitle")
         root.addWidget(title)
-        message = QLabel(
-            "Password administrator masih menggunakan password awal yang diketahui umum.\n"
-            "Buat password baru minimal 8 karakter untuk melanjutkan."
-        )
+        message = QLabel("Password administrator masih menggunakan password awal yang diketahui umum.\nBuat password baru minimal 8 karakter untuk melanjutkan.")
         message.setWordWrap(True)
         root.addWidget(message)
-
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.Password)
         self.password.setPlaceholderText("Password baru (minimal 8 karakter)")
         root.addWidget(self.password)
-
         self.confirm = QLineEdit()
         self.confirm.setEchoMode(QLineEdit.Password)
         self.confirm.setPlaceholderText("Ulangi password baru")
         root.addWidget(self.confirm)
-
         buttons = QHBoxLayout()
         cancel = QPushButton("Keluar")
         cancel.clicked.connect(self.reject)
@@ -85,12 +79,12 @@ class LoginWindow(QDialog):
         self.resize(520, 700)
         self.setModal(True)
         self.setObjectName("loginWindow")
+        self.setWindowState(self.windowState() | Qt.WindowFullScreen)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(24, 20, 24, 18)
         root.setSpacing(0)
         root.addStretch(1)
-
         card = QFrame()
         card.setObjectName("loginCard")
         card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -98,7 +92,6 @@ class LoginWindow(QDialog):
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(32, 28, 32, 28)
         card_layout.setSpacing(10)
-
         logo = QLabel()
         logo.setAlignment(Qt.AlignCenter)
         logo.setMinimumHeight(82)
@@ -108,28 +101,23 @@ class LoginWindow(QDialog):
             if not pixmap.isNull():
                 logo.setPixmap(pixmap.scaled(96, 96, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         card_layout.addWidget(logo)
-
         title = QLabel(APP_NAME)
         title.setObjectName("loginTitle")
         title.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(title)
-
         subtitle = QLabel("Point of Sale")
         subtitle.setObjectName("loginSubtitle")
         subtitle.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(subtitle)
-
         welcome = QLabel("Silakan masuk untuk melanjutkan")
         welcome.setObjectName("loginWelcome")
         welcome.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(welcome)
-
         mode = QLabel("●  Offline  •  Database Lokal")
         mode.setObjectName("loginMode")
         mode.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(mode)
         card_layout.addSpacing(8)
-
         user_label = QLabel("USERNAME")
         user_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(user_label)
@@ -139,7 +127,6 @@ class LoginWindow(QDialog):
         self.username.setMinimumHeight(46)
         self.username.returnPressed.connect(self.handle_login)
         card_layout.addWidget(self.username)
-
         password_label = QLabel("PASSWORD")
         password_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(password_label)
@@ -160,7 +147,6 @@ class LoginWindow(QDialog):
         self.show_password.toggled.connect(self.toggle_password)
         password_row.addWidget(self.show_password)
         card_layout.addLayout(password_row)
-
         card_layout.addSpacing(10)
         self.login_button = QPushButton("MASUK")
         self.login_button.setObjectName("loginPrimaryButton")
@@ -168,7 +154,6 @@ class LoginWindow(QDialog):
         self.login_button.setDefault(True)
         self.login_button.clicked.connect(self.handle_login)
         card_layout.addWidget(self.login_button)
-
         row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.addStretch(1)
@@ -183,19 +168,16 @@ class LoginWindow(QDialog):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = self.rect()
-
         gradient = QLinearGradient(QPointF(0, 0), QPointF(rect.width(), rect.height()))
         gradient.setColorAt(0.0, QColor("#0b1220"))
         gradient.setColorAt(0.55, QColor("#111c2e"))
         gradient.setColorAt(1.0, QColor("#162a3d"))
         painter.fillRect(rect, gradient)
-
         glow = QRadialGradient(QPointF(rect.width() * 0.18, rect.height() * 0.18), max(rect.width(), rect.height()) * 0.55)
         glow.setColorAt(0.0, QColor(70, 150, 220, 55))
         glow.setColorAt(0.55, QColor(35, 100, 170, 20))
         glow.setColorAt(1.0, QColor(0, 0, 0, 0))
         painter.fillRect(rect, glow)
-
         painter.setPen(QColor(255, 255, 255, 10))
         painter.drawEllipse(QPointF(rect.width() * 0.86, rect.height() * 0.16), 95, 95)
         painter.drawEllipse(QPointF(rect.width() * 0.08, rect.height() * 0.82), 70, 70)
