@@ -83,7 +83,7 @@ jobs:
         run: |
           if (!(Test-Path "assets\branding\wpos_logo.png")) { throw "Logo tidak ditemukan: wpos_logo.png" }
           if (!(Test-Path "assets\branding\wpos_icon.ico")) { throw "Icon tidak ditemukan: wpos_icon.ico" }
-          if (!(Test-Path "assets\branding\login_background.svg")) { throw "Background login tidak ditemukan: login_background.svg" }
+          if (!(Test-Path "assets\branding\login_background.png")) { throw "Background login tidak ditemukan: login_background.png" }
 
       - name: Compile Python
         run: python -m compileall -q app
@@ -97,7 +97,7 @@ jobs:
       - name: Build EXE
         shell: pwsh
         run: |
-          python -m PyInstaller --clean --noconfirm --windowed --icon "assets\branding\wpos_icon.ico" --name "WPOS PRO 2" --paths . --add-data "assets\branding\wpos_logo.png;assets\branding" --add-data "assets\branding\wpos_icon.ico;assets\branding" --add-data "assets\branding\login_background.svg;assets\branding" run.py
+          python -m PyInstaller --clean --noconfirm --windowed --icon "assets\branding\wpos_icon.ico" --name "WPOS PRO 2" --paths . --add-data "assets\branding\wpos_logo.png;assets\branding" --add-data "assets\branding\wpos_icon.ico;assets\branding" --add-data "assets\branding\login_background.png;assets\branding" run.py
 
       - name: Verify EXE, icon and branding
         shell: pwsh
@@ -105,7 +105,7 @@ jobs:
           $exe = "dist\WPOS PRO 2\WPOS PRO 2.exe"
           $logo = "dist\WPOS PRO 2\_internal\assets\branding\wpos_logo.png"
           $icon = "dist\WPOS PRO 2\_internal\assets\branding\wpos_icon.ico"
-          $background = "dist\WPOS PRO 2\_internal\assets\branding\login_background.svg"
+          $background = "dist\WPOS PRO 2\_internal\assets\branding\login_background.png"
           if (!(Test-Path $exe)) { throw "EXE tidak ditemukan: $exe" }
           if (!(Test-Path $logo)) { throw "Logo tidak ikut dipaketkan: $logo" }
           if (!(Test-Path $icon)) { throw "Icon tidak ikut dipaketkan: $icon" }
