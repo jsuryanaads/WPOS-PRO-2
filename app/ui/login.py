@@ -73,19 +73,22 @@ class LoginWindow(QDialog):
         super().__init__()
         self.on_success = on_success
         self.setWindowTitle(f"{APP_NAME} - Login")
-        self.setMinimumSize(400, 600)
-        self.resize(520, 700)
         self.setModal(True)
         self.setObjectName("loginWindow")
         self.setWindowState(self.windowState() | Qt.WindowFullScreen)
         self._login_background = resource_path("assets/branding/login_background.png")
         self._login_background_pixmap = QPixmap(str(self._login_background)) if self._login_background.exists() else QPixmap()
+        self._login_card = None
+        self._login_logo = None
+        self._login_logo_pixmap = QPixmap()
+        self._card_layout = None
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(22, 16, 22, 12)
+        root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
+
         topbar = QHBoxLayout()
-        topbar.setContentsMargins(0, 0, 0, 0)
+        topbar.setContentsMargins(16, 12, 16, 0)
         topbar.addStretch(1)
         self.exit_button = QPushButton("×")
         self.exit_button.setObjectName("loginExitButton")
@@ -116,12 +119,13 @@ class LoginWindow(QDialog):
 
         card = QFrame()
         card.setObjectName("loginCard")
-        card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        card.setMinimumWidth(420)
-        card.setMaximumWidth(520)
+        card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self._login_card = card
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(38, 34, 38, 34)
         card_layout.setSpacing(12)
+        self._card_layout = card_layout
+
         logo = QLabel()
         logo.setAlignment(Qt.AlignCenter)
         logo.setMinimumHeight(96)
@@ -129,7 +133,9 @@ class LoginWindow(QDialog):
         if LOGO_PATH.exists():
             pixmap = QPixmap(str(LOGO_PATH))
             if not pixmap.isNull():
+                self._login_logo_pixmap = pixmap
                 logo.setPixmap(pixmap.scaled(108, 108, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self._login_logo = logo
         card_layout.addWidget(logo)
         title = QLabel(APP_NAME)
         title.setObjectName("loginTitle")
@@ -184,15 +190,44 @@ class LoginWindow(QDialog):
         self.login_button.setDefault(True)
         self.login_button.clicked.connect(self.handle_login)
         card_layout.addWidget(self.login_button)
+
         row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.addStretch(1)
-        row.addWidget(card, 1)
+        row.addWidget(card, 0, Qt.AlignCenter)
         row.addStretch(1)
-        root.addLayout(row)
-        root.addStretch(1)
+        root.addLayout(row, 1)
         add_application_footer(self)
+        self._apply_responsive_layout()
         self.username.setFocus()
+
+    def _apply_responsive_layout(self):
+        if self._login_card is None or self._card_layout is None:
+            return
+        width = max(1, self.width())
+        height = max(1, self.height())
+        scale = min(width / 1440.0, height / 900.0)
+        card_width = int(max(360, min(560, width * 0.36)))
+        self._login_card.setFixedWidth(card_width)
+        horizontal = int(max(26, min(42, card_width * 0.075)))
+        vertical = int(max(22, min(36, 34 * scale)))
+        self._card_layout.setContentsMargins(horizontal, vertical, horizontal, vertical)
+        self._card_layout.setSpacing(int(max(8, min(14, 12 * scale))))
+        logo_size = int(max(76, min(108, 108 * scale)))
+        self._login_logo.setMinimumHeight(logo_size)
+        if not self._login_logo_pixmap.isNull():
+            self._login_logo.setPixmap(self._login_logo_pixmap.scaled(
+                logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            ))
+        control_height = int(max(44, min(52, 50 * scale)))
+        self.username.setMinimumHeight(control_height)
+        self.password.setMinimumHeight(control_height)
+        self.show_password.setMinimumHeight(control_height)
+        self.login_button.setMinimumHeight(int(max(46, min(54, 52 * scale))))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._apply_responsive_layout()
 
     def paintEvent(self, event):
         painter = QPainter(self)
