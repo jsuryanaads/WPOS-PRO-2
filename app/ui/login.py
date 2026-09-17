@@ -1,11 +1,12 @@
 from PySide6.QtCore import Qt, QPointF
 from PySide6.QtGui import QPixmap, QPainter, QLinearGradient, QColor, QRadialGradient
+from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QFrame, QSizePolicy
 from ..config import APP_NAME
 from ..database import SessionLocal
 from ..services.auth import login
 from ..services.auth import change_password, is_default_admin_password
-from .branding import LOGO_PATH
+from .branding import LOGO_PATH, resource_path
 from .global_ui import add_application_footer
 
 
@@ -80,10 +81,23 @@ class LoginWindow(QDialog):
         self.setModal(True)
         self.setObjectName("loginWindow")
         self.setWindowState(self.windowState() | Qt.WindowFullScreen)
+        self._login_background = resource_path("assets/branding/login_background.svg")
+        self._login_background_renderer = QSvgRenderer(str(self._login_background)) if self._login_background.exists() else None
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(24, 20, 24, 18)
+        root.setContentsMargins(22, 16, 22, 12)
         root.setSpacing(0)
+
+        topbar = QHBoxLayout()
+        topbar.setContentsMargins(0, 0, 0, 0)
+        topbar.addStretch(1)
+        self.exit_button = QPushButton("×")
+        self.exit_button.setObjectName("loginExitButton")
+        self.exit_button.setFixedSize(44, 44)
+        self.exit_button.setToolTip("Keluar dari WPOS PRO 2")
+        self.exit_button.clicked.connect(self.close)
+        topbar.addWidget(self.exit_button)
+        root.addLayout(topbar)
         root.addStretch(1)
 
         card = QFrame()
@@ -176,19 +190,19 @@ class LoginWindow(QDialog):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = self.rect()
-        gradient = QLinearGradient(QPointF(0, 0), QPointF(rect.width(), rect.height()))
-        gradient.setColorAt(0.0, QColor("#0b1220"))
-        gradient.setColorAt(0.55, QColor("#111c2e"))
-        gradient.setColorAt(1.0, QColor("#162a3d"))
-        painter.fillRect(rect, gradient)
-        glow = QRadialGradient(QPointF(rect.width() * 0.18, rect.height() * 0.18), max(rect.width(), rect.height()) * 0.55)
-        glow.setColorAt(0.0, QColor(70, 150, 220, 55))
-        glow.setColorAt(0.55, QColor(35, 100, 170, 20))
-        glow.setColorAt(1.0, QColor(0, 0, 0, 0))
-        painter.fillRect(rect, glow)
-        painter.setPen(QColor(255, 255, 255, 10))
-        painter.drawEllipse(QPointF(rect.width() * 0.86, rect.height() * 0.16), 95, 95)
-        painter.drawEllipse(QPointF(rect.width() * 0.08, rect.height() * 0.82), 70, 70)
+        if self._login_background_renderer is not None and self._login_background_renderer.isValid():
+            self._login_background_renderer.render(painter, rect)
+        else:
+            gradient = QLinearGradient(QPointF(0, 0), QPointF(rect.width(), rect.height()))
+            gradient.setColorAt(0.0, QColor("#0b1220"))
+            gradient.setColorAt(0.55, QColor("#111c2e"))
+            gradient.setColorAt(1.0, QColor("#162a3d"))
+            painter.fillRect(rect, gradient)
+            glow = QRadialGradient(QPointF(rect.width() * 0.18, rect.height() * 0.18), max(rect.width(), rect.height()) * 0.55)
+            glow.setColorAt(0.0, QColor(70, 150, 220, 55))
+            glow.setColorAt(0.55, QColor(35, 100, 170, 20))
+            glow.setColorAt(1.0, QColor(0, 0, 0, 0))
+            painter.fillRect(rect, glow)
         super().paintEvent(event)
 
     def toggle_password(self, visible):
