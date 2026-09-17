@@ -1,5 +1,13 @@
 # WPOS PRO 2 Changelog
 
+## 2.13.1 — Premium Login UI
+
+- Memperbarui halaman Login menjadi fullscreen, responsive, dan premium tanpa mengubah authentication flow atau business logic.
+- Menggunakan background PNG branding edge-to-edge dengan glass/translucent login card dan responsive positioning.
+- Menambahkan/menjaga kontrol Login, password toggle, tombol keluar, logo, dan footer dalam layout yang adaptif.
+- Mempertahankan jalur autentikasi, database session, forced password change, dan contract regression existing.
+- Menetapkan **2.13.1** sebagai PATCH release karena merupakan penyempurnaan presentation layer yang backward-compatible.
+
 ## 2.13.0 — Visible Premium UI Refresh
 
 - Mengganti responsive layer yang sebelumnya terlalu subtle dengan **Visible Premium UI Refresh** agar perubahan visual benar-benar terasa saat aplikasi dijalankan.
