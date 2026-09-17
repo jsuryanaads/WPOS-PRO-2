@@ -75,13 +75,17 @@ class LoginWindow(QDialog):
         self.setWindowTitle(f"{APP_NAME} - Login")
         self.setModal(True)
         self.setObjectName("loginWindow")
-        self.setWindowState(self.windowState() | Qt.WindowFullScreen)
-        self._login_background = resource_path("assets/branding/login_background.png")
-        self._login_background_pixmap = QPixmap(str(self._login_background)) if self._login_background.exists() else QPixmap()
+
+        # Qt may emit resizeEvent during setWindowState(). Initialize every
+        # attribute used by the responsive handler before entering fullscreen.
         self._login_card = None
         self._login_logo = None
         self._login_logo_pixmap = QPixmap()
         self._card_layout = None
+
+        self._login_background = resource_path("assets/branding/login_background.png")
+        self._login_background_pixmap = QPixmap(str(self._login_background)) if self._login_background.exists() else QPixmap()
+        self.setWindowState(self.windowState() | Qt.WindowFullScreen)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -202,21 +206,26 @@ class LoginWindow(QDialog):
         self.username.setFocus()
 
     def _apply_responsive_layout(self):
-        if self._login_card is None or self._card_layout is None:
+        card = getattr(self, "_login_card", None)
+        card_layout = getattr(self, "_card_layout", None)
+        logo = getattr(self, "_login_logo", None)
+        logo_pixmap = getattr(self, "_login_logo_pixmap", QPixmap())
+        if card is None or card_layout is None or logo is None:
             return
+
         width = max(1, self.width())
         height = max(1, self.height())
         scale = min(width / 1440.0, height / 900.0)
         card_width = int(max(360, min(560, width * 0.36)))
-        self._login_card.setFixedWidth(card_width)
+        card.setFixedWidth(card_width)
         horizontal = int(max(26, min(42, card_width * 0.075)))
         vertical = int(max(22, min(36, 34 * scale)))
-        self._card_layout.setContentsMargins(horizontal, vertical, horizontal, vertical)
-        self._card_layout.setSpacing(int(max(8, min(14, 12 * scale))))
+        card_layout.setContentsMargins(horizontal, vertical, horizontal, vertical)
+        card_layout.setSpacing(int(max(8, min(14, 12 * scale))))
         logo_size = int(max(76, min(108, 108 * scale)))
-        self._login_logo.setMinimumHeight(logo_size)
-        if not self._login_logo_pixmap.isNull():
-            self._login_logo.setPixmap(self._login_logo_pixmap.scaled(
+        logo.setMinimumHeight(logo_size)
+        if not logo_pixmap.isNull():
+            logo.setPixmap(logo_pixmap.scaled(
                 logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation
             ))
         control_height = int(max(44, min(52, 50 * scale)))
