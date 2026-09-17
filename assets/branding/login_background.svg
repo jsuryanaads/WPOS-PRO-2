@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" fill="none">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#06132D"/>
+    <stop offset="0.48" stop-color="#08265B"/>
+    <stop offset="1" stop-color="#03162F"/>
+  </linearGradient>
+  <radialGradient id="g1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(140 90) rotate(48) scale(470 390)">
+    <stop stop-color="#18BFFF" stop-opacity="0.42"/>
+    <stop offset="1" stop-color="#0876E8" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="g2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1260 280) rotate(150) scale(560 420)">
+    <stop stop-color="#168EFF" stop-opacity="0.30"/>
+    <stop offset="1" stop-color="#168EFF" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="wave" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#00B9FF" stop-opacity="0"/>
+    <stop offset="0.2" stop-color="#00B9FF" stop-opacity="0.8"/>
+    <stop offset="0.58" stop-color="#2387FF" stop-opacity="0.38"/>
+    <stop offset="1" stop-color="#2387FF" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="blur40" x="-100" y="-100" width="1640" height="1100" filterUnits="userSpaceOnUse">
+    <feGaussianBlur stdDeviation="40"/>
+  </filter>
+  <filter id="blur18" x="-100" y="-100" width="1640" height="1100" filterUnits="userSpaceOnUse">
+    <feGaussianBlur stdDeviation="18"/>
+  </filter>
+</defs>
+<rect width="1440" height="900" fill="url(#bg)"/>
+<rect width="1440" height="900" fill="url(#g1)"/>
+<rect width="1440" height="900" fill="url(#g2)"/>
+
+<!-- soft atmospheric shapes -->
+<circle cx="215" cy="40" r="170" stroke="#55D8FF" stroke-opacity="0.13" stroke-width="2"/>
+<circle cx="215" cy="40" r="250" stroke="#2E8DFF" stroke-opacity="0.08" stroke-width="2"/>
+<circle cx="1360" cy="90" r="230" fill="#0A55B5" fill-opacity="0.10"/>
+<circle cx="1360" cy="90" r="315" stroke="#38B8FF" stroke-opacity="0.08" stroke-width="2"/>
+
+<!-- right-side flowing light field -->
+<path d="M790 690C1030 620 1110 470 1210 310C1290 182 1370 145 1510 150" stroke="#159BFF" stroke-opacity="0.14" stroke-width="115" filter="url(#blur40)"/>
+<path d="M650 760C930 690 1080 540 1190 365C1275 230 1350 205 1510 220" stroke="url(#wave)" stroke-width="4"/>
+<path d="M610 800C900 720 1050 590 1180 420C1270 300 1360 270 1510 285" stroke="#20B8FF" stroke-opacity="0.28" stroke-width="2"/>
+<path d="M700 835C950 760 1080 655 1205 500C1290 395 1375 355 1510 365" stroke="#207FFF" stroke-opacity="0.20" stroke-width="2"/>
+
+<!-- bottom neon sweep -->
+<path d="M-80 800C180 690 410 720 620 820C820 915 1030 850 1180 790C1300 742 1390 760 1520 825" stroke="#00B9FF" stroke-opacity="0.18" stroke-width="38" filter="url(#blur18)"/>
+<path d="M-80 792C170 700 390 730 610 820C820 906 1030 852 1190 790C1320 740 1410 765 1520 825" stroke="url(#wave)" stroke-width="3"/>
+<path d="M-60 820C180 730 390 760 610 845C820 925 1030 875 1190 815C1320 765 1420 790 1520 845" stroke="#1A78FF" stroke-opacity="0.18" stroke-width="2"/>
+
+<!-- subtle grid dots, intentionally sparse -->
+<g fill="#A9E8FF" fill-opacity="0.11">
+  <circle cx="1030" cy="170" r="2"/><circle cx="1070" cy="170" r="2"/><circle cx="1110" cy="170" r="2"/><circle cx="1150" cy="170" r="2"/>
+  <circle cx="1030" cy="210" r="2"/><circle cx="1070" cy="210" r="2"/><circle cx="1110" cy="210" r="2"/><circle cx="1150" cy="210" r="2"/>
+  <circle cx="1030" cy="250" r="2"/><circle cx="1070" cy="250" r="2"/><circle cx="1110" cy="250" r="2"/><circle cx="1150" cy="250" r="2"/>
+</g>
+</svg>
