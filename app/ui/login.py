@@ -123,6 +123,15 @@ class LoginWindow(QDialog):
         card = QFrame()
         card.setObjectName("loginCard")
         card.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # Glass surface: translucent enough to reveal the blue artwork while
+        # retaining strong contrast for the interactive login controls.
+        card.setStyleSheet("""
+            QFrame#loginCard {
+                background: rgba(18, 39, 70, 188);
+                border: 1px solid rgba(135, 197, 255, 145);
+                border-radius: 20px;
+            }
+        """)
         self._login_card = card
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(32, 28, 32, 28)
