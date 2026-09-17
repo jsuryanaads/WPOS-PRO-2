@@ -2,7 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtGui import QIcon
 from .config import APP_NAME, APP_VERSION
-from .database import init_db
+from .database import init_db, SessionLocal
 from .ui.login import LoginWindow
 from .ui.modern_main_window import ModernMainWindow
 from .ui.main_window import MainWindow
@@ -30,6 +30,7 @@ from .ui.themes import THEMES, apply_theme, current_theme, set_theme
 from .services import printer as printer_service
 from .services.receipt_display import format_receipt_html_qty
 from .services.receipt_polish import add_html_top_safe_area, add_raw_top_safe_area
+from .services.settings import get_settings
 
 _original_receipt_html = printer_service.receipt_html
 _original_escpos_receipt_bytes = printer_service._escpos_receipt_bytes
@@ -57,22 +58,8 @@ def _safe_print_receipt(parent, sale, items):
 
 def _refresh_printer_controls(window):
     """Refresh printer lists in-place; never create a second Printer page."""
-    try:
-        settings = window._session().__enter__()
-        try:
-            current = window._session()
-            settings_data = window.__class__.__dict__.get("_unused", None)
-        finally:
-            settings.close()
-    except Exception:
-        settings_data = None
-
-    try:
-        from .services.settings import get_settings
-        with __import__("app.database", fromlist=["SessionLocal"]).SessionLocal() as session:
-            settings = get_settings(session)
-    except Exception:
-        settings = {}
+    with SessionLocal() as session:
+        settings = get_settings(session)
 
     for attr, key in (("printer_combo", "printer_name"), ("report_printer_combo", "report_printer_name")):
         combo = getattr(window, attr, None)
