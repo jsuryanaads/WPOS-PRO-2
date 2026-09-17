@@ -204,7 +204,7 @@ class LoginWindow(QDialog):
         card_layout.addWidget(self.login_button)
 
         center_row = QHBoxLayout()
-        center_row.setContentsMargins(0, 0, 0, 0)
+        center_row.setContentsMargins(0, 0, 0, 40)
         center_row.addStretch(1)
         center_row.addWidget(card, 0, Qt.AlignVCenter)
         center_row.addStretch(1)
