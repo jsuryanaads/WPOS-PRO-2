@@ -75,9 +75,10 @@ class LoginWindow(QDialog):
         self.setWindowTitle(f"{APP_NAME} - Login")
         self.setModal(True)
         self.setObjectName("loginWindow")
+        self.setWindowFlag(Qt.FramelessWindowHint, True)
 
-        # Qt may emit resizeEvent during setWindowState(). Initialize every
-        # attribute used by the responsive handler before entering fullscreen.
+        # Qt may emit resizeEvent during window-state changes. Initialize all
+        # attributes used by the responsive handler before showing fullscreen.
         self._login_card = None
         self._login_logo = None
         self._login_logo_pixmap = QPixmap()
@@ -85,7 +86,6 @@ class LoginWindow(QDialog):
 
         self._login_background = resource_path("assets/branding/login_background.png")
         self._login_background_pixmap = QPixmap(str(self._login_background)) if self._login_background.exists() else QPixmap()
-        self.setWindowState(self.windowState() | Qt.WindowFullScreen)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
