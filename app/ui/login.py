@@ -1,6 +1,5 @@
 from PySide6.QtCore import Qt, QPointF
 from PySide6.QtGui import QPixmap, QPainter, QLinearGradient, QColor, QRadialGradient
-from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QFrame, QSizePolicy
 from ..config import APP_NAME
 from ..database import SessionLocal
@@ -17,11 +16,9 @@ class ChangePasswordDialog(QDialog):
         self.setWindowTitle("Wajib Ganti Password")
         self.setFixedSize(430, 300)
         self.setModal(True)
-
         root = QVBoxLayout(self)
         root.setContentsMargins(28, 24, 28, 24)
         root.setSpacing(10)
-
         title = QLabel("Keamanan Akun Administrator")
         title.setObjectName("loginTitle")
         root.addWidget(title)
@@ -81,13 +78,12 @@ class LoginWindow(QDialog):
         self.setModal(True)
         self.setObjectName("loginWindow")
         self.setWindowState(self.windowState() | Qt.WindowFullScreen)
-        self._login_background = resource_path("assets/branding/login_background.svg")
-        self._login_background_renderer = QSvgRenderer(str(self._login_background)) if self._login_background.exists() else None
+        self._login_background = resource_path("assets/branding/login_background.png")
+        self._login_background_pixmap = QPixmap(str(self._login_background)) if self._login_background.exists() else QPixmap()
 
         root = QVBoxLayout(self)
         root.setContentsMargins(22, 16, 22, 12)
         root.setSpacing(0)
-
         topbar = QHBoxLayout()
         topbar.setContentsMargins(0, 0, 0, 0)
         topbar.addStretch(1)
@@ -126,7 +122,6 @@ class LoginWindow(QDialog):
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(38, 34, 38, 34)
         card_layout.setSpacing(12)
-
         logo = QLabel()
         logo.setAlignment(Qt.AlignCenter)
         logo.setMinimumHeight(96)
@@ -136,7 +131,6 @@ class LoginWindow(QDialog):
             if not pixmap.isNull():
                 logo.setPixmap(pixmap.scaled(108, 108, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         card_layout.addWidget(logo)
-
         title = QLabel(APP_NAME)
         title.setObjectName("loginTitle")
         title.setAlignment(Qt.AlignCenter)
@@ -154,7 +148,6 @@ class LoginWindow(QDialog):
         mode.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(mode)
         card_layout.addSpacing(8)
-
         user_label = QLabel("USERNAME")
         user_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(user_label)
@@ -164,7 +157,6 @@ class LoginWindow(QDialog):
         self.username.setMinimumHeight(50)
         self.username.returnPressed.connect(self.handle_login)
         card_layout.addWidget(self.username)
-
         password_label = QLabel("PASSWORD")
         password_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(password_label)
@@ -185,7 +177,6 @@ class LoginWindow(QDialog):
         self.show_password.toggled.connect(self.toggle_password)
         password_row.addWidget(self.show_password)
         card_layout.addLayout(password_row)
-
         card_layout.addSpacing(12)
         self.login_button = QPushButton("MASUK")
         self.login_button.setObjectName("loginPrimaryButton")
@@ -193,7 +184,6 @@ class LoginWindow(QDialog):
         self.login_button.setDefault(True)
         self.login_button.clicked.connect(self.handle_login)
         card_layout.addWidget(self.login_button)
-
         row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.addStretch(1)
@@ -206,10 +196,13 @@ class LoginWindow(QDialog):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
         rect = self.rect()
-        if self._login_background_renderer is not None and self._login_background_renderer.isValid():
-            self._login_background_renderer.render(painter, rect)
+        if not self._login_background_pixmap.isNull():
+            scaled = self._login_background_pixmap.scaled(rect.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+            x = (rect.width() - scaled.width()) // 2
+            y = (rect.height() - scaled.height()) // 2
+            painter.drawPixmap(x, y, scaled)
         else:
             gradient = QLinearGradient(QPointF(0, 0), QPointF(rect.width(), rect.height()))
             gradient.setColorAt(0.0, QColor("#0b1220"))
