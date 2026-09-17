@@ -55,6 +55,42 @@ def _safe_print_receipt(parent, sale, items):
         return False
 
 
+def _refresh_printer_controls(window):
+    """Refresh printer lists in-place; never create a second Printer page."""
+    try:
+        settings = window._session().__enter__()
+        try:
+            current = window._session()
+            settings_data = window.__class__.__dict__.get("_unused", None)
+        finally:
+            settings.close()
+    except Exception:
+        settings_data = None
+
+    try:
+        from .services.settings import get_settings
+        with __import__("app.database", fromlist=["SessionLocal"]).SessionLocal() as session:
+            settings = get_settings(session)
+    except Exception:
+        settings = {}
+
+    for attr, key in (("printer_combo", "printer_name"), ("report_printer_combo", "report_printer_name")):
+        combo = getattr(window, attr, None)
+        if combo is None:
+            continue
+        selected = settings.get(key, "")
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItem("Printer default / pilih saat cetak", "")
+        for name in printer_service.available_printers():
+            combo.addItem(name, name)
+        index = combo.findData(selected)
+        if index >= 0:
+            combo.setCurrentIndex(index)
+        combo.blockSignals(False)
+
+
+main_window_module.MainWindow.refresh_printer_page = _refresh_printer_controls
 printer_service.receipt_html = _receipt_html_with_integer_qty
 printer_service._escpos_receipt_bytes = _escpos_receipt_bytes_with_safe_area
 main_window_module.print_receipt = _safe_print_receipt
