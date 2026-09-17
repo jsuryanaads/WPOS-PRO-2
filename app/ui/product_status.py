@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QTableWidgetItem, QPushButton, QMessageBox
+from PySide6.QtWidgets import QTableWidgetItem, QPushButton, QMessageBox, QHBoxLayout
 
 from ..database import SessionLocal
 from ..models import Product
@@ -21,8 +21,7 @@ def _load_products_with_status(original, window):
         for row, product in enumerate(rows):
             if row >= table.rowCount():
                 break
-            status = "AKTIF" if product.active else "NONAKTIF"
-            table.setItem(row, 8, QTableWidgetItem(status))
+            table.setItem(row, 8, QTableWidgetItem("AKTIF" if product.active else "NONAKTIF"))
 
 
 def _activate_selected(window):
@@ -57,22 +56,15 @@ def apply_product_status_patch(MainWindow):
                     "ID", "Barcode", "Nama", "Kategori", "Satuan",
                     "Beli", "Jual", "Stok", "Status"
                 ])
+            actions = QHBoxLayout()
             activate = QPushButton("Aktifkan")
             activate.setToolTip("Aktifkan kembali produk yang berstatus nonaktif")
             activate.clicked.connect(lambda: _activate_selected(window))
-            # Insert the action next to the existing product controls.
-            controls = table.parentWidget()
-            while controls is not None and not hasattr(controls, "layout"):
-                controls = controls.parentWidget()
-            if controls is not None:
-                layout = controls.layout()
-                if layout is not None:
-                    for i in range(layout.count()):
-                        item = layout.itemAt(i)
-                        child = item.widget() if item else None
-                        if child is not None and child.text() == "Nonaktifkan":
-                            layout.insertWidget(i + 1, activate)
-                            break
+            actions.addWidget(activate)
+            actions.addStretch()
+            page_layout = widget.layout()
+            if page_layout is not None:
+                page_layout.insertLayout(3, actions)
         load_products(window)
         return widget
 
