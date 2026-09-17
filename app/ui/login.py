@@ -1,5 +1,5 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt, QPointF
+from PySide6.QtGui import QPixmap, QPainter, QLinearGradient, QColor, QRadialGradient
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QFrame, QSizePolicy
 from ..config import APP_NAME
 from ..database import SessionLocal
@@ -81,19 +81,24 @@ class LoginWindow(QDialog):
         super().__init__()
         self.on_success = on_success
         self.setWindowTitle(f"{APP_NAME} - Login")
-        self.setFixedSize(430, 590)
+        self.setMinimumSize(400, 600)
+        self.resize(520, 700)
         self.setModal(True)
         self.setObjectName("loginWindow")
+
         root = QVBoxLayout(self)
-        root.setContentsMargins(32, 24, 32, 22)
+        root.setContentsMargins(24, 20, 24, 18)
         root.setSpacing(0)
         root.addStretch(1)
+
         card = QFrame()
         card.setObjectName("loginCard")
         card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        card.setMaximumWidth(500)
         card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(30, 24, 30, 24)
+        card_layout.setContentsMargins(32, 28, 32, 28)
         card_layout.setSpacing(10)
+
         logo = QLabel()
         logo.setAlignment(Qt.AlignCenter)
         logo.setMinimumHeight(82)
@@ -101,65 +106,100 @@ class LoginWindow(QDialog):
         if LOGO_PATH.exists():
             pixmap = QPixmap(str(LOGO_PATH))
             if not pixmap.isNull():
-                logo.setPixmap(pixmap.scaled(92, 92, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                logo.setPixmap(pixmap.scaled(96, 96, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         card_layout.addWidget(logo)
+
         title = QLabel(APP_NAME)
         title.setObjectName("loginTitle")
         title.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(title)
+
         subtitle = QLabel("Point of Sale")
         subtitle.setObjectName("loginSubtitle")
         subtitle.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(subtitle)
+
         welcome = QLabel("Silakan masuk untuk melanjutkan")
         welcome.setObjectName("loginWelcome")
         welcome.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(welcome)
-        mode = QLabel("Offline  •  Database Lokal")
+
+        mode = QLabel("●  Offline  •  Database Lokal")
         mode.setObjectName("loginMode")
         mode.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(mode)
-        card_layout.addSpacing(6)
+        card_layout.addSpacing(8)
+
         user_label = QLabel("USERNAME")
         user_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(user_label)
         self.username = QLineEdit()
         self.username.setObjectName("loginInput")
         self.username.setPlaceholderText("👤  Masukkan username")
-        self.username.setMinimumHeight(44)
+        self.username.setMinimumHeight(46)
         self.username.returnPressed.connect(self.handle_login)
         card_layout.addWidget(self.username)
+
         password_label = QLabel("PASSWORD")
         password_label.setObjectName("loginFieldLabel")
         card_layout.addWidget(password_label)
         password_row = QHBoxLayout()
-        password_row.setSpacing(6)
+        password_row.setSpacing(8)
         self.password = QLineEdit()
         self.password.setObjectName("loginInput")
         self.password.setPlaceholderText("🔒  Masukkan password")
         self.password.setEchoMode(QLineEdit.Password)
-        self.password.setMinimumHeight(44)
+        self.password.setMinimumHeight(46)
         self.password.returnPressed.connect(self.handle_login)
         password_row.addWidget(self.password, 1)
         self.show_password = QPushButton("Lihat")
         self.show_password.setObjectName("loginSecondaryButton")
         self.show_password.setCheckable(True)
-        self.show_password.setMinimumHeight(44)
+        self.show_password.setMinimumHeight(46)
         self.show_password.setToolTip("Tampilkan / sembunyikan password")
         self.show_password.toggled.connect(self.toggle_password)
         password_row.addWidget(self.show_password)
         card_layout.addLayout(password_row)
-        card_layout.addSpacing(8)
+
+        card_layout.addSpacing(10)
         self.login_button = QPushButton("MASUK")
         self.login_button.setObjectName("loginPrimaryButton")
-        self.login_button.setMinimumHeight(46)
+        self.login_button.setMinimumHeight(50)
         self.login_button.setDefault(True)
         self.login_button.clicked.connect(self.handle_login)
         card_layout.addWidget(self.login_button)
-        root.addWidget(card)
+
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.addStretch(1)
+        row.addWidget(card)
+        row.addStretch(1)
+        root.addLayout(row)
         root.addStretch(1)
         add_application_footer(self)
         self.username.setFocus()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        rect = self.rect()
+
+        gradient = QLinearGradient(QPointF(0, 0), QPointF(rect.width(), rect.height()))
+        gradient.setColorAt(0.0, QColor("#0b1220"))
+        gradient.setColorAt(0.55, QColor("#111c2e"))
+        gradient.setColorAt(1.0, QColor("#162a3d"))
+        painter.fillRect(rect, gradient)
+
+        glow = QRadialGradient(QPointF(rect.width() * 0.18, rect.height() * 0.18), max(rect.width(), rect.height()) * 0.55)
+        glow.setColorAt(0.0, QColor(70, 150, 220, 55))
+        glow.setColorAt(0.55, QColor(35, 100, 170, 20))
+        glow.setColorAt(1.0, QColor(0, 0, 0, 0))
+        painter.fillRect(rect, glow)
+
+        painter.setPen(QColor(255, 255, 255, 10))
+        painter.drawEllipse(QPointF(rect.width() * 0.86, rect.height() * 0.16), 95, 95)
+        painter.drawEllipse(QPointF(rect.width() * 0.08, rect.height() * 0.82), 70, 70)
+        super().paintEvent(event)
 
     def toggle_password(self, visible):
         self.password.setEchoMode(QLineEdit.Normal if visible else QLineEdit.Password)
