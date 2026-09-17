@@ -19,10 +19,17 @@ jobs:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
 
     steps:
+      - name: Verify GitHub token permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN"
+          echo "GITHUB_TOKEN configured for release publishing"
+
       - name: Resolve latest successful installer
         id: resolve
         shell: bash
@@ -40,9 +47,6 @@ jobs:
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
           echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Installer run: $RUN_ID"
-          echo "Artifact: $ARTIFACT_NAME"
-          echo "Version: $VERSION"
 
       - name: Download existing installer artifact
         env:
@@ -84,11 +88,7 @@ jobs:
         run: |
           set -euo pipefail
           TAG="V$VERSION"
-          gh release upload "$TAG" \
-            "release-assets/WPOS_PRO_2_${VERSION}.exe" \
-            "release-assets/WPOS_PRO_2_Setup_${VERSION}.exe" \
-            "release-assets/SHA256SUMS.txt" \
-            --repo "$REPO" --clobber
+          gh release upload "$TAG" "release-assets/WPOS_PRO_2_${VERSION}.exe" "release-assets/WPOS_PRO_2_Setup_${VERSION}.exe" "release-assets/SHA256SUMS.txt" --repo "$REPO" --clobber
 
       - name: Publish release
         env:
