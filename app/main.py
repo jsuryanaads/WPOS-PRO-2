@@ -14,6 +14,7 @@ from .ui.purchase_multi import (
     clear_purchase_items as multi_item_clear_purchase_items,
     save_purchase as multi_item_save_purchase,
 )
+from .ui.product_status import apply_product_status_patch
 from .ui.user_management import UserManagementDialog
 from .ui.branding import ICON_PATH
 from .ui.global_ui import add_application_footer, apply_global_ui
@@ -81,6 +82,7 @@ main_window_module.MainWindow.refresh_printer_page = _refresh_printer_controls
 printer_service.receipt_html = _receipt_html_with_integer_qty
 printer_service._escpos_receipt_bytes = _escpos_receipt_bytes_with_safe_area
 main_window_module.print_receipt = _safe_print_receipt
+apply_product_status_patch(MainWindow)
 
 MainWindow.purchase_page = multi_item_purchase_page
 MainWindow.load_purchase_options = multi_item_load_purchase_options
