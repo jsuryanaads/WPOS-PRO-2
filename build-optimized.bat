@@ -73,9 +73,7 @@ if "%BUILD_MODE%"=="dev" (
 REM ========== STAGE 3: Tests (parallel for ci/release) ==========
 echo [3/6] Running regression tests...
 
-if not exist "pytest" (
-  python -m pip install pytest-xdist -q >nul 2>&1
-)
+python -m pip install pytest-xdist -q >nul 2>&1
 
 set "PYTHONPATH=."
 set "QT_QPA_PLATFORM=offscreen"
@@ -100,10 +98,10 @@ set "PYINSTALLER_FLAGS=--noconfirm --windowed --icon "assets\branding\wpos_icon.
 set "PYINSTALLER_DATA=--add-data "assets\branding\wpos_logo.png;assets\branding" --add-data "assets\branding\wpos_icon.ico;assets\branding""
 
 if "%BUILD_MODE%"=="release" (
-  python -m PyInstaller --clean %PYINSTALLER_FLAGS% %PYINSTALLER_DATA%
+  python -m PyInstaller --clean %PYINSTALLER_FLAGS% %PYINSTALLER_DATA% run.py
 ) else (
-  REM Skip --clean for dev/ci to reuse cache
-  python -m PyInstaller %PYINSTALLER_FLAGS% %PYINSTALLER_DATA%
+  REM Keep the build invocation lightweight for dev/ci
+  python -m PyInstaller %PYINSTALLER_FLAGS% %PYINSTALLER_DATA% run.py
 )
 
 if errorlevel 1 goto :fail_pyinstaller
